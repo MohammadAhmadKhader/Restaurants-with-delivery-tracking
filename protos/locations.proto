@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package locations;
+
+option csharp_namespace = "FoodDelivery.Protos.Locations";
+
+import "google/protobuf/timestamp.proto";
+
+message CurrentLocation {
+    string delivery_agent_id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    google.protobuf.Timestamp updated_at = 4;
+}
+
+message LocationHistory {
+    string id = 1;
+    string delivery_agent_id = 2;
+    double latitude = 3;
+    double longitude = 4;
+    google.protobuf.Timestamp timestamp = 5;
+}

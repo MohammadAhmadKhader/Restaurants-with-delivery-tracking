@@ -1,0 +1,1 @@
+protos here will be used only to create a common types for the dto's and any types that are required to be shared, this is initially set as it is right not to ensure functionality but certainly will be changed.
