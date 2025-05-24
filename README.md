@@ -9,7 +9,7 @@ SaaS application designed to help restaurants manage customers orders and monito
 - Payments: manages the customers payments.
 - Restaurants: manages the restaurants, menu's and menu items.
 - Reviews: manages the restaurants reviews and menu items reviews.
-- Shared: this is a ClassLibrary meant to have shared common logic across all the microservices.
+- Shared: this is a ClassLibrary meant to have shared logic across multiple microservices.
 
 ## Folder Structure
 ```
@@ -18,6 +18,7 @@ Service/
 ├── Dtos/
 ├── Endpoints/ # Minimal API endpoints
 ├── Models/ # Service entities
+├── Mirgations/
 ├── Properties/
 ├── Repositories/
 └── Services/

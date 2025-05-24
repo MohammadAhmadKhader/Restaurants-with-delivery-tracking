@@ -1,0 +1,28 @@
+{
+    "users":[
+        {
+            "firstName":"john",
+            "lastName":"doe",
+            "email":"superAdmin@gmail.com",
+            "emailConfirmed":true,
+            "password":"123456aB@"
+        }
+    ],
+    "roles":[
+        {
+            "name":"User",
+            "displayName":"Customer"
+        },
+        {
+            "name":"Admin",
+            "displayName":"Admin"
+        },
+        {
+            "name":"SuperAdmin",
+            "displayName":"Owner"
+        }
+    ],
+    "permissions":[
+
+    ]
+}

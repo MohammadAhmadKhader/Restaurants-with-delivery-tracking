@@ -11,9 +11,9 @@
                     "Port": 5284
                 }
             ],
-            "UpstreamHttpMethod": ["Get"],
-            "UpstreamPathTemplate": "/api/v1/auth/{everything}",
-            "DownstreamPathTemplate": "/api/v1/auth/{everything}",
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH"],
+            "UpstreamPathTemplate": "/api/auth/{everything}",
+            "DownstreamPathTemplate": "/api/auth/{everything}",
             "DownstreamScheme": "http"
         }
     ]

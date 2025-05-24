@@ -15,9 +15,11 @@
         <!-- * Gateway -->
         <PackageVersion Include="Ocelot" Version="24.0.0" />
 
-        <!-- * Auth -->
+        <!-- * Auth and security -->
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.4" />
+        <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
+        <PackageVersion Include="DotNetEnv" Version="3.1.1" />
 
         <!-- * Database related -->
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
@@ -35,9 +37,11 @@
         <!-- * Others -->
         <PackageVersion Include="Serilog.AspNetCore" Version="8.0.0" />
         <PackageVersion Include="FluentValidation" Version="11.9.2" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
+        <PackageVersion Include="StackExchange.Redis" Version="2.8.37" />
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup>    
         <PackageReference Include="Google.Protobuf" PrivateAssets="All" />
         <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
     </ItemGroup>
