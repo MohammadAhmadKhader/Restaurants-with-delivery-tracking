@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using Auth.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,8 +48,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         modelBuilder.Entity<User>().ToTable("Users");
 
         modelBuilder.Entity<User>()
-        .HasMany(u => u.Roles)
-        .WithMany(r => r.Users);
+            .HasMany(u => u.Roles)
+            .WithMany(r => r.Users)
+            .UsingEntity<IdentityUserRole<Guid>>(
+                l => l.HasOne<Role>().WithMany().HasForeignKey(ur => ur.RoleId),
+                r => r.HasOne<User>().WithMany().HasForeignKey(ur => ur.UserId),
+                ur =>
+                {
+                    ur.HasKey(x => new { x.UserId, x.RoleId });
+                    ur.ToTable("UserRoles");
+                }
+            );
+
+        modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims");
+        modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
+        modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
+        modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
 
         modelBuilder.Entity<Role>()
         .HasMany(u => u.Permissions)

@@ -1,14 +1,12 @@
 using Auth.Dtos;
 using Auth.Services.IServices;
-using Auth.Extensions.Mappers;
 using Microsoft.AspNetCore.Identity;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
-using Microsoft.AspNetCore.DataProtection.Repositories;
 
 namespace Auth.Services;
 
-class AuthService(UserManager<User> userManager, SignInManager<User> signInManager,
+public class AuthService(UserManager<User> userManager, SignInManager<User> signInManager,
  IUsersService usersService, IUnitOfWork unitOfWork, ITokenService tokenService) : IAuthService
 {
     public async Task<(User, TokenResponse)> Login(LoginDto dto)
@@ -46,7 +44,7 @@ class AuthService(UserManager<User> userManager, SignInManager<User> signInManag
             UserName = dto.Email,
         };
 
-        using var tx = await unitOfWork.BeginTransactionAsync();
+        await using var tx = await unitOfWork.BeginTransactionAsync();
         var userResult = await userManager.CreateAsync(user, dto.Password);
         if (!userResult.Succeeded)
         {
@@ -55,7 +53,7 @@ class AuthService(UserManager<User> userManager, SignInManager<User> signInManag
             throw new InvalidOperationException($"User creation failed: {errors}");
         }
 
-        var defaultRoleName = "User";
+        const string defaultRoleName = "User";
         var roleResult = await userManager.AddToRoleAsync(user, defaultRoleName);
         if (!roleResult.Succeeded)
         {
@@ -63,6 +61,7 @@ class AuthService(UserManager<User> userManager, SignInManager<User> signInManag
             var errors = FormatIdentityErrors(roleResult.Errors);
             throw new InvalidOperationException($"Adding role failed: {errors}");
         }
+        
 
         var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email, [defaultRoleName], []);
         await unitOfWork.CommitTransactionAsync(tx);

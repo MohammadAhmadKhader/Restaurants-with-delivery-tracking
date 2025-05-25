@@ -3,6 +3,7 @@ using Auth.Dtos;
 using Auth.Repositories.IRepositories;
 using StackExchange.Redis;
 
+namespace Auth.Services;
 public class RedisService : IRedisService
 {
     private readonly IDatabase _redisDb;

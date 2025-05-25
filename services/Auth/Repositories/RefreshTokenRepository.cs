@@ -4,6 +4,7 @@ using Auth.Repositories.IRepositories;
 using StackExchange.Redis;
 using IDatabase = StackExchange.Redis.IDatabase;
 
+namespace Auth.Repositories;
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
     private readonly IDatabase _redisDb;

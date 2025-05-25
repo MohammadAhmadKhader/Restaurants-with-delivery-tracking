@@ -70,6 +70,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Information)
     .WriteTo.Console(
         theme: AnsiConsoleTheme.Sixteen,
         applyThemeToRedirectedOutput: true
@@ -87,12 +88,12 @@ builder.Services.AddIdentityCore<User>(options =>
     options.Password.RequireNonAlphanumeric = false;
 })
 .AddRoles<Role>()
+.AddRoleManager<RoleManager<Role>>()
+.AddSignInManager<SignInManager<User>>()
+.AddUserManager<UserManager<User>>()
 .AddDefaultTokenProviders()
 .AddEntityFrameworkStores<AppDbContext>();
 
-builder.Services.AddScoped<UserManager<User>>();
-builder.Services.AddScoped<SignInManager<User>>();
-builder.Services.AddScoped<RoleManager<Role>>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
