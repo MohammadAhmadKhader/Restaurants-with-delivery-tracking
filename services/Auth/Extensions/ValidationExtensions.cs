@@ -1,8 +1,10 @@
 using Auth.Dtos;
-using Auth.Extensions.FluentValidation.Validators;
+using Auth.Dtos.Auth;
+using Auth.Dtos.User;
+using Auth.Extensions.FluentValidationValidators;
 using FluentValidation;
 
-namespace Auth.Extensions.FluentValidation;
+namespace Auth.Extensions;
 
 public static class ValidationExtensions
 {
@@ -10,6 +12,7 @@ public static class ValidationExtensions
     {
         services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
         services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
+        services.AddScoped<IValidator<UsersFilterParams>, UserFilterParamsValidator>();
         return services;
     }
 }

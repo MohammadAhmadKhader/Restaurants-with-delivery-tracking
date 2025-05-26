@@ -14,12 +14,16 @@ SaaS application designed to help restaurants manage customers orders and monito
 ## Folder Structure
 ```
 Service/
+├── Config/ # Any configs, usually they are taken from appsettings.json
 ├── Data/ # EF Core DbContext, migrations, seed data
 ├── Dtos/
 ├── Endpoints/ # Minimal API endpoints
+├── Mappers/ # Manual Mappers using extensions
 ├── Models/ # Service entities
 ├── Mirgations/
 ├── Properties/
 ├── Repositories/
-└── Services/
+├── Services/
+├── Services/
+└── Utils/ # in case its needed we can have utilities here
 ```

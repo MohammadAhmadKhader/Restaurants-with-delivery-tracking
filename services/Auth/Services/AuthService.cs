@@ -1,8 +1,8 @@
-using Auth.Dtos;
 using Auth.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
+using Auth.Dtos.Auth;
 
 namespace Auth.Services;
 
@@ -23,7 +23,8 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email, null, null);
+        var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email,
+         [.. user.Roles.Select(r => r.Name)!], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)!]);
 
         return (user, tokenResponse);
     }

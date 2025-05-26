@@ -1,9 +1,9 @@
-using Auth.Dtos;
 using Auth.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Filters;
-using Auth.Extensions.Mappers;
+using Auth.Mappers;
 using System.Security.Claims;
+using Auth.Dtos.Auth;
 
 namespace Auth.Endpoints;
 public static class AuthEndpoints
@@ -38,10 +38,22 @@ public static class AuthEndpoints
             return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
         }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
 
-        group.MapPost("/refresh", async () =>
+        group.MapPost("/refresh", async ([FromBody] RefreshRequest req, ITokenService tokenService) =>
         {
+            var refToken = req.RefreshToken;
+            if (refToken == null || string.IsNullOrEmpty(refToken))
+            {
+                return Results.BadRequest(new { error = "Missing refresh-token" });
+            }
 
-            return Results.Ok(new {});
+            var tokens = await tokenService.RefreshTokenAsync(refToken);
+            var resBody = new Dictionary<string, object>
+            {
+                {"access-token", tokens.AccessToken },
+                {"refresh-token", tokens.RefreshToken }
+            };
+
+            return Results.Ok(resBody);
         });
 
         group.MapGet("/user", async (HttpContext http, IUsersService usersService, ILogger<Program> logger) =>

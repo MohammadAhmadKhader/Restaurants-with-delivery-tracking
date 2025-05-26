@@ -1,7 +1,8 @@
 using Auth.Dtos;
+using Auth.Dtos.Permission;
 using Auth.Models;
 
-namespace Auth.Extensions.Mappers;
+namespace Auth.Mappers;
 
 public static class PermissionMappers
 {

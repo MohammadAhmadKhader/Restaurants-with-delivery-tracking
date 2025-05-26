@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Auth.Dtos;
-using Auth.Repositories.IRepositories;
+using Auth.Services.IServices;
 using StackExchange.Redis;
 
 namespace Auth.Services;

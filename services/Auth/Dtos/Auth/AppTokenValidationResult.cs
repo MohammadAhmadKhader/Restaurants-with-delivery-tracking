@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Auth.Dtos;
+namespace Auth.Dtos.Auth;
 public class AppTokenValidationResult
 {
     public bool IsValid { get; set; }

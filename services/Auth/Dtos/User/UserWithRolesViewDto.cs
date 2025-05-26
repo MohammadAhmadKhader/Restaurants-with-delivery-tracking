@@ -1,6 +1,8 @@
-namespace Auth.Dtos;
+using Auth.Dtos.Role;
 
-public class UserViewDto
+namespace Auth.Dtos.User;
+
+public class UserWithRolesDto
 {
     public Guid Id { get; set; }
     public string? Email { get; set; }
@@ -8,4 +10,5 @@ public class UserViewDto
     public string? LastName { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public IList<RoleViewDto> Roles { get; set; } = [];
 }

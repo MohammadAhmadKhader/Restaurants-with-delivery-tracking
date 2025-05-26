@@ -1,4 +1,4 @@
-namespace Auth.Dtos;
+namespace Auth.Config;
 
 public class JwtSettings
 {

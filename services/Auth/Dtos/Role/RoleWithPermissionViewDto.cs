@@ -1,4 +1,6 @@
-namespace Auth.Dtos;
+using Auth.Dtos.Permission;
+
+namespace Auth.Dtos.Role;
 
 public class RoleWithPermissionViewDto
 {

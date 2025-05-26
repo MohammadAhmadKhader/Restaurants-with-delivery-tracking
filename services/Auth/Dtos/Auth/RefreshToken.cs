@@ -1,5 +1,4 @@
-namespace Auth.Dtos;
-
+namespace Auth.Dtos.Auth;
 public class RefreshToken
 {
     public string Token { get; set; } = default!;

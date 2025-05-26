@@ -21,7 +21,7 @@ help:
 # * ———————————————————————————— Migration commands ————————————————————————————
 define EF_RULES
 $(1)-ef-list:
-	@dotnet ef migrations list --project services/$(1)/$(1).csproj --startup-project services/$(1)
+	@dotnet ef migrations list --json --project services/$(1)/$(1).csproj --startup-project services/$(1)
 
 $(1)-ef-add:
 	@if [ -z "$(name)" ]; then \

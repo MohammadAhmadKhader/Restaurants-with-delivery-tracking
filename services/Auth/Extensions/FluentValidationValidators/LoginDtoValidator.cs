@@ -1,7 +1,8 @@
 using Auth.Dtos;
+using Auth.Dtos.Auth;
 using FluentValidation;
 
-namespace Auth.Extensions.FluentValidation.Validators;
+namespace Auth.Extensions.FluentValidationValidators;
 
 class LoginDtoValidator : AbstractValidator<LoginDto>
 {

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Auth.Config;
 using Auth.Dtos;
 using Microsoft.IdentityModel.Tokens;
 

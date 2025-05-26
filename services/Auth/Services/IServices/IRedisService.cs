@@ -1,7 +1,6 @@
 using Auth.Dtos;
 
-namespace Auth.Repositories.IRepositories;
-
+namespace Auth.Services.IServices;
 public interface IRedisService
 {
     Task SetStringAsync(string key, string value);

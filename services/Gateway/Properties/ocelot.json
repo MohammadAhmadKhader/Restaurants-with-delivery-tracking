@@ -15,6 +15,18 @@
             "UpstreamPathTemplate": "/api/auth/{everything}",
             "DownstreamPathTemplate": "/api/auth/{everything}",
             "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5284
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH"],
+            "UpstreamPathTemplate": "/api/users/{everything}",
+            "DownstreamPathTemplate": "/api/users/{everything}",
+            "DownstreamScheme": "http"
         }
     ]
 }

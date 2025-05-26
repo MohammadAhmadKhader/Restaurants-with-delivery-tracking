@@ -31,12 +31,6 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
         _dbSet.Remove(model);
         return true;
     }
-
-    public async Task<(IEnumerable<TModel>, int count)> GetAll(int Page, int Limit, string[]? IncludedProperty = null)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<TModel?> GetById(TPrimaryKey id)
     {
         return await _dbSet.FindAsync(id);

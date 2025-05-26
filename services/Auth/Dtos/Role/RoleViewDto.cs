@@ -1,8 +1,8 @@
-namespace Auth.Dtos;
+namespace Auth.Dtos.Role;
 
-public class PermissionViewDto
+public class RoleViewDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string? Name { get; set; }
     public string? DisplayName { get; set; }
 }

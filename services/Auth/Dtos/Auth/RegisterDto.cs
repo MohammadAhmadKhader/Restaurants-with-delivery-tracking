@@ -1,4 +1,4 @@
-namespace Auth.Dtos;
+namespace Auth.Dtos.Auth;
 
 public class RegisterDto(string firstName, string lastName, string email, string password)
 {

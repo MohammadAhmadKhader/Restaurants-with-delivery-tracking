@@ -45,7 +45,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         });
 
         modelBuilder.Entity<Role>().ToTable("Roles");
-        modelBuilder.Entity<User>().ToTable("Users");
+        modelBuilder.Entity<User>().ToTable("Users")
+        .HasQueryFilter(u => !u.IsDeleted);
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Roles)

@@ -1,9 +1,7 @@
-using Auth.Models;
 using Auth.Services;
 using Auth.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Auth.Extensions.FluentValidation;
 using Auth.Endpoints;
 using Auth.Repositories.IRepositories;
 using Auth.Repositories;
@@ -14,13 +12,14 @@ using Auth.Extensions;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json;
 using Shared.Middlewares;
-using Auth.Dtos;
 using Auth.Utils;
-using Role = Auth.Models.Role;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using DotNetEnv;
+using Auth.Config;
 
+using User = Auth.Models.User;
+using Role = Auth.Models.Role;
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 

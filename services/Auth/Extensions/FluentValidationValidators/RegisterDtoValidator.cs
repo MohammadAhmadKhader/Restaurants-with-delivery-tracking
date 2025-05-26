@@ -1,13 +1,14 @@
 using Auth.Dtos;
+using Auth.Dtos.Auth;
 using FluentValidation;
 
-namespace Auth.Extensions.FluentValidation.Validators;
+namespace Auth.Extensions.FluentValidationValidators;
 
 class RegisterDtoValidator: AbstractValidator<RegisterDto>
 {
     public RegisterDtoValidator()
     {
-         RuleFor(x => x.FirstName)
+        RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.")
             .Length(3, 36).WithMessage("First name must be between 3 and 36 characters.");
             
