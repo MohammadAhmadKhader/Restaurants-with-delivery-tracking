@@ -6,6 +6,69 @@
             "email":"superAdmin@gmail.com",
             "emailConfirmed":true,
             "password":"123456aB@"
+        },
+        {
+          "firstName": "alice",
+          "lastName": "smith",
+          "email": "alice.smith@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "bob",
+          "lastName": "johnson",
+          "email": "bob.johnson@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "carol",
+          "lastName": "williams",
+          "email": "carol.williams@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "david",
+          "lastName": "brown",
+          "email": "david.brown@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "emma",
+          "lastName": "jones",
+          "email": "emma.jones@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "frank",
+          "lastName": "garcia",
+          "email": "frank.garcia@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "grace",
+          "lastName": "miller",
+          "email": "grace.miller@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "henry",
+          "lastName": "davis",
+          "email": "henry.davis@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
+        },
+        {
+          "firstName": "irene",
+          "lastName": "martinez",
+          "email": "irene.martinez@gmail.com",
+          "emailConfirmed": true,
+          "password": "123456aB@"
         }
     ],
     "roles":[

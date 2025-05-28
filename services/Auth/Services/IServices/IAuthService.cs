@@ -7,4 +7,5 @@ public interface IAuthService
 {
     Task<(User user, TokenResponse tokenData)> Register(RegisterDto dto);
     Task<(User user, TokenResponse tokenData)> Login(LoginDto dto);
+    Task<(bool isSuccess, string? error)> ChangePassword(Guid userId, ResetPasswordDto dto);
 }

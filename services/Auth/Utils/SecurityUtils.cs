@@ -1,7 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Auth.Config;
-using Auth.Dtos;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Utils;
@@ -33,5 +32,22 @@ static class SecurityUtils
     private static SymmetricSecurityKey CreateSecretKey(string secretKey)
     {
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+    }
+
+    public static Guid ExtractUserId(ClaimsPrincipal principal)
+    {
+        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null)
+        {
+            return Guid.Empty;
+        }
+
+        var isSuccess = Guid.TryParse(userIdClaim.Value, out var userId);
+        if (!isSuccess)
+        {
+            return Guid.Empty;
+        }
+
+        return userId;
     }
 }

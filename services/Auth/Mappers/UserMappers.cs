@@ -51,4 +51,17 @@ public static class UserMappers
 
         return dto;
     }
+
+    public static void PatchModel(this UserUpdateProfile dto, User user)
+    {
+        if (dto.FirstName != null)
+        {
+            user.FirstName = dto.FirstName;
+        }
+
+        if (dto.LastName != null)
+        {
+            user.LastName = dto.LastName;
+        }
+    }
 }

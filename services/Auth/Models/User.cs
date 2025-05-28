@@ -3,16 +3,19 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Models;
-public class User: IdentityUser<Guid>
+
+public enum DefaultUserRoles { User, Admin, SuperAdmin }
+public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
+public class User : IdentityUser<Guid>
 {
-    public string FirstName { get; set; } = default!;
-    public string LastName { get; set; } = default!;
+    public string? FirstName { get; set; } = default!;
+    public string? LastName { get; set; } = default!;
 
     [EmailAddress]
-    public override string Email { get; set; } = default!;
+    public override string? Email { get; set; } = default!;
     // just in case
     [JsonIgnore]
-    public override string PasswordHash { get; set; } = default!;
+    public override string? PasswordHash { get; set; } = default!;
 
     [Required]
     public bool IsDeleted { get; set; }

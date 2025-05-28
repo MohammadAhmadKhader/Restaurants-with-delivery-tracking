@@ -37,6 +37,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                         ""UserName""            IS NULL AND
                         ""NormalizedUserName""  IS NULL AND
                         ""NormalizedEmail""     IS NULL AND
+                        ""PhoneNumber""         IS NULL AND
                         ""PasswordHash""        IS NULL AND
                         ""FirstName""           IS NULL AND
                         ""LastName""            IS NULL

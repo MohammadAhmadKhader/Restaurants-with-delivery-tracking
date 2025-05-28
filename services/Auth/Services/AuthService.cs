@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Dtos.Auth;
+using Sprache;
+using Auth.Extensions;
 
 namespace Auth.Services;
 
 public class AuthService(UserManager<User> userManager, SignInManager<User> signInManager,
- IUsersService usersService, IUnitOfWork unitOfWork, ITokenService tokenService) : IAuthService
+ IUsersService usersService, IUnitOfWork unitOfWork, ITokenService tokenService, IPasswordHasher<User> bcrypt) : IAuthService
 {
     public async Task<(User, TokenResponse)> Login(LoginDto dto)
     {
@@ -23,7 +25,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email,
+        var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email!,
          [.. user.Roles.Select(r => r.Name)!], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)!]);
 
         return (user, tokenResponse);
@@ -73,5 +75,24 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
     private static string FormatIdentityErrors(IEnumerable<IdentityError> errors)
     {
         return string.Join(", ", errors.Select(e => e.Description));
+    }
+
+    public async Task<(bool isSuccess, string? error)> ChangePassword(Guid userId, ResetPasswordDto dto)
+    {
+        var user = await usersService.FindById(userId);
+        if (user == null)
+        {
+            return (false, "User was not found");
+        }
+        
+        var result = bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword);
+        if (result == PasswordVerificationResult.Failed) {
+            return (false, "Old password is incorrect");
+        }
+
+        user.PasswordHash = bcrypt.HashPassword(user, dto.NewPassword);
+        await unitOfWork.SaveChangesAsync();
+
+        return (true, null);
     }
 }

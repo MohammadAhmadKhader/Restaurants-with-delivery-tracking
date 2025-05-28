@@ -23,7 +23,7 @@
                     "Port": 5284
                 }
             ],
-            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH"],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
             "UpstreamPathTemplate": "/api/users/{everything}",
             "DownstreamPathTemplate": "/api/users/{everything}",
             "DownstreamScheme": "http"

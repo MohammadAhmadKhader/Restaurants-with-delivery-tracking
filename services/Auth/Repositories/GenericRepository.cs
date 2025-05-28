@@ -14,13 +14,13 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
         _ctx = ctx;
         _dbSet = _ctx.Set<TModel>();
     }
-    public async Task<TModel> Create(TModel model)
+    public virtual async Task<TModel> Create(TModel model)
     {
         var res = await _dbSet.AddAsync(model);
         return res.Entity;
     }
 
-    public async Task<bool> Delete(TPrimaryKey id)
+    public virtual async Task<bool> Delete(TPrimaryKey id)
     {
         var model = await _dbSet.FindAsync(id);
         if (model == null)
@@ -31,12 +31,12 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
         _dbSet.Remove(model);
         return true;
     }
-    public async Task<TModel?> GetById(TPrimaryKey id)
+    public virtual async Task<TModel?> FindById(TPrimaryKey id)
     {
         return await _dbSet.FindAsync(id);
     }
 
-    public async Task<TModel?> Update(TPrimaryKey PK, Action<TModel> patcher)
+    public virtual async Task<TModel?> Update(TPrimaryKey PK, Action<TModel> patcher)
     {
         var model = await _dbSet.FindAsync(PK);
         if (model == null)

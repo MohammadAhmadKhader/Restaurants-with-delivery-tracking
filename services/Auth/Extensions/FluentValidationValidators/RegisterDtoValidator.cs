@@ -20,9 +20,9 @@ class RegisterDtoValidator: AbstractValidator<RegisterDto>
             .NotEmpty().WithMessage("Email is required.")
             .EmailAddress().WithMessage("Invalid email.")
             .MaximumLength(64).WithMessage("Email must be at most 64 characters.");
-    
+
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.");
+            .NotEmpty().WithMessage("Password is required.")
+            .Length(6, 36).WithMessage("Password must be between 6 and 36 characters.");
     }
 }
-    

@@ -100,8 +100,8 @@ public class TokenService : ITokenService
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new(JwtRegisteredClaimNames.Email, email),
+            new(ClaimTypes.NameIdentifier, userId.ToString()),
+            new(ClaimTypes.Email, email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
@@ -176,7 +176,7 @@ public class TokenService : ITokenService
 
         return new UserClaims
         {
-            Email = user.Email,
+            Email = user.Email!,
             Roles = user.Roles.Select(r => r.Name).ToHashSet(),
             Permissions = user.Roles.SelectMany(r => r.Permissions.Select(p => p.Name)).Distinct().ToHashSet()
         };

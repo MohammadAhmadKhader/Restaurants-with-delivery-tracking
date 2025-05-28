@@ -4,6 +4,7 @@ using Shared.Filters;
 using Auth.Mappers;
 using System.Security.Claims;
 using Auth.Dtos.Auth;
+using Auth.Utils;
 
 namespace Auth.Endpoints;
 public static class AuthEndpoints
@@ -43,7 +44,7 @@ public static class AuthEndpoints
             var refToken = req.RefreshToken;
             if (refToken == null || string.IsNullOrEmpty(refToken))
             {
-                return Results.BadRequest(new { error = "Missing refresh-token" });
+                return Results.BadRequest(new { detail = "Missing refresh-token" });
             }
 
             var tokens = await tokenService.RefreshTokenAsync(refToken);
@@ -67,7 +68,7 @@ public static class AuthEndpoints
             }
             var userIdGuid = Guid.Parse(userId);
 
-            var user = await usersService.FindById(userIdGuid);
+            var user = await usersService.FindByIdWithRolesAndPermissions(userIdGuid);
             if (user == null)
             {
                 const string message = "User was not found despite it was authenticated and its id was fetched from the token.";
@@ -77,5 +78,23 @@ public static class AuthEndpoints
 
             return Results.Ok(new { user = user.ToViewWithRolesAndPermissionsDto() });
         }).RequireAuthorization();
+
+        group.MapPost("/reset-password", async (IAuthService authService, ResetPasswordDto dto, ClaimsPrincipal principal) =>
+        {
+            var userId = SecurityUtils.ExtractUserId(principal);
+            if (userId == Guid.Empty)
+            {
+                return Results.Forbid();
+            }
+
+            var (success, error) = await authService.ChangePassword(userId, dto);
+            if (!success)
+            {
+                return Results.BadRequest(new { detail = error });
+            }
+
+            return Results.NoContent();
+        }).RequireAuthorization()
+        .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
     }
 }

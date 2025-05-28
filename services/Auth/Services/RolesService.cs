@@ -8,7 +8,7 @@ public class RolesService(IUnitOfWork unitOfWork, IRolesRepository rolesReposito
 {
     public async Task<Role?> FindByIdAsync(Guid id)
     {
-        return await rolesRepository.GetById(id);
+        return await rolesRepository.FindById(id);
     }
 
     public async Task<Role?> FindByName(sbyte name)

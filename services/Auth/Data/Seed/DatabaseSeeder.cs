@@ -79,7 +79,13 @@ public class DatabaseSeeder: IDatabaseSeeder
                     throw new Exception($"Failed to create user: {user.Email}");
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(user, "SuperAdmin");
+                var roles = new List<string> { "User" };
+                if (user.Email == "superAdmin@gmail.com")
+                {
+                    roles.Add("Admin");
+                    roles.Add("SuperAdmin");
+                }
+                var roleResult = await _userManager.AddToRolesAsync(user, roles);
                 if (!roleResult.Succeeded)
                 {
                     throw new Exception($"Failed to assign role to user: {user.Email}");
