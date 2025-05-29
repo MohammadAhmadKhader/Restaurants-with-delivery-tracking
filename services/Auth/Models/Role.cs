@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using FoodDelivery.Protos.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Models;
@@ -7,7 +6,7 @@ namespace Auth.Models;
 public class Role : IdentityRole<Guid>
 {
     [Required]
-    public required string DisplayName { get; set; }
+    public string DisplayName { get; set; } = default!;
 
     [Required]
     public override string Name { get; set; } = default!;

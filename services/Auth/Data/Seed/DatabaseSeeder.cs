@@ -24,6 +24,13 @@ public class DatabaseSeeder: IDatabaseSeeder
     }
     public async Task SeedAsync()
     {
+        var args = Environment.GetCommandLineArgs();
+        if (!args.Contains("--seed"))
+        {
+            _logger.LogInformation("Skipping seeding");
+            return;
+        }
+
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase

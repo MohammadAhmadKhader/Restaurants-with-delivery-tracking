@@ -1,5 +1,4 @@
 using Auth.Services.IServices;
-using Microsoft.AspNetCore.Mvc;
 using Shared.Filters;
 using Auth.Mappers;
 using System.Security.Claims;
@@ -13,7 +12,7 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/api/auth");
 
-        group.MapPost("/login", async ([FromBody] LoginDto dto, IAuthService authService) =>
+        group.MapPost("/login", async (LoginDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Login(dto);
             var resBody = new Dictionary<string, object>
@@ -26,7 +25,7 @@ public static class AuthEndpoints
             return Results.Ok(resBody);
         }).AddEndpointFilter<ValidationFilter<LoginDto>>();
 
-        group.MapPost("/register", async ([FromBody] RegisterDto dto, IAuthService authService) =>
+        group.MapPost("/register", async (RegisterDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Register(dto);
             var resBody = new Dictionary<string, object>
@@ -39,7 +38,7 @@ public static class AuthEndpoints
             return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
         }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
 
-        group.MapPost("/refresh", async ([FromBody] RefreshRequest req, ITokenService tokenService) =>
+        group.MapPost("/refresh", async (RefreshRequest req, ITokenService tokenService) =>
         {
             var refToken = req.RefreshToken;
             if (refToken == null || string.IsNullOrEmpty(refToken))

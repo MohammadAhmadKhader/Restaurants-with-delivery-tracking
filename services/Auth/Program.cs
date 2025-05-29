@@ -20,6 +20,7 @@ using Auth.Config;
 
 using User = Auth.Models.User;
 using Role = Auth.Models.Role;
+
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +77,11 @@ Log.Logger = new LoggerConfiguration()
     )
     .CreateLogger();
 
-builder.Host.UseSerilog();
+var isTestingEnv = !AppDomain.CurrentDomain.FriendlyName.Contains("testhost", StringComparison.OrdinalIgnoreCase);
+if (isTestingEnv)
+{
+    builder.Host.UseSerilog();
+}
 
 builder.Services.AddIdentityCore<User>(options =>
 {
@@ -125,3 +130,4 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 await app.SeedDatabaseAsync();
 
 app.Run();
+public partial class Program { }

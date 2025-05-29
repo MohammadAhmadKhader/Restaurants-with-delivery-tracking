@@ -1,0 +1,242 @@
+{
+    "users": [
+      {
+        "firstName": "john",
+        "lastName": "doe",
+        "email": "superAdmin@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "alice",
+        "lastName": "smith",
+        "email": "alice.smith@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "bob",
+        "lastName": "johnson",
+        "email": "bob.johnson@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "carol",
+        "lastName": "williams",
+        "email": "carol.williams@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "david",
+        "lastName": "brown",
+        "email": "david.brown@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "emma",
+        "lastName": "jones",
+        "email": "emma.jones@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "frank",
+        "lastName": "garcia",
+        "email": "frank.garcia@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "grace",
+        "lastName": "miller",
+        "email": "grace.miller@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "henry",
+        "lastName": "davis",
+        "email": "henry.davis@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "irene",
+        "lastName": "martinez",
+        "email": "irene.martinez@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "jack",
+        "lastName": "lee",
+        "email": "jack.lee@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "karen",
+        "lastName": "walker",
+        "email": "karen.walker@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "larry",
+        "lastName": "hall",
+        "email": "larry.hall@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "mary",
+        "lastName": "allen",
+        "email": "mary.allen@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "nathan",
+        "lastName": "young",
+        "email": "nathan.young@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "olivia",
+        "lastName": "hernandez",
+        "email": "olivia.hernandez@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "peter",
+        "lastName": "king",
+        "email": "peter.king@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "quincy",
+        "lastName": "wright",
+        "email": "quincy.wright@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "rachel",
+        "lastName": "lopez",
+        "email": "rachel.lopez@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "samuel",
+        "lastName": "hill",
+        "email": "samuel.hill@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "tina",
+        "lastName": "scott",
+        "email": "tina.scott@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "ursula",
+        "lastName": "green",
+        "email": "ursula.green@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "victor",
+        "lastName": "adams",
+        "email": "victor.adams@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "wendy",
+        "lastName": "baker",
+        "email": "wendy.baker@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "xavier",
+        "lastName": "nelson",
+        "email": "xavier.nelson@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "yvonne",
+        "lastName": "carter",
+        "email": "yvonne.carter@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "zach",
+        "lastName": "mitchell",
+        "email": "zach.mitchell@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "amber",
+        "lastName": "rivers",
+        "email": "amber.rivers@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "brian",
+        "lastName": "sanders",
+        "email": "brian.sanders@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "claire",
+        "lastName": "morales",
+        "email": "claire.morales@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "dylan",
+        "lastName": "price",
+        "email": "dylan.price@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      },
+      {
+        "firstName": "elena",
+        "lastName": "reed",
+        "email": "elena.reed@gmail.com",
+        "emailConfirmed": true,
+        "password": "123456"
+      }
+    ],
+    "roles":[
+        {
+            "name":"User",
+            "displayName":"Customer"
+        },
+        {
+            "name":"Admin",
+            "displayName":"Admin"
+        },
+        {
+            "name":"SuperAdmin",
+            "displayName":"Owner"
+        }
+    ]
+}

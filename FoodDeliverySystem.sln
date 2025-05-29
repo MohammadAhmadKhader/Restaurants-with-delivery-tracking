@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "services\Shared\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments", "services\Payments\Payments.csproj", "{71434B96-5D97-4809-8A72-28D8E6C7B44C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.Tests", "tests\Auth.Tests\Auth.Tests.csproj", "{8C000C39-9964-4773-A4FB-2AEDC215E8FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,18 @@ Global
 		{71434B96-5D97-4809-8A72-28D8E6C7B44C}.Release|x64.Build.0 = Release|Any CPU
 		{71434B96-5D97-4809-8A72-28D8E6C7B44C}.Release|x86.ActiveCfg = Release|Any CPU
 		{71434B96-5D97-4809-8A72-28D8E6C7B44C}.Release|x86.Build.0 = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|x64.Build.0 = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{8C000C39-9964-4773-A4FB-2AEDC215E8FF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

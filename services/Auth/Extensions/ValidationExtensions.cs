@@ -12,7 +12,9 @@ public static class ValidationExtensions
     {
         services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
         services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
+        services.AddScoped<IValidator<ResetPasswordDto>, ResetPasswordDtoValidator>();
         services.AddScoped<IValidator<UsersFilterParams>, UserFilterParamsValidator>();
+        
         return services;
     }
 }
