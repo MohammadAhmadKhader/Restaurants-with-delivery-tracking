@@ -79,7 +79,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
 
         _loader = new TestDataLoader(db, passwordHasher);
 
-        await db.Database.MigrateAsync();
+        await db.Database.EnsureCreatedAsync();
         var (users, roles) = await _loader.InitializeAsync();
         Roles = roles;
         Users = users;

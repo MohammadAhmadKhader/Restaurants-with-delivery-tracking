@@ -1,0 +1,93 @@
+name: .NET Microservices CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: Build & Test Microservices
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        ports:
+            - 5432:5432
+        env:
+          POSTGRES_USER: ${{ secrets[format('{0}_Database_Username', matrix.service.key_prefix)] }}
+          POSTGRES_PASSWORD: ${{ secrets[format('{0}_Database_Password', matrix.service.key_prefix)] }}
+          POSTGRES_DB: ${{ secrets[format('{0}_Database_Name', matrix.service.key_prefix)] }}
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:alpine3.21
+        ports:
+            - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    strategy:
+      matrix:
+        service:
+            - name: Auth.Tests
+              key_prefix: Auth
+            # - name: Gateway.Tests
+            #   key_prefix: Gateway
+            # - name: Locations.Tests
+            #   key_prefix: Locations
+            # - name: Orders.Tests
+            #   key_prefix: Orders
+            # - name: Payments.Tests
+            #   key_prefix: Payments
+            # - name: Restaurants.Tests
+            #   key_prefix: Restaurants
+            # - name: Reviews.Tests
+            #   key_prefix: Reviews
+
+    defaults:
+      run:
+        working-directory: tests/${{ matrix.service.name }}
+
+    steps:
+        - uses: actions/checkout@v4
+
+        - uses: actions/setup-dotnet@v4
+          with:
+            dotnet-version: "9.0.x"
+
+        - name: Inject secrets as environment variables
+          env:
+            ConnectionStrings__DefaultConnection:  ${{ secrets[format('{0}_ConnectionStrings__DefaultConnection', matrix.service.key_prefix)] }}
+            ConnectionStrings__REDIS: ${{ secrets[format('{0}_ConnectionStrings__REDIS', matrix.service.key_prefix)] }}
+            JwtSettings__SecretKey: ${{ secrets[format('{0}_JwtSettings__SecretKey', matrix.service.key_prefix)] }}
+            JwtSettings__Audience: ${{ secrets[format('{0}_JwtSettings__Audience', matrix.service.key_prefix)] }}
+            JwtSettings__Issuer: ${{ secrets[format('{0}_JwtSettings__Issuer', matrix.service.key_prefix)] }}
+            JwtSettings__AccessTokenExpirationMinutes: ${{ secrets[format('{0}_JwtSettings__AccessTokenExpirationMinutes', matrix.service.key_prefix)] }}
+            JwtSettings__RefreshTokenExpirationDays: ${{ secrets[format('{0}_JwtSettings__RefreshTokenExpirationDays', matrix.service.key_prefix)] }}
+          run: |
+            echo "ConnectionStrings__DefaultConnection=$ConnectionStrings__DefaultConnection" >> $GITHUB_ENV
+            echo "ConnectionStrings__REDIS=$ConnectionStrings__REDIS" >> $GITHUB_ENV
+            echo "JwtSettings__SecretKey=$JwtSettings__SecretKey" >> $GITHUB_ENV
+            echo "JwtSettings__Audience=$JwtSettings__Audience" >> $GITHUB_ENV
+            echo "JwtSettings__Issuer=$JwtSettings__Issuer" >> $GITHUB_ENV
+            echo "JwtSettings__AccessTokenExpirationMinutes=$JwtSettings__AccessTokenExpirationMinutes" >> $GITHUB_ENV
+            echo "JwtSettings__RefreshTokenExpirationDays=$JwtSettings__RefreshTokenExpirationDays" >> $GITHUB_ENV
+    
+        - name: Restore
+          run: dotnet restore
+          
+        - name: Build
+          run: dotnet build --no-restore --configuration Release
+          
+        - name: Test
+          run: dotnet test --no-build --configuration Release --environment "ASPNETCORE_ENVIRONMENT=Testing"

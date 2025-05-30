@@ -52,3 +52,7 @@ run-all:
 	@echo "Running all Microservices..."; \
 	$(foreach svc,$(SERVICES),dotnet run --project services/$(svc)/$(svc).csproj & ) \
 	dotnet run --project gateway/$(GATEWAY).csproj
+
+# * ———————————————————————————— Testing github workflow locally ————————————————————————————
+test-ci:
+	act --secret-file .env.act --pull=false

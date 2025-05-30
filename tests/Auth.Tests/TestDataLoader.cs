@@ -34,7 +34,9 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public async Task CleanAsync(AppDbContext db)
     {
         db.Users.RemoveRange(Users);
+    
         db.Roles.RemoveRange(Roles);
+        
         await db.SaveChangesAsync();
     }
 
