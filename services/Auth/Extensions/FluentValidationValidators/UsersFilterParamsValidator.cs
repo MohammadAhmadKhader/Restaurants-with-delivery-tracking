@@ -21,12 +21,12 @@ class UserFilterParamsValidator: AbstractValidator<UsersFilterParams>
           .WithMessage("'createdAfter' must be on or before 'createdBefore'");
 
         RuleFor(x => x.SortField)
-          .Must(s => _allowedSortFields.Contains(s))
+          .Must(s => s == null || _allowedSortFields.Contains(s))
           .WithName("sortField")
           .WithMessage("Invalid sort field");
 
         RuleFor(x => x.SortDir)
-          .Must(s => _allowedSortDirs.Contains(s))
+          .Must(s => s == null || _allowedSortDirs.Contains(s))
           .WithName("sortDirection")
           .WithMessage("Invalid sort direction");
     }

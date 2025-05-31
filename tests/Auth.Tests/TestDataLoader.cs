@@ -15,12 +15,14 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     private readonly IPasswordHasher<User> _hasher = hasher;
     public string userName = "john";
     public string testPassword = "123456";
-    public SeedDataModel _cache;
-    public Role AdminRole;
-    public Role UserRole;
-    public Role SuperAdminRole;
-    public List<User> Users;
-    public List<Role> Roles;
+    public SeedDataModel _cache = default!;
+    public Role AdminRole = default!;
+    public Role UserRole = default!;
+    public Role SuperAdminRole = default!;
+    public List<User> Users = default!;
+    public List<Role> Roles = default!;
+    public static string SuperAdminEmail = "superAdmin@gmail.com";
+    public static string AdminEmail = "david.brown@gmail.com";
 
     public async Task<(List<User> users, List<Role> roles)> InitializeAsync()
     {
@@ -54,8 +56,20 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
                 UserName = jsonUser.Email,
                 NormalizedUserName = jsonUser.Email.ToUpper(),
                 EmailConfirmed = jsonUser.EmailConfirmed,
-                PasswordHash = _hasher.HashPassword(null, jsonUser.Password)
+                PasswordHash = _hasher.HashPassword(null!, jsonUser.Password)
             };
+            
+
+            if (user.Email == SuperAdminEmail)
+            {
+                user.Roles.Add(SuperAdminRole);
+                user.Roles.Add(AdminRole);
+            }
+
+            if (user.Email == AdminEmail)
+            {
+                user.Roles.Add(AdminRole);
+            }
 
             users.Add(user);
         }

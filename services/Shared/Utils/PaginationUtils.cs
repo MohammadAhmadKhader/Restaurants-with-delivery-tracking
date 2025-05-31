@@ -14,12 +14,12 @@ public class PaginationUtils
 
     public static void Normalize(IPagination filterParams)
     {
-        if (filterParams.Page < MinPageAllowed)
+        if (filterParams.Page == null || filterParams.Page < MinPageAllowed)
         {
             filterParams.Page = DefaultPage;
         }
 
-        if (filterParams.Size < MinSizeAllowed)
+        if (filterParams.Size == null || filterParams.Size < MinSizeAllowed)
         {
             filterParams.Size = DefaultSize;
         }
@@ -29,7 +29,7 @@ public class PaginationUtils
         }
     }
 
-    public static object ResultOf<TData>(IList<TData> data, int count, int page, int size)
+    public static object ResultOf<TData>(IList<TData> data, int count, int? page, int? size)
     {
         return new { items = data, count, page, size };
     }

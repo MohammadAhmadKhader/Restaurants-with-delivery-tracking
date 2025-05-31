@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Auth.Tests.Endpoints.Auth;
 
 [Collection("IntegrationTests")]
-public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITestOutputHelper output)
+public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
 {
     private readonly IntegrationTestsFixture _fixture = fixture;
     private readonly ITestOutputHelper _out = output;
@@ -28,7 +28,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -47,7 +49,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -67,7 +71,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -85,7 +91,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -104,7 +112,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -124,7 +134,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -142,7 +154,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -161,7 +175,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -181,7 +197,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);
@@ -200,7 +218,9 @@ public class ResetPasswordIntegrationTest(IntegrationTestsFixture fixture, ITest
         });
 
         var user = _fixture.Users.ElementAtOrDefault(0);
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email, _fixture.TestPassword);
+        Assert.NotNull(user);
+
+        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
 
         var response = await _client.SendAsync(request);

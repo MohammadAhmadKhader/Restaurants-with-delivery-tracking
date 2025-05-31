@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Utils;
 
 namespace Shared.Filters;
 public class ValidationFilter<T> : IEndpointFilter where T : class
@@ -23,18 +24,10 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors
-                .Select(e => new { field = ToCamelCase(e.PropertyName), message = e.ErrorMessage });
+                .Select(e => new { field = GeneralUtils.PascalToCamel(e.PropertyName), message = e.ErrorMessage });
             return Results.BadRequest(new { errors });
         }
 
         return await next(context);
-    }
-
-    private static string ToCamelCase(string name)
-    {
-        if (string.IsNullOrEmpty(name) || char.IsLower(name[0]))
-            return name;
-
-        return char.ToLowerInvariant(name[0]) + name.Substring(1);
     }
 }

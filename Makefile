@@ -16,6 +16,12 @@ help:
 	@echo "   make run-<ServiceName>      						# Run single service using its name"
 	@echo "   make run-all      								# Run all microservices"
 	@echo "----------------------------------------------------------------------------------------"
+	@echo "3- Testing Services:"
+	@echo "   make test-<ServiceName>      						# Test single service using its name"
+	@echo "----------------------------------------------------------------------------------------"
+	@echo "4- Testing Github Workflow:"
+	@echo "   make test-ci      								# Testing github workflow locally using act-cli"
+	@echo "----------------------------------------------------------------------------------------"
 	@echo "Note: <ServiceName> is case insensitive"
 
 # * ———————————————————————————— Migration commands ————————————————————————————
@@ -39,7 +45,7 @@ endef
 $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
 
 # * ———————————————————————————— Local Running commands ————————————————————————————
-#  make command per service
+#  make running command per service
 define RUN_SERVICE
 run-$(1):
 	dotnet run --project services/$(1)/$(1).csproj
@@ -53,6 +59,14 @@ run-all:
 	$(foreach svc,$(SERVICES),dotnet run --project services/$(svc)/$(svc).csproj & ) \
 	dotnet run --project gateway/$(GATEWAY).csproj
 
-# * ———————————————————————————— Testing github workflow locally ————————————————————————————
+# * ———————————————————————————— Testing Commands ————————————————————————————
+# Testing github workflow locally
 test-ci:
 	act --secret-file .env.act --pull=false
+
+#  make running testing per service
+define TEST_SERVICE
+test-$(1):
+	dotnet test tests/$(1).Tests/$(1).Tests.csproj
+endef
+$(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))

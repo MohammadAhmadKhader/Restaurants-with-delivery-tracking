@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Auth.Tests.Endpoints.Auth;
 
 [Collection("IntegrationTests")]
-public class LoginIntegrationTest(IntegrationTestsFixture fixture, ITestOutputHelper output)
+public class LoginIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
 {
     private readonly IntegrationTestsFixture _fixture = fixture;
     private readonly ITestOutputHelper _out = output;

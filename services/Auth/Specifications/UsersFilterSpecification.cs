@@ -72,6 +72,6 @@ public class UsersFilterSpecification : BaseSpecification<User>
         Criteria = spec;
         AddInclude((u) => u.Roles);
         var skip = (filterParams.Page - 1) * filterParams.Size;
-        ApplyPaging(skip, filterParams.Size);
+        ApplyPaging(skip ?? default!, filterParams.Size ?? default!);
     }
 }

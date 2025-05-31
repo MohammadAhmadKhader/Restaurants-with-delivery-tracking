@@ -14,16 +14,18 @@ public static class UsersEndpoints
     public static void MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users");
+        var sortUils = new SortingUtils(["firstName", "lastName", "createdAt"]);
 
         group.MapGet("/", async (IUsersService usersService, [AsParameters] UsersFilterParams filterParams) =>
         {
             PaginationUtils.Normalize(filterParams);
+            sortUils.Normalize(filterParams);
 
             var (users, count) = await usersService.FilterUsersAsync(filterParams);
             var usersViews = users.Select(u => u.ToViewWithRolesDto()).ToList();
 
             return Results.Ok(PaginationUtils.ResultOf(usersViews, count, filterParams.Page, filterParams.Size));
-        }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.Admin))
+        }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.Admin, RolePolicies.SuperAdmin))
         .AddEndpointFilter<ValidationFilter<UsersFilterParams>>();
 
 

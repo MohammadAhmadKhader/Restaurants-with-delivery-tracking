@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text.Json;
 using Xunit;
 
@@ -37,6 +38,9 @@ public class TestUtils
 
     public static async Task<(string accessToken, string refreshToken)> Login(HttpClient authClient, string email, string password)
     {
+        Assert.NotNull(email);
+        Assert.NotNull(password);
+        Assert.NotNull(authClient);
         var loginResp = await authClient.PostAsJsonAsync("/api/auth/login", new { email, password });
 
         Assert.Equal(HttpStatusCode.OK, loginResp.StatusCode);
@@ -51,15 +55,41 @@ public class TestUtils
         return (accessToken, refreshToken);
     }
 
-    public static HttpRequestMessage GetRequestWithAuth(HttpMethod method, string endpoint, string accessToken, JsonContent payload = null)
+    public static HttpRequestMessage GetRequestWithAuth(HttpMethod method, string endpoint, string accessToken, JsonContent? payload = null)
     {
+        Assert.NotNull(accessToken);
+        Assert.NotNull(endpoint);
         var request = new HttpRequestMessage(method, endpoint)
         {
             Content = payload ?? JsonContent.Create(new { })
         };
-        
+
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         return request;
+    }
+
+    public static string GetQueryString(Dictionary<string, string> dic)
+    {
+        return string.Join("&", dic.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+    }
+
+    public static TData Deserialize<TData>(JsonElement el, bool doAssertion = true)
+    {
+        var deserializedData = el.Deserialize<TData>(new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+        if (doAssertion)
+        {
+            Assert.NotNull(deserializedData);
+        }
+
+        return deserializedData;
+    }
+
+    public static PropertyInfo? GetProperty<TData>(string field, BindingFlags bindings = BindingFlags.Public | BindingFlags.Instance)
+    {
+        return typeof(TData).GetProperty(GeneralUtils.CamelToPascal(field), bindings);
     }
 }
