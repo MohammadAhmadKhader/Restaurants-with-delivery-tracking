@@ -13,10 +13,10 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
 {
     public async Task<(User, TokenResponse)> Login(LoginDto dto)
     {
-        var user = await usersService.FindByEmailWithRolesAndPermissions(dto.Email!);
+        var user = await usersService.FindByEmailWithRolesAndPermissions(dto.Email);
         if (user == null)
         {
-            throw new InvalidOperationException($"User with email {dto.Email} was not found");
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         var signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
@@ -26,7 +26,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
         }
 
         var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email!,
-         [.. user.Roles.Select(r => r.Name)!], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)!]);
+         [.. user.Roles.Select(r => r.Name)], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]);
 
         return (user, tokenResponse);
     }
@@ -56,7 +56,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
             throw new InvalidOperationException($"User creation failed: {errors}");
         }
 
-        const string defaultRoleName = "User";
+        const string defaultRoleName = "USER";
         var roleResult = await userManager.AddToRoleAsync(user, defaultRoleName);
         if (!roleResult.Succeeded)
         {

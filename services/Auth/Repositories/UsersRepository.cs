@@ -12,7 +12,7 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
 {
     public async Task<bool> ExistsByEmail(string email)
     {
-        return await _dbSet.AnyAsync(u => u.Email == email.ToLower());
+        return await _dbSet.AnyAsync(u => u.NormalizedEmail == email.ToUpper());
     }
 
     public async Task<User?> FindByEmailWithRolesAndPermissions(string email)

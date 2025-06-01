@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Auth.Dtos.Auth;
+using Auth.Dtos.User;
 using Auth.Tests.Collections;
 using Shared.Utils;
 using Xunit.Abstractions;
@@ -71,5 +73,49 @@ public class LoginIntegrationTests(IntegrationTestsFixture fixture, ITestOutputH
         var response = await _client.PostAsync(_endpoint, payload);
 
         await TestUtils.AssertValidationError(response, "email", "Email must be at most 64 characters.");
+    }
+
+    [Fact]
+    public async Task Login_CorrectLogin_ReturnsOkWithUsersAndTokens()
+    {
+        var payload = JsonContent.Create(new { email = TestDataLoader.UserEmail, password = TestDataLoader.TestPassword });
+        var response = await _client.PostAsync(_endpoint, payload);
+        var body = await response.Content.ReadFromJsonAsync<UserWithTokensDto>();
+
+        Assert.NotNull(body);
+        Assert.IsType<UserWithRolesAndPermissionsDto>(body.User);
+        Assert.False(string.IsNullOrWhiteSpace(body.AccessToken));
+        Assert.False(string.IsNullOrWhiteSpace(body.RefreshToken));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Login_InvalidCredentials_ReturnsInvalidEmailOrPassword()
+    {
+        var payload = JsonContent.Create(new { email = TestDataLoader.UserEmail, password = "2342423f23" });
+        var response = await _client.PostAsync(_endpoint, payload);
+        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, JsonElement>>();
+
+        Assert.NotNull(body);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        body.TryGetValue("detail", out var detailElm);
+        var errMsg = detailElm.GetString();
+
+        Assert.Equal("Invalid email or password.", errMsg);
+    }
+
+    [Fact]
+    public async Task Login_UserDoesNotExist_ReturnsInvalidEmailOrPassword()
+    {
+        var payload = JsonContent.Create(new { email = "notExistentUser@gmail.com", password = TestDataLoader.TestPassword });
+        var response = await _client.PostAsync(_endpoint, payload);
+        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, JsonElement>>();
+
+        Assert.NotNull(body);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        body.TryGetValue("detail", out var detailElm);
+        var errMsg = detailElm.GetString();
+
+        Assert.Equal("Invalid email or password.", errMsg);
     }
 }

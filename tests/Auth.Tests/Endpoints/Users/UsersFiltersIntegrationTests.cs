@@ -36,7 +36,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Get, $"{_endpoint}?{queryString}", accessToken, null);
 
         var response = await _client.SendAsync(request);
-        _out.WriteLine(await response.Content.ReadAsStringAsync());
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         
@@ -51,6 +51,25 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         var users = TestUtils.Deserialize<List<User>>(usersJsonElement);
         Assert.NotNull(users);
         Assert.NotEmpty(users);
+    }
+
+    [Fact]
+    public async Task FilterUsers_WithForbiddenRole_ReturnsFilteredUsers()
+    {
+        var queryParams = new Dictionary<string, string> { };
+        var queryString = TestUtils.GetQueryString(queryParams);
+
+        var user = _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.UserEmail);
+        Assert.NotNull(user);
+
+        var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
+        var request = TestUtils.GetRequestWithAuth(HttpMethod.Get, $"{_endpoint}?{queryString}", accessToken, null);
+
+        var response = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.True(body == "" || body == null);
     }
     
     [Theory]
@@ -72,7 +91,6 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         var request = TestUtils.GetRequestWithAuth(HttpMethod.Get, $"{_endpoint}?{queryString}", accessToken, null);
 
         var response = await _client.SendAsync(request);
-        _out.WriteLine(await response.Content.ReadAsStringAsync());
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         

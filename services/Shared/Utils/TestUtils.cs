@@ -25,7 +25,7 @@ public class TestUtils
         using var doc = JsonDocument.Parse(body);
         if (!doc.RootElement.TryGetProperty("errors", out var errorsElement))
         {
-            Assert.Fail("Response does not contain 'errors' property");
+            Assert.Fail("Response does not contain 'errors' field");
         }
 
         var errors = errorsElement.EnumerateArray().ToList();
@@ -46,8 +46,8 @@ public class TestUtils
         Assert.Equal(HttpStatusCode.OK, loginResp.StatusCode);
 
         var respBody = await loginResp.Content.ReadFromJsonAsync<JsonElement>();
-        var accessToken = respBody.GetProperty("access-token").GetString();
-        var refreshToken = respBody.GetProperty("refresh-token").GetString();
+        var accessToken = respBody.GetProperty("accessToken").GetString();
+        var refreshToken = respBody.GetProperty("refreshToken").GetString();
 
         Assert.False(string.IsNullOrWhiteSpace(accessToken), "accessToken should not be null or whitespace");
         Assert.False(string.IsNullOrWhiteSpace(refreshToken), "refreshToken should not be null or whitespace");

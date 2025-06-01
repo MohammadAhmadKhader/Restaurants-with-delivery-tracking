@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Auth.Dtos.Auth;
+using Auth.Dtos.User;
 using Auth.Tests.Collections;
 using Shared.Utils;
 using Xunit.Abstractions;
@@ -68,7 +70,7 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
     {
         var payload = JsonContent.Create(new { firstName = "John", lastName = new string('B', 37), email = "john@example.com", password = "password123" });
         var response = await _client.PostAsync(_endpoint, payload);
-      
+
         await TestUtils.AssertValidationError(response, "lastName", "Last name must be between 3 and 36 characters.");
     }
 
@@ -125,5 +127,35 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
         var response = await _client.PostAsync(_endpoint, payload);
 
         await TestUtils.AssertValidationError(response, "password", "Password must be between 6 and 36 characters.");
+    }
+
+    [Fact]
+    public async Task Register_WithAlreadytExistedUser_ReturnsUserAlreadyExists()
+    {
+        var email = TestDataLoader.UserEmail;
+        var payload = JsonContent.Create(new { firstName = "john", lastName = "doe", email, password = TestDataLoader.TestPassword });
+        var response = await _client.PostAsync(_endpoint, payload);
+        var body = await response.Content.ReadFromJsonAsync<Dictionary<string, JsonElement>>();
+
+        Assert.NotNull(body);
+        body.TryGetValue("detail", out var detailElm);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal($"An account with email '{email}' already exists.", detailElm.GetString());
+    }
+
+    [Fact]
+    public async Task Register_CorrectRegister_ReturnsInvalidEmailOrPassword()
+    {
+        var payload = JsonContent.Create(new { firstName = "john", lastName = "doe", email = "newUser11111@gmail.com", password = TestDataLoader.TestPassword });
+        var response = await _client.PostAsync(_endpoint, payload);
+        var body = await response.Content.ReadFromJsonAsync<UserWithTokensDto>();
+
+        Assert.NotNull(body);
+        _out.WriteLine(await response.Content.ReadAsStringAsync());
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        Assert.IsType<UserWithRolesAndPermissionsDto>(body.User);
+        Assert.False(string.IsNullOrWhiteSpace(body.AccessToken));
+        Assert.False(string.IsNullOrWhiteSpace(body.RefreshToken));
     }
 }

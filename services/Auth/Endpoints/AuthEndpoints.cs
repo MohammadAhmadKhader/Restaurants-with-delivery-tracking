@@ -15,12 +15,10 @@ public static class AuthEndpoints
         group.MapPost("/login", async (LoginDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Login(dto);
-            var resBody = new Dictionary<string, object>
-            {
-                {"user", user.ToViewWithRolesAndPermissionsDto() },
-                {"access-token", tokenData.AccessToken },
-                {"refresh-token", tokenData.RefreshToken }
-            };
+            var resBody = new UserWithTokensDto(
+                user.ToViewWithRolesAndPermissionsDto(),
+                tokenData.AccessToken,
+                tokenData.RefreshToken);
 
             return Results.Ok(resBody);
         }).AddEndpointFilter<ValidationFilter<LoginDto>>();
@@ -28,12 +26,10 @@ public static class AuthEndpoints
         group.MapPost("/register", async (RegisterDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Register(dto);
-            var resBody = new Dictionary<string, object>
-            {
-                {"user", user.ToViewWithRolesAndPermissionsDto() },
-                {"access-token", tokenData.AccessToken },
-                {"refresh-token", tokenData.RefreshToken }
-            };
+            var resBody = new UserWithTokensDto(
+                user.ToViewWithRolesAndPermissionsDto(),
+                tokenData.AccessToken,
+                tokenData.RefreshToken);
 
             return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
         }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
@@ -47,11 +43,7 @@ public static class AuthEndpoints
             }
 
             var tokens = await tokenService.RefreshTokenAsync(refToken);
-            var resBody = new Dictionary<string, object>
-            {
-                {"access-token", tokens.AccessToken },
-                {"refresh-token", tokens.RefreshToken }
-            };
+            var resBody = new RefreshResponseDto(tokens.AccessToken, tokens.RefreshToken);
 
             return Results.Ok(resBody);
         });

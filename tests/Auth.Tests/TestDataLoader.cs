@@ -14,7 +14,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     private readonly AppDbContext _ctx = ctx;
     private readonly IPasswordHasher<User> _hasher = hasher;
     public string userName = "john";
-    public string testPassword = "123456";
+    public const string TestPassword = "123456";
     public SeedDataModel _cache = default!;
     public Role AdminRole = default!;
     public Role UserRole = default!;
@@ -23,6 +23,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public List<Role> Roles = default!;
     public static string SuperAdminEmail = "superAdmin@gmail.com";
     public static string AdminEmail = "david.brown@gmail.com";
+    public static string UserEmail = "emma.jones@gmail.com";
 
     public async Task<(List<User> users, List<Role> roles)> InitializeAsync()
     {
@@ -35,13 +36,21 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
 
     public async Task CleanAsync(AppDbContext db)
     {
-        db.Users.RemoveRange(Users);
-    
-        db.Roles.RemoveRange(Roles);
+        var allUsers = await db.Users.ToListAsync();
+        var allRoles = await db.Roles.ToListAsync();
+
+        if (allUsers.Any())
+        {
+            db.Users.RemoveRange(allUsers);
+        }
+
+        if (allRoles.Any())
+        {
+            db.Roles.RemoveRange(allRoles);
+        }
         
         await db.SaveChangesAsync();
     }
-
     private async Task<List<User>> LoadUsers()
     {
         var users = new List<User>();
@@ -58,7 +67,6 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
                 EmailConfirmed = jsonUser.EmailConfirmed,
                 PasswordHash = _hasher.HashPassword(null!, jsonUser.Password)
             };
-            
 
             if (user.Email == SuperAdminEmail)
             {
@@ -70,6 +78,8 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             {
                 user.Roles.Add(AdminRole);
             }
+
+            user.Roles.Add(UserRole);
 
             users.Add(user);
         }
@@ -89,7 +99,8 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             var role = new Role
             {
                 DisplayName = jsonRole.DisplayName,
-                Name = jsonRole.Name
+                Name = jsonRole.Name,
+                NormalizedName = jsonRole.Name.ToUpper()
             };
 
             roles.Add(role);
