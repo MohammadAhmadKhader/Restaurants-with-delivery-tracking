@@ -21,9 +21,9 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public Role SuperAdminRole = default!;
     public List<User> Users = default!;
     public List<Role> Roles = default!;
-    public static string SuperAdminEmail = "superAdmin@gmail.com";
-    public static string AdminEmail = "david.brown@gmail.com";
-    public static string UserEmail = "emma.jones@gmail.com";
+    public const string SuperAdminEmail = "superAdmin@gmail.com";
+    public const string AdminEmail = "david.brown@gmail.com";
+    public const string UserEmail = "emma.jones@gmail.com";
 
     public async Task<(List<User> users, List<Role> roles)> InitializeAsync()
     {
@@ -48,7 +48,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         {
             db.Roles.RemoveRange(allRoles);
         }
-        
+
         await db.SaveChangesAsync();
     }
     private async Task<List<User>> LoadUsers()
@@ -72,9 +72,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             {
                 user.Roles.Add(SuperAdminRole);
                 user.Roles.Add(AdminRole);
-            }
-
-            if (user.Email == AdminEmail)
+            } else if (user.Email == AdminEmail)
             {
                 user.Roles.Add(AdminRole);
             }
