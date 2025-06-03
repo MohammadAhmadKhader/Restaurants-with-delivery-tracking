@@ -5,6 +5,9 @@ using Auth.Repositories.IRepositories;
 using Auth.Dtos.Auth;
 using Sprache;
 using Auth.Extensions;
+using Shared.Exceptions;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace Auth.Services;
 
@@ -13,7 +16,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
 {
     public async Task<(User, TokenResponse)> Login(LoginDto dto)
     {
-        var user = await usersService.FindByEmailWithRolesAndPermissions(dto.Email);
+        var user = await usersService.FindByEmailWithRolesAndPermissionsAsync(dto.Email);
         if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
@@ -33,7 +36,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
 
     public async Task<(User, TokenResponse)> Register(RegisterDto dto)
     {
-        var exists = await usersService.ExistsByEmail(dto.Email);
+        var exists = await usersService.ExistsByEmailAsync(dto.Email);
         if (exists)
         {
             throw new InvalidOperationException($"An account with email '{dto.Email}' already exists.");
@@ -64,7 +67,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
             var errors = FormatIdentityErrors(roleResult.Errors);
             throw new InvalidOperationException($"Adding role failed: {errors}");
         }
-        
+
 
         var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email, [defaultRoleName], []);
         await unitOfWork.CommitTransactionAsync(tx);
@@ -72,27 +75,25 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
         return (user, tokenResponse);
     }
 
-    private static string FormatIdentityErrors(IEnumerable<IdentityError> errors)
+    public async Task ChangePassword(Guid userId, ResetPasswordDto dto)
     {
-        return string.Join(", ", errors.Select(e => e.Description));
-    }
-
-    public async Task<(bool isSuccess, string? error)> ChangePassword(Guid userId, ResetPasswordDto dto)
-    {
-        var user = await usersService.FindById(userId);
+        var user = await usersService.FindByIdAsync(userId);
         if (user == null)
         {
-            return (false, "User was not found");
+            throw new ResourceNotFoundException("user");
         }
-        
+
         var result = bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword);
-        if (result == PasswordVerificationResult.Failed) {
-            return (false, "Old password is incorrect");
+        if (result == PasswordVerificationResult.Failed)
+        {
+            throw new AppValidationException("oldPassword", "Old password is incorrect");
         }
 
         user.PasswordHash = bcrypt.HashPassword(user, dto.NewPassword);
         await unitOfWork.SaveChangesAsync();
-
-        return (true, null);
+    }
+    private static string FormatIdentityErrors(IEnumerable<IdentityError> errors)
+    {
+        return string.Join(", ", errors.Select(e => e.Description));
     }
 }

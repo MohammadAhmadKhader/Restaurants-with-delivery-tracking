@@ -24,4 +24,8 @@ public record SeedRole
 public record SeedPermission
 {
     public string Name { get; set; } = default!;
+    public string DisplayName { get; set; } = default!;
+    public bool IsDefaultUser { get; set; }
+    public bool IsDefaultAdmin { get; set; }
+    public bool IsDefaultSuperAdmin { get; set; }
 }

@@ -31,7 +31,7 @@ public static class UsersEndpoints
 
         group.MapPatch("/delete/{id:guid}", async (Guid id, IUsersService usersService) =>
         {
-            var (isSuccess, error) = await usersService.DeleteById(id);
+            var (isSuccess, error) = await usersService.DeleteByIdAsync(id);
             if (!isSuccess)
             {
                 var code    = error.GetStatusCode();
@@ -50,7 +50,7 @@ public static class UsersEndpoints
                 return Results.Forbid();
             }
 
-            var (isSuccess, error) = await usersService.DeleteById(userId);
+            var (isSuccess, error) = await usersService.DeleteByIdAsync(userId);
             if (!isSuccess)
             {
                 var code    = error.GetStatusCode();
@@ -64,12 +64,8 @@ public static class UsersEndpoints
 
         group.MapGet("/{id:guid}", async (Guid id, IUsersService usersService) =>
         {
-            var user = await usersService.FindByIdWithRolesAndPermissions(id);
-            if (user == null)
-            {
-                return Results.NotFound();
-            }
-
+            var user = await usersService.FindByIdWithRolesAndPermissionsAsync(id);
+  
             return Results.Ok(new { user = user.ToViewWithRolesAndPermissionsDto() });
         }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.AdminRoles));
 
@@ -82,11 +78,7 @@ public static class UsersEndpoints
                 return Results.Forbid();
             }
 
-            var updatedUser = await usersService.UpdateProfile(userId, dto);
-            if(updatedUser == null)
-            {
-                return Results.NotFound();
-            }
+            await usersService.UpdateProfileAsync(userId, dto);
 
             return Results.NoContent();
         }).RequireAuthorization();

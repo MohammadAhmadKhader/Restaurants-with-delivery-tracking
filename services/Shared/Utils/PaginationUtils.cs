@@ -1,3 +1,4 @@
+using Shared.Dtos;
 using Shared.Interfaces;
 namespace Shared.Utils;
 
@@ -29,8 +30,8 @@ public class PaginationUtils
         }
     }
 
-    public static object ResultOf<TData>(IList<TData> data, int count, int? page, int? size)
+    public static object ResultOf<TData>(List<TData> data, int count, int? page, int? size)
     {
-        return new { items = data, count, page, size };
+        return new PagedResult<TData>(Items: data, Page: page, Size: size, Count: count);
     }
 }

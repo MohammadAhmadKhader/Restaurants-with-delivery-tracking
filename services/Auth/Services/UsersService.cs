@@ -4,46 +4,52 @@ using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
 using Auth.Mappers;
 using Auth.Utils;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Shared.Exceptions;
 
 namespace Auth.Services;
 
-public class UsersService(IUsersRepository usersRepository, IUnitOfWork unitOfWork) : IUsersService
+public class UsersService(IUnitOfWork unitOfWork) : IUsersService
 {
-    private readonly IUsersRepository _usersRepository = usersRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private const string resourceName = "user";
 
-    public async Task<bool> ExistsByEmail(string email)
+    public async Task<bool> ExistsByEmailAsync(string email)
     {
-        return await _usersRepository.ExistsByEmail(email);
+        var exists = await _unitOfWork.UsersRepository.ExistsByEmailAsync(email);
+        if (exists)
+        {
+            throw new ConflictException("Email", email, ConflictType.Duplicate);
+        }
+
+        return exists;
     }
 
     public async Task<(IReadOnlyList<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
     {
-        return await _usersRepository.FilterUsersAsync(filterParams);
+        return await _unitOfWork.UsersRepository.FilterUsersAsync(filterParams);
     }
 
-    public async Task<User?> FindByEmailWithRolesAndPermissions(string email)
+    public async Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email)
     {
-        return await _usersRepository.FindByEmailWithRolesAndPermissions(email);
+        return await _unitOfWork.UsersRepository.FindByEmailWithRolesAndPermissionsAsync(email);;
     }
 
-    public async Task<User?> FindByIdWithRolesAndPermissions(Guid id)
+    public async Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id)
     {
-        return await _usersRepository.FindByIdWithRolesAndPermissions(id);
+        return await _unitOfWork.UsersRepository.FindByIdWithRolesAndPermissionsAsync(id);
     }
 
-    public async Task<User?> FindById(Guid id)
+    public async Task<User?> FindByIdAsync(Guid id)
     {
-        return await _usersRepository.FindById(id);
+        return await _unitOfWork.UsersRepository.FindByIdAsync(id);
     }
 
-    public async Task<User?> UpdateProfile(Guid id, UserUpdateProfile dto)
+    public async Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto)
     {
-        var user = await _usersRepository.FindById(id);
+        var user = await _unitOfWork.UsersRepository.FindByIdAsync(id);
         if (user == null)
         {
-            return null;
+            throw new ResourceNotFoundException(resourceName);
         }
 
         dto.PatchModel(user);
@@ -52,14 +58,14 @@ public class UsersService(IUsersRepository usersRepository, IUnitOfWork unitOfWo
         return user;
     }
 
-    public async Task<User?> FindByIdWithRoles(Guid id)
+    public async Task<User?> FindByIdWithRolesAsync(Guid id)
     {
-        return await _usersRepository.FindByIdWithRoles(id);
+        return await _unitOfWork.UsersRepository.FindByIdWithRolesAsync(id);
     }
 
-    public async Task<(bool isSuccess, DeleteUserError error)> DeleteById(Guid id)
+    public async Task<(bool isSuccess, DeleteUserError error)> DeleteByIdAsync(Guid id)
     {
-        var user = await _usersRepository.FindByIdWithRoles(id);
+        var user = await _unitOfWork.UsersRepository.FindByIdWithRolesAsync(id);
         if (user == null)
         {
             return (false, DeleteUserError.NotFound);

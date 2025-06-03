@@ -122,6 +122,7 @@ app.UseAuthorization();
 // end points
 app.MapAuthEndpoints();
 app.MapUsersEndpoints();
+app.MapRolesEndpoints();
 
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();

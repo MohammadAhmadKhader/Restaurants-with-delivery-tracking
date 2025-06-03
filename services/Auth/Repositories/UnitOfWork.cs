@@ -9,11 +9,15 @@ public class UnitOfWork : IUnitOfWork
     private readonly AppDbContext _ctx;
     public IAddressesRepository AddressesRepository { get; set; }
     public IUsersRepository UsersRepository { get; set; }
+    public IRolesRepository RolesRepository { get; set; }
+    public IPermissionsRepository PermissionsRepository { get; set; }
     public UnitOfWork(AppDbContext ctx)
     {
         _ctx = ctx;
         AddressesRepository = new AddressesRepository(_ctx);
         UsersRepository = new UsersRepository(_ctx);
+        RolesRepository = new RolesRepository(_ctx);
+        PermissionsRepository = new PermissionsRepository(_ctx);
     }
     public async Task<DbTransaction> BeginTransactionAsync()
     {

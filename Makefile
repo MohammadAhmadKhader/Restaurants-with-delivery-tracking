@@ -27,19 +27,19 @@ help:
 # * ———————————————————————————— Migration commands ————————————————————————————
 define EF_RULES
 $(1)-ef-list:
-	@dotnet ef migrations list --json --project services/$(1)/$(1).csproj --startup-project services/$(1)
+	@dotnet ef migrations list --json --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
 
 $(1)-ef-add:
 	@if [ -z "$(name)" ]; then \
 	  echo "Error: name is not set. Usage: make $(1)-ef-add name=MigrationName"; exit 1; \
 	fi
-	@dotnet ef migrations add "$(name)" --project services/$(1)/$(1).csproj --startup-project services/$(1)
+	@dotnet ef migrations add "$(name)" --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
 
 $(1)-ef-update:
-	@dotnet ef database update --project services/$(1)/$(1).csproj --startup-project services/$(1)
+	@dotnet ef database update --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
 
 $(1)-ef-remove:
-	@dotnet ef migrations remove --project services/$(1)/$(1).csproj --startup-project services/$(1)
+	@dotnet ef migrations remove --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
@@ -48,7 +48,7 @@ $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
 #  make running command per service
 define RUN_SERVICE
 run-$(1):
-	dotnet run --project services/$(1)/$(1).csproj
+	dotnet run --project services/$(1)/$(1).csproj $(ARGS)
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call RUN_SERVICE,$(S))))
@@ -67,6 +67,6 @@ test-ci:
 #  make running testing per service
 define TEST_SERVICE
 test-$(1):
-	dotnet test tests/$(1).Tests/$(1).Tests.csproj
+	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS)
 endef
 $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))

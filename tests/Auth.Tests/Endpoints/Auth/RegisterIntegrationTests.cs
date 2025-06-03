@@ -139,8 +139,8 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
 
         Assert.NotNull(body);
         body.TryGetValue("detail", out var detailElm);
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal($"An account with email '{email}' already exists.", detailElm.GetString());
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal($"Duplicate email '{email}' detected.", detailElm.GetString());
     }
 
     [Fact]

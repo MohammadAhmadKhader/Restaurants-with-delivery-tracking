@@ -1,11 +1,11 @@
 {
     "users":[
         {
-            "firstName":"john",
-            "lastName":"doe",
-            "email":"superAdmin@gmail.com",
-            "emailConfirmed":true,
-            "password":"123456aB@"
+          "firstName":"john",
+          "lastName":"doe",
+          "email":"superAdmin@gmail.com",
+          "emailConfirmed":true,
+          "password":"123456aB@"
         },
         {
           "firstName": "alice",
@@ -86,6 +86,47 @@
         }
     ],
     "permissions":[
-
+        {
+            "name":"dashboard.roles.view",
+            "displayName":"View Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.create",
+            "displayName":"Create Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.update",
+            "displayName":"Update Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.delete",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.assign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.unassign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        }
     ]
 }

@@ -1,0 +1,65 @@
+using Auth.Dtos.Role;
+using Auth.Services.IServices;
+using Auth.Extensions;
+using Shared.Dtos;
+using Shared.Utils;
+using Auth.Mappers;
+using Auth.Utils;
+using Shared.Filters;
+
+namespace Auth.Endpoints;
+
+public static class RolesEndpoints
+{
+    public static void MapRolesEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/api/roles").RequireAuthorization(x => x.RequireRole(RolePolicies.SuperAdmin));
+
+        group.MapGet("", async ([AsParameters] PagedRequest pagedReq, IRolesService rolesService) =>
+        {
+            PaginationUtils.Normalize(pagedReq);
+            var page = pagedReq.Page!.Value;
+            var size = pagedReq.Size!.Value;
+            
+            var (roles, count) = await rolesService.FindAllAsync(page, size);
+            var rolesViews = roles.Select(r => r.ToViewDto()).ToList();
+
+            return Results.Ok(PaginationUtils.ResultOf(rolesViews, count, page, size));
+        });
+
+        group.MapPost("", async (RoleCreateDto dto, IRolesService rolesService) =>
+        {
+            var role = await rolesService.CreateAsync(dto);
+
+            return Results.Ok(new { role = role.ToViewDto() });
+        }).AddEndpointFilter<ValidationFilter<RoleCreateDto>>();
+
+        group.MapPut("/{id:guid}", async (Guid id, RoleUpdateDto dto, IRolesService rolesService) =>
+        {
+            await rolesService.UpdateAsync(id, dto);
+
+            return Results.NoContent();
+        }).AddEndpointFilter<ValidationFilter<RoleUpdateDto>>();
+
+        group.MapDelete("/{id:guid}", async (Guid id, IRolesService rolesService) =>
+        {
+            await rolesService.DeleteAsync(id);
+
+            return Results.NoContent();
+        });
+
+        group.MapPost("/{id:guid}/permissions", async (Guid id, RoleAddPermissionsDto dto, IRolesService rolesService) =>
+        {
+            await rolesService.AddPermissions(id, dto.Ids);
+
+            return Results.NoContent();
+        }).AddEndpointFilter<ValidationFilter<RoleAddPermissionsDto>>();
+
+        group.MapDelete("/{id:guid}/permissions/{permissionId:int}", async (Guid id, int permissionId, IRolesService rolesService) =>
+        {
+            await rolesService.RemovePermission(id, permissionId);
+            
+            return Results.NoContent();
+        });
+    }
+}

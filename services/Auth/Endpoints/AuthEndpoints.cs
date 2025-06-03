@@ -59,13 +59,7 @@ public static class AuthEndpoints
             }
             var userIdGuid = Guid.Parse(userId);
 
-            var user = await usersService.FindByIdWithRolesAndPermissions(userIdGuid);
-            if (user == null)
-            {
-                const string message = "User was not found despite it was authenticated and its id was fetched from the token.";
-                logger.LogError(message);
-                return Results.Unauthorized();
-            }
+            var user = await usersService.FindByIdWithRolesAndPermissionsAsync(userIdGuid);
 
             return Results.Ok(new { user = user.ToViewWithRolesAndPermissionsDto() });
         }).RequireAuthorization();
@@ -78,12 +72,8 @@ public static class AuthEndpoints
                 return Results.Forbid();
             }
 
-            var (success, error) = await authService.ChangePassword(userId, dto);
-            if (!success)
-            {
-                return Results.BadRequest(new { detail = error });
-            }
-
+            await authService.ChangePassword(userId, dto);
+    
             return Results.NoContent();
         }).RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();

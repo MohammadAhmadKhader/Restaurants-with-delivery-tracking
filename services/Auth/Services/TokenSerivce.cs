@@ -169,7 +169,7 @@ public class TokenService : ITokenService
 
     private async Task<UserClaims> GetUserClaimsAsync(Guid userId)
     {
-        var user = await _usersService.FindById(userId);
+        var user = await _usersService.FindByIdAsync(userId);
         if (user == null) {
             throw new InvalidOperationException($"User with id: {userId} was not found");
         }

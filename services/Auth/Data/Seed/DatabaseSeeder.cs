@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
+using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Data.Seed;
@@ -30,6 +31,8 @@ public class DatabaseSeeder: IDatabaseSeeder
             _logger.LogInformation("Skipping seeding");
             return;
         }
+
+        _logger.LogInformation("Starting to seed data...");
 
         var options = new JsonSerializerOptions
         {
@@ -96,6 +99,60 @@ public class DatabaseSeeder: IDatabaseSeeder
                 if (!roleResult.Succeeded)
                 {
                     throw new Exception($"Failed to assign role to user: {user.Email}");
+                }
+            }
+
+            foreach (var permissionSeed in seedData.Permissions)
+            {
+                var permissionExists = await _unitOfWork.PermissionsRepository.ExistsByName(permissionSeed.Name);
+                if (permissionExists)
+                {
+                    continue;
+                }
+
+                var permission = new Permission
+                {
+                    Name = permissionSeed.Name,
+                    DisplayName = permissionSeed.DisplayName,
+                    IsDefaultUser = permissionSeed.IsDefaultUser,
+                    IsDefaultAdmin = permissionSeed.IsDefaultAdmin,
+                    IsDefaultSuperAdmin = permissionSeed.IsDefaultSuperAdmin,
+                };
+
+                await _unitOfWork.PermissionsRepository.CreateAsync(permission);
+            }
+
+            // * Seeding Permissions to the Roles
+
+            var UserRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.User);
+            var AdminRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.Admin);
+            var SuperAdminRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.SuperAdmin);
+
+            var permissions = await _unitOfWork.PermissionsRepository.FindAllAsync();
+
+            // checking for each permission if its default is set to a user/admin/superAdmin
+            // if it is and its not already added then they are added to the role permissions collection
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultUser && !UserRole!.Permissions.Contains(perm))
+                {
+                    UserRole.Permissions.Add(perm);
+                }
+            }
+
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultAdmin && !AdminRole!.Permissions.Contains(perm))
+                {
+                    AdminRole.Permissions.Add(perm);
+                }
+            }
+
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultSuperAdmin && !SuperAdminRole!.Permissions.Contains(perm))
+                {
+                    SuperAdminRole.Permissions.Add(perm);
                 }
             }
 

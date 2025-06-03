@@ -1,5 +1,6 @@
 using Auth.Dtos;
 using Auth.Dtos.Auth;
+using Auth.Dtos.Role;
 using Auth.Dtos.User;
 using Auth.Extensions.FluentValidationValidators;
 using FluentValidation;
@@ -14,6 +15,8 @@ public static class ValidationExtensions
         services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
         services.AddScoped<IValidator<ResetPasswordDto>, ResetPasswordDtoValidator>();
         services.AddScoped<IValidator<UsersFilterParams>, UserFilterParamsValidator>();
+        services.AddScoped<IValidator<RoleCreateDto>, RoleCreateDtoValidator>();
+        services.AddScoped<IValidator<RoleUpdateDto>, RoleUpdateDtoValidator>();
         
         return services;
     }

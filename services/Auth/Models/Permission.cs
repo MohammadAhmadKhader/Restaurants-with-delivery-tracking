@@ -8,18 +8,18 @@ public class Permission
     public int Id { get; set; }
     
     [Required]
-    public required string Name { get; set; }
+    public string Name { get; set; } = default!;
 
     [Required]
-    public required string DisplayName { get; set; }
+    public string DisplayName { get; set; } = default!;
 
     [Required]
-    public required bool IsDefaultUser { get; set; }
+    public bool IsDefaultUser { get; set; } = default!;
 
     [Required]
-    public required bool IsDefaultAdmin { get; set; }
+    public bool IsDefaultAdmin { get; set; } = default!;
 
     [Required]
-    public required bool IsDefaultSuperAdmin { get; set; }
+    public bool IsDefaultSuperAdmin { get; set; } = default!;
     public ICollection<Role> Roles { get; set; } = new HashSet<Role>();
 }

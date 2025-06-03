@@ -13,20 +13,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(modelBuilder);
 
+        // * ----- Shared -----
         var currDateSqlStatement = "NOW() AT TIME ZONE 'UTC'";
-        modelBuilder.Entity<User>().Property(u => u.CreatedAt).HasDefaultValueSql(currDateSqlStatement);
-        modelBuilder.Entity<User>().Property(u => u.UpdatedAt).HasDefaultValueSql(currDateSqlStatement);
 
-        modelBuilder.Entity<User>()
-        .Property(u => u.IsDeleted)
-        .HasDefaultValue(false);
-
-        // in the mean time we will assume users are always confirmed
-        // might be changed later
-        modelBuilder.Entity<User>()
-        .Property(u => u.EmailConfirmed)
-        .HasDefaultValue(true);
-
+        // * ----- User Entity -----
         modelBuilder.Entity<User>(b =>
         {
             b.ToTable(t => t.HasCheckConstraint(
@@ -45,12 +35,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             ));
         });
 
-        modelBuilder.Entity<Role>().ToTable("Roles");
         modelBuilder.Entity<User>().ToTable("Users")
         .HasQueryFilter(u => !u.IsDeleted);
+        
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasMany(u => u.Addresses)
+            .WithOne(a => a.User);
 
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Roles)
+            entity.HasIndex(r => r.NormalizedEmail).IsUnique();
+
+            entity.Property(u => u.UpdatedAt)
+            .ValueGeneratedOnAddOrUpdate();
+
+            entity.HasMany(u => u.Roles)
             .WithMany(r => r.Users)
             .UsingEntity<IdentityUserRole<Guid>>(
                 l => l.HasOne<Role>().WithMany().HasForeignKey(ur => ur.RoleId),
@@ -62,20 +60,38 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 }
             );
 
+            // in the mean time we will assume users are always confirmed
+            // might be changed later
+            entity.Property(u => u.EmailConfirmed)
+                .HasDefaultValue(true);
+
+            entity.Property(u => u.CreatedAt).HasDefaultValueSql(currDateSqlStatement);
+            entity.Property(u => u.UpdatedAt).HasDefaultValueSql(currDateSqlStatement);
+
+            entity.Property(u => u.IsDeleted)
+                .HasDefaultValue(false);
+        });
+
+        // * ----- Role Entity -----
+        modelBuilder.Entity<Role>().ToTable("Roles");
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasMany(u => u.Permissions)
+                .WithMany(p => p.Roles);
+
+            entity.HasIndex(r => r.NormalizedName).IsUnique();
+        });
+
+        // * ----- Permission Entity -----
+        modelBuilder.Entity<Permission>(entity =>
+        {
+            entity.HasIndex(r => r.Name).IsUnique();
+        });
+
+        // * ----- Other Entities -----
         modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims");
         modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
         modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
-
-        modelBuilder.Entity<Role>()
-        .HasMany(u => u.Permissions)
-        .WithMany(p => p.Roles);
-
-        modelBuilder.Entity<User>()
-        .HasMany(u => u.Addresses)
-        .WithOne(a => a.User);
-        
-        modelBuilder.Entity<User>().Property(u => u.UpdatedAt)
-        .ValueGeneratedOnAddOrUpdate();
     }
 }

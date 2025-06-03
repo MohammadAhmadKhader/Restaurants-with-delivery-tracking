@@ -1,18 +1,185 @@
+using Auth.Dtos.Role;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
-using Auth.Services;
 using Auth.Services.IServices;
+using Auth.Utils;
+using Microsoft.AspNetCore.Identity;
+using Shared.Exceptions;
+using Auth.Mappers;
 
 namespace Auth.Services;
-public class RolesService(IUnitOfWork unitOfWork, IRolesRepository rolesRepository) : IRolesService
+
+public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager) : IRolesService
 {
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private const string resourceName = "role";
     public async Task<Role?> FindByIdAsync(Guid id)
     {
-        return await rolesRepository.FindById(id);
+        return await _unitOfWork.RolesRepository.FindByIdAsync(id);
     }
 
-    public async Task<Role?> FindByName(sbyte name)
+    public async Task<Role?> FindByNameAsync(string name)
     {
-        throw new NotImplementedException();
+        return await _unitOfWork.RolesRepository.FindByNameAsync(name);
+    }
+
+    public async Task<(List<Role> roles, int count)> FindAllAsync(int page, int size)
+    {
+        var (roles, count) = await _unitOfWork.RolesRepository.FindAllAsync(page, size);
+        return (roles, count);
+    }
+
+    public async Task<Role> CreateAsync(RoleCreateDto dto)
+    {
+        var existedRole = await _unitOfWork.RolesRepository.FindByNameOrDisplayNameAsync(dto.Name, dto.DisplayName);
+        if (existedRole != null)
+        {
+            if (dto.DisplayName == existedRole.DisplayName)
+            {
+                throw new ConflictException("DisplayName", dto.DisplayName, ConflictType.Duplicate);
+            }
+
+            if (dto.Name.ToUpper() == existedRole.NormalizedName)
+            {
+                throw new ConflictException("Name", dto.Name, ConflictType.Duplicate);
+            }
+
+            // its not excpected to reach here but just in case
+            throw new InternalServerException();
+        }
+
+        var role = new Role
+        {
+            Name = dto.Name,
+            DisplayName = dto.DisplayName,
+        };
+
+        var result = await roleManager.CreateAsync(role);
+        if (!result.Succeeded)
+        {
+            throw new InternalServerException();
+        }
+
+        return role;
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var role = await roleManager.FindByIdAsync(id.ToString());
+        if (role == null)
+        {
+            throw new ResourceNotFoundException("role");
+        }
+
+        if (role.Name == RolePolicies.SuperAdmin)
+        {
+            throw new InvalidOperationException("this role can not be deleted");
+        }
+
+        var result = await roleManager.DeleteAsync(role);
+        if (!result.Succeeded)
+        {
+            throw new InternalServerException();
+        }
+    }
+
+    public async Task<Role> UpdateAsync(Guid id, RoleUpdateDto dto)
+    {
+        var role = await roleManager.FindByIdAsync(id.ToString());
+        if (role == null)
+        {
+            throw new ResourceNotFoundException("role");
+        }
+
+        if (role.Name == RolePolicies.SuperAdmin)
+        {
+            throw new InvalidOperationException("this role can not be modified");
+        }
+
+        dto.PatchModel(role);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return role;
+    }
+
+    public async Task<Role> AddPermissions(Guid roleId, List<int> permissionsIds)
+    {
+        var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
+        if (role == null)
+        {
+            throw new ResourceNotFoundException("role");
+        }
+
+        if (role.Name == RolePolicies.SuperAdmin)
+        {
+            throw new InvalidOperationException("this role can not be modified");
+        }
+
+        var permissions = await _unitOfWork.PermissionsRepository.FindByIds(permissionsIds);
+        var permissionsToAddIdsSet = permissions.Select(p => p.Id).ToHashSet();
+        if (permissions.Count != permissionsIds.Count)
+        {
+            var notExistentPermissionId = permissions.First(perm => !permissionsToAddIdsSet.Contains(perm.Id));
+
+            throw new ResourceNotFoundException("permission", notExistentPermissionId);
+        }
+
+        // if the role already has the permission
+        foreach (var permission in role.Permissions)
+        {
+            if (permissionsToAddIdsSet.Contains(permission.Id))
+            {
+                throw new ConflictException("permission", permission.Name, ConflictType.AlreadyAssigned);
+            }
+
+            var isOnlySuperAdminPermission =
+            !permission.IsDefaultUser &&
+            !permission.IsDefaultAdmin &&
+            permission.IsDefaultSuperAdmin;
+
+            if (isOnlySuperAdminPermission)
+            {
+                throw new InvalidOperationException("SuperAdmin Permission can not be added");
+            }
+        }
+
+        foreach (var permission in permissions)
+        {
+            role.Permissions.Add(permission);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+        return role;
+    }
+
+    public async Task<Role> RemovePermission(Guid roleId, int permissionId)
+    {
+        var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
+        if (role == null)
+        {
+            throw new ResourceNotFoundException("role", roleId.ToString());
+        }
+
+        if (role.Name == RolePolicies.SuperAdmin)
+        {
+            throw new InvalidOperationException("this role can not be modified");
+        }
+
+        var permission = await _unitOfWork.PermissionsRepository.FindByIdAsync(permissionId);
+        if (permission == null)
+        {
+            throw new ResourceNotFoundException("permission", permissionId);
+        }
+
+        if (!role.Permissions.Contains(permission))
+        {
+            throw new ConflictException("permission", permission.Name, ConflictType.NotAssigned);
+        }
+
+        role.Permissions.Remove(permission);
+
+        await _unitOfWork.SaveChangesAsync();
+        return role;
     }
 }

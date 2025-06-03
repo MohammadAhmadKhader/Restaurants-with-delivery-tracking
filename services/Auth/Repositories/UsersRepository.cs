@@ -10,12 +10,12 @@ namespace Auth.Repositories;
 
 public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(ctx), IUsersRepository
 {
-    public async Task<bool> ExistsByEmail(string email)
+    public async Task<bool> ExistsByEmailAsync(string email)
     {
         return await _dbSet.AnyAsync(u => u.NormalizedEmail == email.ToUpper());
     }
 
-    public async Task<User?> FindByEmailWithRolesAndPermissions(string email)
+    public async Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email)
     {
         return await _dbSet
         .Where(u => u.NormalizedEmail == email.ToUpper())
@@ -34,7 +34,7 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         return (result, count);
     }
 
-    public async Task<User?> FindByIdWithRoles(Guid id)
+    public async Task<User?> FindByIdWithRolesAsync(Guid id)
     {
         var user = await _dbSet
         .Include(u => u.Roles)
@@ -44,7 +44,7 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         return user;
     }
 
-    public async Task<User?> FindByIdWithRolesAndPermissions(Guid id)
+    public async Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id)
     {
         var user = await _dbSet
         .Include(u => u.Roles)
@@ -55,7 +55,7 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         return user;
     }
 
-    public override async Task<bool> Delete(Guid id)
+    public override async Task<bool> DeleteAsync(Guid id)
     {
         throw new NotImplementedException();
     }

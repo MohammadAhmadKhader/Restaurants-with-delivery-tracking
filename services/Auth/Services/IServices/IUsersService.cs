@@ -6,12 +6,12 @@ namespace Auth.Services.IServices;
 
 public interface IUsersService
 {
-    Task<bool> ExistsByEmail(string email);
-    Task<User?> FindById(Guid id);
-    Task<User?> FindByIdWithRoles(Guid id);
-    Task<User?> FindByIdWithRolesAndPermissions(Guid id);
-    Task<User?> FindByEmailWithRolesAndPermissions(string email);
-    Task<User?> UpdateProfile(Guid id, UserUpdateProfile dto);
+    Task<bool> ExistsByEmailAsync(string email);
+    Task<User?> FindByIdAsync(Guid id);
+    Task<User?> FindByIdWithRolesAsync(Guid id);
+    Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id);
+    Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email);
+    Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto);
     Task<(IReadOnlyList<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams);
-    Task<(bool isSuccess, DeleteUserError error)> DeleteById(Guid id);
+    Task<(bool isSuccess, DeleteUserError error)> DeleteByIdAsync(Guid id);
 }

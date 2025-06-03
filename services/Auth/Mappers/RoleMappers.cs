@@ -30,4 +30,18 @@ public static class RoleMappers
 
         return dto;
     }
+
+    public static void PatchModel(this RoleUpdateDto dto, Role role)
+    {
+        if (dto.Name != null)
+        {
+            role.Name = dto.Name;
+            role.NormalizedName = dto.Name.ToUpper();
+        }
+
+        if (dto.DisplayName != null)
+        {
+            role.DisplayName = dto.DisplayName;
+        }
+    }
 }
