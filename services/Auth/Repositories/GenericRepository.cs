@@ -17,7 +17,6 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
     public virtual async Task<TModel> CreateAsync(TModel model)
     {
         var res = await _dbSet.AddAsync(model);
-        await _ctx.SaveChangesAsync();
         return res.Entity;
     }
 
@@ -30,7 +29,6 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
         }
 
         _dbSet.Remove(model);
-        await _ctx.SaveChangesAsync();
         return true;
     }
     public virtual async Task<TModel?> FindByIdAsync(TPrimaryKey id)
@@ -47,7 +45,6 @@ public class GenericRepository<TModel, TPrimaryKey>: IGenericRepository<TModel, 
         }
 
         patcher(model);
-        await _ctx.SaveChangesAsync();
         return null;
     }
 }

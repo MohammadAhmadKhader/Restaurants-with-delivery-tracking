@@ -28,7 +28,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
     public List<User> Users { get; set; }
     public List<Role> Roles { get; set; }
     public string TestPassword { get; set; } = "123456";
-    
+
     public IntegrationTestsFixture()
     {
         Env.Load();
@@ -89,7 +89,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
     {
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
+
         await _loader.CleanAsync(db);
         await Factory.DisposeAsync();
     }
@@ -112,5 +112,20 @@ public class IntegrationTestsFixture : IAsyncLifetime
     {
         using var scope = Factory.Services.CreateScope();
         return scope.ServiceProvider.GetRequiredService<TService>();
+    }
+
+    public User GetSuperAdmin()
+    {
+        return Users.First(u => u.Email == TestDataLoader.SuperAdminEmail);
+    }
+
+    public User GetAdmin()
+    {
+        return Users.First(u => u.Email == TestDataLoader.AdminEmail);
+    }
+
+    public User GetUser()
+    {
+        return Users.First(u => u.Email == TestDataLoader.UserEmail);
     }
 }

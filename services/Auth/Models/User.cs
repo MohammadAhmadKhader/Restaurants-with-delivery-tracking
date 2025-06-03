@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Models;
 
-public enum DefaultUserRoles { User, Admin, SuperAdmin }
+public enum DefaultUserRoles { None, User, Admin, SuperAdmin }
 public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
 public class User : IdentityUser<Guid>
 {

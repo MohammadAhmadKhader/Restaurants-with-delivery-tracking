@@ -55,16 +55,23 @@ public class TestUtils
         return (accessToken, refreshToken);
     }
 
-    public static HttpRequestMessage GetRequestWithAuth(HttpMethod method, string endpoint, string accessToken, JsonContent? payload = null)
+    public static HttpRequestMessage GetRequestWithAuth(HttpMethod method, string endpoint, string? accessToken, JsonContent? payload = null, bool assertToken = true)
     {
-        Assert.NotNull(accessToken);
+        if (assertToken)
+        {
+            Assert.NotNull(accessToken);
+        }
+
         Assert.NotNull(endpoint);
         var request = new HttpRequestMessage(method, endpoint)
         {
             Content = payload ?? JsonContent.Create(new { })
         };
 
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        if (accessToken != null)
+        {
+           request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
 
         return request;
     }
@@ -91,5 +98,28 @@ public class TestUtils
     public static PropertyInfo? GetProperty<TData>(string field, BindingFlags bindings = BindingFlags.Public | BindingFlags.Instance)
     {
         return typeof(TData).GetProperty(GeneralUtils.CamelToPascal(field), bindings);
+    }
+
+    public static async Task TestAuth(
+        HttpClient authClient,
+        (string email, string password)? userData,
+        HttpMethod method,
+        string endpoint,
+        HttpStatusCode expectedStatusCode,
+        JsonContent? payload = null
+        )
+    {
+        string? accessToken = null;
+        if (userData != null)
+        {
+            var (_accessToken, _) = await Login(authClient, userData?.email!, userData?.password!);
+            accessToken = _accessToken;
+        }
+
+        var request = GetRequestWithAuth(method, endpoint, accessToken, payload, false);
+        var response = await authClient.SendAsync(request);
+    
+
+        Assert.Equal(expectedStatusCode, response.StatusCode);
     }
 }

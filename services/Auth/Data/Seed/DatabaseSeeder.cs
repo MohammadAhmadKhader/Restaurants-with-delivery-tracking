@@ -121,6 +121,7 @@ public class DatabaseSeeder: IDatabaseSeeder
 
                 await _unitOfWork.PermissionsRepository.CreateAsync(permission);
             }
+            await _unitOfWork.SaveChangesAsync();
 
             // * Seeding Permissions to the Roles
 

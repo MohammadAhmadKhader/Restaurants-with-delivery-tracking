@@ -8,13 +8,20 @@ using Xunit.Abstractions;
 namespace Auth.Tests.Endpoints.Users;
 
 [Collection("IntegrationTests")]
-public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
+public class UsersFiltersIntegrationTests
 {
-    private readonly IntegrationTestsFixture _fixture = fixture;
-    private readonly ITestOutputHelper _out = output;
+    private readonly ITestOutputHelper _out;
+    private static IntegrationTestsFixture _fixture = default!;
     private readonly string _endpoint = "api/users";
-    private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
+    private readonly HttpClient _client;
     private const string collectionKey = "items";
+
+    public UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
+    {
+        _client = fixture.CreateClientWithTestOutput(output);
+        _fixture = fixture;
+        _out = output;
+    }
 
     [Theory]
     [InlineData("SuperAdmin")]
@@ -26,7 +33,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
 
         var user = role switch
         {
-            "SuperAdmin" => _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail),
+            "SuperAdmin" => _fixture.GetSuperAdmin(),
             "Admin" => _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.AdminEmail),
             _ => throw new ArgumentException("Unsupported role")
         };
@@ -84,7 +91,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user = _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
@@ -130,7 +137,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user =  _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
@@ -164,7 +171,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user =  _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
@@ -201,7 +208,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user =  _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
@@ -238,7 +245,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user =  _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
@@ -273,7 +280,7 @@ public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITest
         };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user =  _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
         var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
