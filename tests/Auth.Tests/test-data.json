@@ -238,5 +238,65 @@
             "name":"SuperAdmin",
             "displayName":"Owner"
         }
+    ],
+    "permissions":[
+        {
+            "name":"dashboard.roles.view",
+            "displayName":"View Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.create",
+            "displayName":"Create Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.update",
+            "displayName":"Update Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.delete",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.assign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"dashboard.roles.unassign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true
+        },
+        {
+            "name":"TEST.PERMISSIONx1",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true,
+            "comment":"this permission used for testing where we add permission to Admin Role or User Role"
+        },
+        {
+            "name":"TEST.PERMISSIONx2",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultSuperAdmin": true,
+            "comment":"this permission used for testing where we add permission to Admin Role or User Role"
+        }
     ]
 }

@@ -61,7 +61,7 @@ public static class AuthEndpoints
 
             var user = await usersService.FindByIdWithRolesAndPermissionsAsync(userIdGuid);
 
-            return Results.Ok(new { user = user.ToViewWithRolesAndPermissionsDto() });
+            return Results.Ok(new { user = user!.ToViewWithRolesAndPermissionsDto() });
         }).RequireAuthorization();
 
         group.MapPost("/reset-password", async (IAuthService authService, ResetPasswordDto dto, ClaimsPrincipal principal) =>

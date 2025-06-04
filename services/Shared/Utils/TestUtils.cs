@@ -70,7 +70,7 @@ public class TestUtils
 
         if (accessToken != null)
         {
-           request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
 
         return request;
@@ -81,7 +81,7 @@ public class TestUtils
         return string.Join("&", dic.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
     }
 
-    public static TData Deserialize<TData>(JsonElement el, bool doAssertion = true)
+    public static TData? Deserialize<TData>(JsonElement el, bool doAssertion = true)
     {
         var deserializedData = el.Deserialize<TData>(new JsonSerializerOptions
         {
@@ -118,8 +118,19 @@ public class TestUtils
 
         var request = GetRequestWithAuth(method, endpoint, accessToken, payload, false);
         var response = await authClient.SendAsync(request);
-    
+
 
         Assert.Equal(expectedStatusCode, response.StatusCode);
+    }
+
+    public static async Task<HttpResponseMessage> SendWithAuthAsync(HttpClient authClient, HttpMethod method, string email, string password, string endpoint, JsonContent? payload = null, Action<HttpRequestMessage>? modifier = null)
+    {
+        var (accessToken, _) = await Login(authClient, email, password);
+        var request = GetRequestWithAuth(method, endpoint, accessToken, payload, true);
+
+        modifier?.Invoke(request);
+
+        var response = await authClient.SendAsync(request);
+        return response;
     }
 }

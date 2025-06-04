@@ -15,20 +15,25 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     private readonly IPasswordHasher<User> _hasher = hasher;
     public string userName = "john";
     public const string TestPassword = "123456";
-    public SeedDataModel _cache = default!;
+    public SeedDataModel _jsonSeedData = default!;
     public Role AdminRole = default!;
     public Role UserRole = default!;
     public Role SuperAdminRole = default!;
     public List<User> Users = default!;
     public List<Role> Roles = default!;
+    public List<Permission> NotSuperAdminOnlyPermissions { get; set; } = [];
+    public List<Permission> Permissions { get; set; } = [];
     public const string SuperAdminEmail = "superAdmin@gmail.com";
     public const string AdminEmail = "david.brown@gmail.com";
     public const string UserEmail = "emma.jones@gmail.com";
+    public const string TestPermissionNameX1 = "TEST.PERMISSIONx1";
+    public const string TestPermissionNameX2 = "TEST.PERMISSIONx2";
+    public Permission SuperAdminOnlyPermission { get; set; } = default!;
 
     public async Task<(List<User> users, List<Role> roles)> InitializeAsync()
     {
-        _cache = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
-        var roles = await LoadRoles();
+        _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
+        var roles = await LoadRolesAndPermissions();
         var users = await LoadUsers();
 
         return (users, roles);
@@ -38,10 +43,16 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     {
         var allUsers = await db.Users.ToListAsync();
         var allRoles = await db.Roles.ToListAsync();
+        var allPermissions = await db.Permissions.ToListAsync();
 
         if (allUsers.Any())
         {
             db.Users.RemoveRange(allUsers);
+        }
+
+        if (allPermissions.Any())
+        {
+            db.Permissions.RemoveRange(allPermissions);
         }
 
         if (allRoles.Any())
@@ -54,7 +65,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     private async Task<List<User>> LoadUsers()
     {
         var users = new List<User>();
-        foreach (var jsonUser in _cache.Users)
+        foreach (var jsonUser in _jsonSeedData.Users)
         {
             var user = new User
             {
@@ -72,7 +83,8 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             {
                 user.Roles.Add(SuperAdminRole);
                 user.Roles.Add(AdminRole);
-            } else if (user.Email == AdminEmail)
+            }
+            else if (user.Email == AdminEmail)
             {
                 user.Roles.Add(AdminRole);
             }
@@ -89,10 +101,11 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         return users;
     }
 
-    private async Task<List<Role>> LoadRoles()
+    private async Task<List<Role>> LoadRolesAndPermissions()
     {
         var roles = new List<Role>();
-        foreach (var jsonRole in _cache.Roles)
+        using var transaction = await _ctx.Database.BeginTransactionAsync();
+        foreach (var jsonRole in _jsonSeedData.Roles)
         {
             var role = new Role
             {
@@ -104,6 +117,13 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             roles.Add(role);
         }
 
+        var permissions = new List<Permission>();
+        foreach (var seedPerm in _jsonSeedData.Permissions)
+        {
+            permissions.Add(ConvertSeedToPermission(seedPerm));
+        }
+        await _ctx.Permissions.AddRangeAsync(permissions);
+
         await _ctx.Roles.AddRangeAsync(roles);
         await _ctx.SaveChangesAsync();
 
@@ -111,7 +131,54 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         AdminRole = (await _ctx.Roles.Where(x => x.Name == RolePolicies.Admin).FirstOrDefaultAsync())!;
         SuperAdminRole = (await _ctx.Roles.Where(x => x.Name == RolePolicies.SuperAdmin).FirstOrDefaultAsync())!;
 
-        Roles = roles;
+        foreach (var perm in permissions)
+        {
+            if (perm.IsDefaultUser)
+            {
+                UserRole.Permissions.Add(perm);
+            }
+
+            if (perm.IsDefaultAdmin)
+            {
+                AdminRole.Permissions.Add(perm);
+            }
+
+            if (perm.IsDefaultSuperAdmin)
+            {
+                SuperAdminRole.Permissions.Add(perm);
+            }
+
+            if (SuperAdminOnlyPermission == null && SecurityUtils.IsSuperAdminOnly(perm))
+            {
+                SuperAdminOnlyPermission = perm;
+            }
+
+            if (!SecurityUtils.IsSuperAdminOnly(perm))
+            {
+                NotSuperAdminOnlyPermissions.Add(perm);
+            }
+
+            Permissions.Add(perm);
+        } 
+        
+        await _ctx.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        Roles = await _ctx.Roles.Include(x => x.Permissions).ToListAsync();
         return roles;
+    }
+
+    private static Permission ConvertSeedToPermission(SeedPermission seedPermission)
+    {
+        var permission = new Permission
+        {
+            Name = seedPermission.Name,
+            DisplayName = seedPermission.DisplayName,
+            IsDefaultUser = seedPermission.IsDefaultUser,
+            IsDefaultAdmin = seedPermission.IsDefaultAdmin,
+            IsDefaultSuperAdmin = seedPermission.IsDefaultSuperAdmin
+        };
+
+        return permission;
     }
 }

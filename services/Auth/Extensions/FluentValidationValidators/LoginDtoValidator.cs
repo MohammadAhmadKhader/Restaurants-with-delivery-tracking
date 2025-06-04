@@ -1,5 +1,5 @@
-using Auth.Dtos;
 using Auth.Dtos.Auth;
+using Auth.Utils;
 using FluentValidation;
 
 namespace Auth.Extensions.FluentValidationValidators;
@@ -15,6 +15,6 @@ class LoginDtoValidator : AbstractValidator<LoginDto>
         
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")
-            .Length(6, 36).WithMessage("Password must be between 6 and 36 characters.");
+            .Length(Constants.MinPasswordLength, Constants.MaxPasswordLength).WithMessage("Password must be between 6 and 36 characters.");
     }
 }

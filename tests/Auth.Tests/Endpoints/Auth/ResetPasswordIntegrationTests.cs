@@ -1,6 +1,7 @@
+using System.Net;
 using System.Net.Http.Json;
-using Auth.Services.IServices;
 using Auth.Tests.Collections;
+using Auth.Utils;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -11,219 +12,78 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
 {
     private readonly IntegrationTestsFixture _fixture = fixture;
     private readonly ITestOutputHelper _out = output;
-    private readonly int _minPassLength = 6;
-    private readonly ITokenService _tokenService = fixture.GetService<ITokenService>();
-    private readonly int _maxPassLength = 36;
     private readonly string _endpoint = "api/auth/reset-password";
     private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
     
-    [Fact]
-    public async Task ResetPassword_EmptyOldPassword_ReturnsRequiredError()
+    public static IEnumerable<object[]> InvalidResetPasswordInputs()
     {
-        var payload = JsonContent.Create(new
-        {
-            newPassword = "newPassword123",
-            confirmNewPassword = "newPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "oldPassword", "OldPassword is required.");
+        var expectedStatus = HttpStatusCode.BadRequest;
+        var shortPassword = new string('a', Constants.MinPasswordLength - 1);
+        var longPassword = new string('x', Constants.MaxPasswordLength + 1);
+        const string oldPassword = "oldPassword";
+        const string newPassword = "newPassword";
+        const string confirmNewPassword = "confirmNewPassword";
+    
+        return
+        [
+            // oldPassword
+            [
+                new { newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
+                expectedStatus, oldPassword, "OldPassword is required."
+            ],
+            [
+                new { oldPassword = shortPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
+                expectedStatus, oldPassword, "OldPassword must be between 6 and 36 characters."
+            ],
+            [
+                new { oldPassword = longPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
+                expectedStatus, oldPassword, "OldPassword must be between 6 and 36 characters."
+            ],
+            // newPassword
+            [
+                new { oldPassword = "oldPassword123", confirmNewPassword = "newPassword123" },
+                expectedStatus, newPassword, "NewPassword is required."
+            ],
+            [
+                new { oldPassword = "oldPassword123", newPassword = shortPassword, confirmNewPassword = shortPassword },
+                expectedStatus, newPassword, "NewPassword must be between 6 and 36 characters."
+            ],
+            [
+                new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
+                expectedStatus, newPassword, "NewPassword must be between 6 and 36 characters."
+            ],
+            // confirmNewPassword
+            [
+                new { oldPassword = "oldPassword123", newPassword = "newPassword123" },
+                expectedStatus, confirmNewPassword, "ConfirmNewPassword is required."
+            ],
+            [
+                new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = shortPassword },
+                expectedStatus, confirmNewPassword, "ConfirmNewPassword must be between 6 and 36 characters."
+            ],
+            [
+                new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
+                expectedStatus, confirmNewPassword, "ConfirmNewPassword must be between 6 and 36 characters."
+            ],
+            [
+                new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = "differentPassword123" },
+                expectedStatus, confirmNewPassword, "Passwords mismatch."
+            ]
+        ];
     }
 
-    [Fact]
-    public async Task ResetPassword_ShortOldPassword_ReturnsLengthError()
+    [Theory]
+    [MemberData(nameof(InvalidResetPasswordInputs))]
+    public async Task ResetPassword_InvalidInputs_ReturnsValidationError(object payload, HttpStatusCode expectedStatus, string field, string expectedMessage)
     {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = new string('a', _minPassLength - 1),
-            newPassword = "newPassword123",
-            confirmNewPassword = "newPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
+        var user = _fixture.Loader.Users.ElementAtOrDefault(0);
         Assert.NotNull(user);
 
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+         _fixture.TestPassword, _endpoint, JsonContent.Create(payload));
 
-        var response = await _client.SendAsync(request);
-        
+        Assert.Equal(expectedStatus, response.StatusCode);
 
-        await TestUtils.AssertValidationError(response, "oldPassword", "OldPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_TooLongOldPassword_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = new string('x', _maxPassLength + 1),
-            newPassword = "newPassword123",
-            confirmNewPassword = "newPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "oldPassword", "OldPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_EmptyNewPassword_ReturnsRequiredError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            confirmNewPassword = "newPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "newPassword", "NewPassword is required.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_ShortNewPassword_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = "123",
-            confirmNewPassword = "123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "newPassword", "NewPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_TooLongNewPassword_ReturnsLengthError()
-    {
-        var longPass = new string('x', _maxPassLength + 1);
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = longPass,
-            confirmNewPassword = longPass
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "newPassword", "NewPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_EmptyConfirmPassword_ReturnsRequiredError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = "newPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "confirmNewPassword", "ConfirmNewPassword is required.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_ShortConfirmPassword_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = "newPassword123",
-            confirmNewPassword = "123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "confirmNewPassword", "ConfirmNewPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_TooLongConfirmPassword_ReturnsLengthError()
-    {
-        var longPass = new string('x', _maxPassLength + 1);
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = longPass,
-            confirmNewPassword = longPass
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "confirmNewPassword", "ConfirmNewPassword must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task ResetPassword_PasswordsDoNotMatch_ReturnsMismatchError()
-    {
-        var payload = JsonContent.Create(new
-        {
-            oldPassword = "oldPassword123",
-            newPassword = "newPassword123",
-            confirmNewPassword = "differentPassword123"
-        });
-
-        var user = _fixture.Users.ElementAtOrDefault(0);
-        Assert.NotNull(user);
-
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _endpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
-
-        await TestUtils.AssertValidationError(response, "confirmNewPassword", "Passwords mismatch.");
+        await TestUtils.AssertValidationError(response, field, expectedMessage);
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Auth.Dtos.Auth;
 using Auth.Dtos.User;
 using Auth.Tests.Collections;
+using Auth.Utils;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -14,119 +15,87 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
 {
     private readonly IntegrationTestsFixture _fixture = fixture;
     private readonly ITestOutputHelper _out = output;
-    private readonly int _maxPassLength = 36;
-    private readonly int _minPassLength = 6;
-    private readonly int _maxEmailLength = 64;
     private readonly string _endpoint = "api/auth/register";
     private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
 
-    [Fact]
-    public async Task Register_EmptyFirstName_ReturnsFirstNameRequiredError()
+    public static IEnumerable<object[]> InvalidRegisterInputs()
     {
-        var payload = JsonContent.Create(new { lastName = "Doe", email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "firstName", "First name is required.");
+        const HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
+        const string firstName = "firstName";
+        const string lastName = "lastName";
+        const string email = "email";
+        const string password = "password";
+        var longEmail = new string('a', Constants.MaxEmailLength - "@gmail.com".Length + 1) + "@gmail.com";
+        var longFirstName = new string('A', Constants.MaxFirstNameLength + 1);
+        var longLastName = new string('B', Constants.MaxLastNameLength + 1);
+        var longPassword = new string('x', Constants.MaxPasswordLength + 1);
+        var shortPassword = new string('x', Constants.MinPasswordLength - 1);
+        var shortFirstName = new string('x', Constants.MinFirstNameLength - 1);
+        var shortLastName = new string('x', Constants.MinLastNameLength - 1);
+        return
+        [
+            // firstName
+            [
+                new { lastName = "Doe", email = "john@example.com", password = "password123" },
+                expectedStatusCode, firstName, "First name is required."
+            ],
+            [
+                new { firstName = shortFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
+                expectedStatusCode, firstName, "First name must be between 3 and 36 characters."
+            ],
+            [
+                new { firstName = longFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
+                expectedStatusCode, firstName, "First name must be between 3 and 36 characters."
+            ],
+            // lastName
+            [
+                new { firstName = "John", email = "john@example.com", password = "password123" },
+                expectedStatusCode, lastName, "Last name is required."
+            ],
+            [
+                new { firstName = "John", lastName = shortLastName, email = "john@example.com", password = "password123" },
+                expectedStatusCode, lastName, "Last name must be between 3 and 36 characters."
+            ],
+            [
+                new { firstName = "John", lastName = longLastName, email = "john@example.com", password = "password123" },
+                expectedStatusCode, lastName, "Last name must be between 3 and 36 characters."
+            ],
+            // email
+            [
+                new { firstName = "John", lastName = "Doe", password = "password123" },
+                expectedStatusCode, email, "Email is required."
+            ],
+            [
+                new { firstName = "John", lastName = "Doe", email = "invalid", password = "password123" },
+                expectedStatusCode, email, "Invalid email."
+            ],
+            [
+                new { firstName = "John", lastName = "Doe", email = longEmail, password = "password123" },
+                expectedStatusCode, email, "Email must be at most 64 characters."
+            ],
+            // password
+            [
+                new { firstName = "John", lastName = "Doe", email = "john@example.com" },
+                expectedStatusCode, password, "Password is required."
+            ],
+            [
+                new { firstName = "John", lastName = "Doe", email = "john@example.com", password = shortPassword },
+                expectedStatusCode, password, "Password must be between 6 and 36 characters."
+            ],
+            [
+                new { firstName = "John", lastName = "Doe", email = "john@example.com", password = longPassword },
+                expectedStatusCode, password, "Password must be between 6 and 36 characters."
+            ]
+        ];
     }
 
-    [Fact]
-    public async Task Register_ShortFirstName_ReturnsLengthError()
+    [Theory]
+    [MemberData(nameof(InvalidRegisterInputs))]
+    public async Task Register_InvalidInputs_ReturnsValidationError(object payload, HttpStatusCode expectedStatus, string field, string expectedMessage)
     {
-        var payload = JsonContent.Create(new { firstName = "Jo", lastName = "Doe", email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "firstName", "First name must be between 3 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task Register_TooLongFirstName_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new { firstName = new string('A', 37), lastName = "Doe", email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "firstName", "First name must be between 3 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task Register_EmptyLastName_ReturnsLastNameRequiredError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "lastName", "Last name is required.");
-    }
-
-    [Fact]
-    public async Task Register_ShortLastName_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Do", email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "lastName", "Last name must be between 3 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task Register_TooLongLastName_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = new string('B', 37), email = "john@example.com", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "lastName", "Last name must be between 3 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task Register_EmptyEmail_ReturnsEmailRequiredError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "email", "Email is required.");
-    }
-
-    [Fact]
-    public async Task Register_InvalidEmail_ReturnsInvalidEmailError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", email = "invalid", password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "email", "Invalid email.");
-    }
-
-    [Fact]
-    public async Task Register_TooLongEmail_ReturnsMaxLengthError()
-    {
-        var longEmail = new string('a', _maxEmailLength - "@gmail.com".Length + 1) + "@gmail.com";
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", email = longEmail, password = "password123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "email", "Email must be at most 64 characters.");
-    }
-
-    [Fact]
-    public async Task Register_EmptyPassword_ReturnsPasswordRequiredError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", email = "john@example.com" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "password", "Password is required.");
-    }
-
-    [Fact]
-    public async Task Register_ShortPassword_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", email = "john@example.com", password = "123" });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "password", "Password must be between 6 and 36 characters.");
-    }
-
-    [Fact]
-    public async Task Register_TooLongPassword_ReturnsLengthError()
-    {
-        var payload = JsonContent.Create(new { firstName = "John", lastName = "Doe", email = "john@example.com", password = new string('x', _maxPassLength + 1) });
-        var response = await _client.PostAsync(_endpoint, payload);
-
-        await TestUtils.AssertValidationError(response, "password", "Password must be between 6 and 36 characters.");
+        var response = await _client.PostAsync(_endpoint, JsonContent.Create(payload));
+        Assert.Equal(expectedStatus, response.StatusCode);
+        await TestUtils.AssertValidationError(response, field, expectedMessage);
     }
 
     [Fact]
@@ -151,7 +120,6 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
         var body = await response.Content.ReadFromJsonAsync<UserWithTokensDto>();
 
         Assert.NotNull(body);
-        _out.WriteLine(await response.Content.ReadAsStringAsync());
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         Assert.IsType<UserWithRolesAndPermissionsDto>(body.User);

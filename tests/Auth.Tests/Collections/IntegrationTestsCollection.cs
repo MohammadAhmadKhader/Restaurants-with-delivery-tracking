@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Auth.Data;
 using Microsoft.Extensions.Logging;
 using DotNetEnv;
-using Microsoft.AspNetCore.Hosting;
 using Xunit.Abstractions;
-using Meziantou.Extensions.Logging.Xunit;
 using Auth.Models;
 using Microsoft.AspNetCore.Identity;
+using Shared.Extensions;
 
 namespace Auth.Tests.Collections;
 
@@ -21,43 +19,19 @@ public class IntegrationTestsCollection : ICollectionFixture<IntegrationTestsFix
 public class IntegrationTestsFixture : IAsyncLifetime
 {
     public WebApplicationFactory<Program> Factory { get; }
+    public TestDataLoader Loader = default!;
+    public readonly string TestPassword = TestDataLoader.TestPassword;
     private const string ConnectionEnvVar = "ConnectionStrings__DefaultConnection";
-    private ILogger<IntegrationTestsFixture> _logger;
-    public HttpClient Client { get; set; }
-    private TestDataLoader _loader;
-    public List<User> Users { get; set; }
-    public List<Role> Roles { get; set; }
-    public string TestPassword { get; set; } = "123456";
-
+    private readonly ILogger<IntegrationTestsFixture> _logger;
     public IntegrationTestsFixture()
     {
         Env.Load();
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-
-            builder.ConfigureServices(configSvcs =>
-            {
-                var appDbContextDescriptor = configSvcs.FirstOrDefault(desc => desc.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                if (appDbContextDescriptor == null)
-                {
-                    throw new InvalidOperationException("Service Descriptor for 'DbContextOptions<AppDbContext>' was not found");
-                }
-
-                var connStr = Environment.GetEnvironmentVariable(ConnectionEnvVar);
-                if (string.IsNullOrWhiteSpace(connStr))
-                {
-                    var envs = Environment.GetEnvironmentVariables();
-                    throw new InvalidOperationException("Connection environment variable for testing database was not set");
-                }
-
-                configSvcs.Remove(appDbContextDescriptor);
-                configSvcs.AddDbContext<AppDbContext>(options => options.UseNpgsql(connStr));
-            });
+            builder.ApplyDefaultConfigurations<AppDbContext>(ConnectionEnvVar);
         });
 
         _logger = Factory.Services.GetRequiredService<ILogger<IntegrationTestsFixture>>();
-        Client = Factory.CreateClient();
     }
 
     public async Task InitializeAsync()
@@ -77,12 +51,10 @@ public class IntegrationTestsFixture : IAsyncLifetime
             return;
         }
 
-        _loader = new TestDataLoader(db, passwordHasher);
+        Loader = new TestDataLoader(db, passwordHasher);
 
         await db.Database.EnsureCreatedAsync();
-        var (users, roles) = await _loader.InitializeAsync();
-        Roles = roles;
-        Users = users;
+        await Loader.InitializeAsync();
     }
 
     public async Task DisposeAsync()
@@ -90,42 +62,26 @@ public class IntegrationTestsFixture : IAsyncLifetime
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        await _loader.CleanAsync(db);
+        await Loader.CleanAsync(db);
         await Factory.DisposeAsync();
     }
 
     public HttpClient CreateClientWithTestOutput(ITestOutputHelper output)
     {
-        var factory = Factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
-                logging.Services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(output));
-            });
-        });
-
-        return factory.CreateClient();
+        return Factory.EnableTestLoggingToXunit(output).CreateClient();
     }
-
-    public TService GetService<TService>() where TService : notnull
-    {
-        using var scope = Factory.Services.CreateScope();
-        return scope.ServiceProvider.GetRequiredService<TService>();
-    }
-
     public User GetSuperAdmin()
     {
-        return Users.First(u => u.Email == TestDataLoader.SuperAdminEmail);
+        return Loader.Users.First(u => u.Email == TestDataLoader.SuperAdminEmail);
     }
 
     public User GetAdmin()
     {
-        return Users.First(u => u.Email == TestDataLoader.AdminEmail);
+        return Loader.Users.First(u => u.Email == TestDataLoader.AdminEmail);
     }
 
     public User GetUser()
     {
-        return Users.First(u => u.Email == TestDataLoader.UserEmail);
+        return Loader.Users.First(u => u.Email == TestDataLoader.UserEmail);
     }
 }

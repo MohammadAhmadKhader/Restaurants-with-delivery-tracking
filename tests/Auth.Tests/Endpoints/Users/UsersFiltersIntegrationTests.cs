@@ -11,7 +11,7 @@ namespace Auth.Tests.Endpoints.Users;
 public class UsersFiltersIntegrationTests
 {
     private readonly ITestOutputHelper _out;
-    private static IntegrationTestsFixture _fixture = default!;
+    private readonly IntegrationTestsFixture _fixture = default!;
     private readonly string _endpoint = "api/users";
     private readonly HttpClient _client;
     private const string collectionKey = "items";
@@ -34,7 +34,7 @@ public class UsersFiltersIntegrationTests
         var user = role switch
         {
             "SuperAdmin" => _fixture.GetSuperAdmin(),
-            "Admin" => _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.AdminEmail),
+            "Admin" => _fixture.Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.AdminEmail),
             _ => throw new ArgumentException("Unsupported role")
         };
         Assert.NotNull(user);
@@ -66,7 +66,7 @@ public class UsersFiltersIntegrationTests
         var queryParams = new Dictionary<string, string> { };
         var queryString = TestUtils.GetQueryString(queryParams);
 
-        var user = _fixture.Users.FirstOrDefault(u => u.Email == TestDataLoader.UserEmail);
+        var user = _fixture.Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.UserEmail);
         Assert.NotNull(user);
 
         var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);

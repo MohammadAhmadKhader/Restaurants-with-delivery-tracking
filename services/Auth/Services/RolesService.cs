@@ -68,7 +68,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
         var role = await roleManager.FindByIdAsync(id.ToString());
         if (role == null)
         {
-            throw new ResourceNotFoundException("role");
+            throw new ResourceNotFoundException(resourceName);
         }
 
         if (role.Name == RolePolicies.SuperAdmin)
@@ -108,7 +108,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
         var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
         if (role == null)
         {
-            throw new ResourceNotFoundException("role");
+            throw new ResourceNotFoundException(resourceName);
         }
 
         if (role.Name == RolePolicies.SuperAdmin)
@@ -116,36 +116,31 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
             throw new InvalidOperationException("this role can not be modified");
         }
 
-        var permissions = await _unitOfWork.PermissionsRepository.FindByIds(permissionsIds);
-        var permissionsToAddIdsSet = permissions.Select(p => p.Id).ToHashSet();
-        if (permissions.Count != permissionsIds.Count)
+        var permissionsToAdd = await _unitOfWork.PermissionsRepository.FindByIds(permissionsIds);
+        var fetchedIds = permissionsToAdd.Select(p => p.Id).ToHashSet();
+        if (permissionsToAdd.Count != permissionsIds.Count)
         {
-            var notExistentPermissionId = permissions.First(perm => !permissionsToAddIdsSet.Contains(perm.Id));
+            var notFoundId = permissionsIds.First(id => !fetchedIds.Contains(id));
 
-            throw new ResourceNotFoundException("permission", notExistentPermissionId);
+            throw new ResourceNotFoundException("permission", notFoundId);
         }
 
-        // if the role already has the permission
         foreach (var permission in role.Permissions)
         {
-            if (permissionsToAddIdsSet.Contains(permission.Id))
+            if (fetchedIds.Contains(permission.Id))
             {
                 throw new ConflictException("permission", permission.Name, ConflictType.AlreadyAssigned);
             }
+        }
 
-            var isOnlySuperAdminPermission =
-            !permission.IsDefaultUser &&
-            !permission.IsDefaultAdmin &&
-            permission.IsDefaultSuperAdmin;
-
+        foreach (var permission in permissionsToAdd)
+        {
+            var isOnlySuperAdminPermission = SecurityUtils.IsSuperAdminOnly(permission);
             if (isOnlySuperAdminPermission)
             {
                 throw new InvalidOperationException("SuperAdmin Permission can not be added");
             }
-        }
 
-        foreach (var permission in permissions)
-        {
             role.Permissions.Add(permission);
         }
 
@@ -158,7 +153,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
         var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
         if (role == null)
         {
-            throw new ResourceNotFoundException("role", roleId.ToString());
+            throw new ResourceNotFoundException(resourceName, roleId.ToString());
         }
 
         if (role.Name == RolePolicies.SuperAdmin)

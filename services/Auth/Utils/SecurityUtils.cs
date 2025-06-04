@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using Auth.Config;
+using Auth.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Utils;
@@ -49,5 +50,12 @@ static class SecurityUtils
         }
 
         return userId;
+    }
+
+    public static bool IsSuperAdminOnly(Permission permission)
+    {
+        return !permission.IsDefaultUser &&
+            !permission.IsDefaultAdmin &&
+        permission.IsDefaultSuperAdmin;
     }
 }

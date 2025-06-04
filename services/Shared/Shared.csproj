@@ -16,6 +16,8 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="xunit" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Meziantou.Extensions.Logging.Xunit" />
   </ItemGroup>
 
 </Project>

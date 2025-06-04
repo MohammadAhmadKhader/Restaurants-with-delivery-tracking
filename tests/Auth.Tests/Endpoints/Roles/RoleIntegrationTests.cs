@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Tests.Collections;
+using Auth.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Utils;
 using Xunit.Abstractions;
@@ -12,14 +13,19 @@ namespace Auth.Tests.Endpoints.Roles;
 [Collection("IntegrationTests")]
 public class RoleIntegrationTests
 {
-    private static IntegrationTestsFixture _fixture;
+    private readonly IntegrationTestsFixture _fixture;
     private readonly ITestOutputHelper _out;
-
-    private static readonly int _minLength = 3;
-    private static readonly int _maxLength = 36;
-    private static readonly string _mainEndpoint = "api/roles";
     private readonly HttpClient _client;
+    private static readonly string _mainEndpoint = "api/roles";
     private static Guid _roleIdToUpdate;
+    private static Guid _roleIdToDelete;
+    private static Guid _roleIdToAddPermissions1;
+    private static Guid _roleIdToAddPermissions2;
+    private static Guid _roleIdToRemovePermission1;
+    private static Guid _roleIdToRemovePermission2;
+    private static int _permissionIdToBeRemoved1;
+    private static int _permissionIdToBeRemoved2;
+    private static int _permissionIdToBeRemoved3;
 
     public RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
     {
@@ -27,15 +33,73 @@ public class RoleIntegrationTests
         _out = output;
         _client = fixture.CreateClientWithTestOutput(output);
 
-        InitializeRoleToUpdate();
+        InitializeRolesToMutate();
     }
 
-    private void InitializeRoleToUpdate()
+    private void InitializeRolesToMutate()
     {
         var roleToUpdate = new Role
         {
-            Name = "NewRole",
-            DisplayName = "NewRole"
+            Name = "NewRolex1",
+            DisplayName = "NewRolex1"
+        };
+
+        var roleToDelete = new Role
+        {
+            Name = "NewRolex2",
+            DisplayName = "NewRolex2"
+        };
+
+        var roleToAddPermissions1 = new Role
+        {
+            Name = "NewRolex3",
+            DisplayName = "NewRolex3"
+        };
+
+        var roleToAddPermissions2 = new Role
+        {
+            Name = "NewRolex4",
+            DisplayName = "NewRolex4"
+        };
+
+        var roleToRemovePermission1 = new Role
+        {
+            Name = "NewRolex5",
+            DisplayName = "NewRolex5"
+        };
+
+        var roleToRemovePermission2 = new Role
+        {
+            Name = "NewRolex6",
+            DisplayName = "NewRolex6"
+        };
+
+        var permissionToBeRemoved1 = new Permission
+        {
+            Name = "NewPermission1",
+            DisplayName = "NewPermission1",
+            IsDefaultUser = false,
+            IsDefaultAdmin = true,
+            IsDefaultSuperAdmin = true,
+        };
+
+        var permissionToBeRemoved2 = new Permission
+        {
+            Name = "NewPermission2",
+            DisplayName = "NewPermission2",
+            IsDefaultUser = false,
+            IsDefaultAdmin = true,
+            IsDefaultSuperAdmin = true,
+        };
+
+        // this will not be added to any role, will be used with removale of not added permission attempt
+        var permissionToBeRemoved3 = new Permission
+        {
+            Name = "NewPermission3",
+            DisplayName = "NewPermission3",
+            IsDefaultUser = false,
+            IsDefaultAdmin = true,
+            IsDefaultSuperAdmin = true,
         };
 
         Task.Run(async () =>
@@ -43,10 +107,35 @@ public class RoleIntegrationTests
             using var scope = _fixture.Factory.Services.CreateScope();
             var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+            using var transaction = await unitOfWork.BeginTransactionAsync();
             await unitOfWork.RolesRepository.CreateAsync(roleToUpdate);
+            await unitOfWork.RolesRepository.CreateAsync(roleToDelete);
+            await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions1);
+            await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions2);
+            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission1);
+            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
+            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
+
+            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved1);
+            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved2);
+            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved3);
+           
             await unitOfWork.SaveChangesAsync();
 
+            roleToRemovePermission1.Permissions.Add(permissionToBeRemoved1);
+            roleToRemovePermission2.Permissions.Add(permissionToBeRemoved2);
+            await unitOfWork.SaveChangesAsync();
+            await transaction.CommitAsync();
+
             _roleIdToUpdate = roleToUpdate.Id;
+            _roleIdToDelete = roleToDelete.Id;
+            _roleIdToAddPermissions1 = roleToAddPermissions1.Id;
+            _roleIdToAddPermissions2 = roleToAddPermissions2.Id;
+            _roleIdToRemovePermission1 = roleToRemovePermission1.Id;
+            _roleIdToRemovePermission2 = roleToRemovePermission2.Id;
+            _permissionIdToBeRemoved1 = permissionToBeRemoved1.Id;
+            _permissionIdToBeRemoved2 = permissionToBeRemoved2.Id;
+            _permissionIdToBeRemoved3 = permissionToBeRemoved3.Id;
         }).GetAwaiter().GetResult();
     }
 
@@ -68,17 +157,17 @@ public class RoleIntegrationTests
 
     public static IEnumerable<object[]> CreateRoleInvalidInputs => new List<object[]>
     {
-        new object[] { new Dictionary<string, object> { ["name"] = null, ["displayName"] = "DisplayName" },
+        new object[] { new Dictionary<string, object> { ["name"] = null!, ["displayName"] = "DisplayName" },
             "name", "Name is required." },
-        new object[] { new Dictionary<string, object> { ["name"] = "Name", ["displayName"] = null },
+        new object[] { new Dictionary<string, object> { ["name"] = "Name", ["displayName"] = null! },
             "displayName", "Display name is required." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('a', _minLength - 1) },
+        new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength - 1) },
             "name", "Name must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('a', _minLength), ["displayName"] = new string('a', _minLength - 1) },
+        new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength), ["displayName"] = new string('a', Constants.MinRoleNameLength - 1) },
             "displayName", "Display name must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('x', _maxLength + 1) },
+        new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength + 1) },
             "name", "Name must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('x', _maxLength) ,["displayName"] = new string('x', _maxLength + 1) },
+        new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength) ,["displayName"] = new string('x', Constants.MaxRoleNameLength + 1) },
             "displayName", "Display name must be between 3 and 36 characters." },
     };
 
@@ -91,13 +180,8 @@ public class RoleIntegrationTests
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var role = _fixture.Roles.FirstOrDefault();
-        Assert.NotNull(role);
-
-        var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, $"{_mainEndpoint}", accessToken, jsonPayload);
-
-        var response = await _client.SendAsync(request);
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+         _fixture.TestPassword, _mainEndpoint, jsonPayload);
 
         await TestUtils.AssertValidationError(response, field, expectedMessage);
     }
@@ -114,10 +198,8 @@ public class RoleIntegrationTests
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Post, _mainEndpoint, accessToken, payload);
-
-        var response = await _client.SendAsync(request);
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+         _fixture.TestPassword, _mainEndpoint, payload);
 
         Assert.True(response.IsSuccessStatusCode, $"Expected success but got {response.StatusCode}");
     }
@@ -126,16 +208,16 @@ public class RoleIntegrationTests
 
     #region Update Role
 
-    public static IEnumerable<object[]> UpdateRoleInvalidInputs => new List<object[]>
-    {
-        new object[] { "displayName", new { displayName = new string('a', _minLength - 1) }, "Display name must be between 3 and 36 characters." },
-        new object[] { "displayName", new { displayName =  new string('x', _maxLength + 1) }, "Display name must be between 3 and 36 characters." },
-        new object[] { "name", new { name = new string('a', _minLength - 1) }, "Name must be between 3 and 36 characters." },
-        new object[] { "name", new { name = new string('x', _maxLength + 1)}, "Name must be between 3 and 36 characters." },
-        new object[] { "role", new { displayName = "", name = "" }, "At least one of 'Name' or 'DisplayName' must be provided." },
-        new object[] { "role", new { displayName = "   ", name = "   " }, "At least one of 'Name' or 'DisplayName' must be provided." },
-        new object[] { "role", new { displayName = (string?)null, name = (string?)null }, "At least one of 'Name' or 'DisplayName' must be provided." },
-    };
+    public static IEnumerable<object[]> UpdateRoleInvalidInputs =>
+    [
+        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) }, "Display name must be between 3 and 36 characters."],
+        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) }, "Display name must be between 3 and 36 characters."],
+        ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) }, "Name must be between 3 and 36 characters."],
+        ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)}, "Name must be between 3 and 36 characters."],
+        ["role", new { displayName = "", name = "" }, "At least one of 'Name' or 'DisplayName' must be provided."],
+        ["role", new { displayName = "   ", name = "   " }, "At least one of 'Name' or 'DisplayName' must be provided."],
+        ["role", new { displayName = (string?)null, name = (string?)null }, "At least one of 'Name' or 'DisplayName' must be provided."],
+    ];
 
     [Theory]
     [MemberData(nameof(UpdateRoleInvalidInputs))]
@@ -145,11 +227,10 @@ public class RoleIntegrationTests
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
         var jsonPayload = JsonContent.Create(payload);
 
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Put, $"{_mainEndpoint}/{roleId}", accessToken, jsonPayload);
-        var response = await _client.SendAsync(request);
+        var url = $"{_mainEndpoint}/{roleId}";
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Put, user.Email!, _fixture.TestPassword, url, jsonPayload);
 
         await TestUtils.AssertValidationError(response, fieldName, expectedError);
     }
@@ -163,17 +244,16 @@ public class RoleIntegrationTests
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-
         var payload = new Dictionary<string, string>();
         for (int i = 0; i < fieldName.Length; i++)
         {
             payload[fieldName[i]] = fieldValue[i];
         }
-        var jsonContent = JsonContent.Create(payload);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Put, $"{_mainEndpoint}/{_roleIdToUpdate}", accessToken, jsonContent);
+        var jsonPayload = JsonContent.Create(payload);
 
-        var response = await _client.SendAsync(request);
+        var url = $"{_mainEndpoint}/{_roleIdToUpdate}";
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Put, user.Email!, _fixture.TestPassword, url, jsonPayload);
+
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
@@ -186,10 +266,8 @@ public class RoleIntegrationTests
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var (accessToken, refreshToken) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Put, $"{_mainEndpoint}/{roleId}", accessToken, payload);
-
-        var response = await _client.SendAsync(request);
+        var url = $"{_mainEndpoint}/{roleId}";
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Put, user.Email!, _fixture.TestPassword, url, payload);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -198,32 +276,243 @@ public class RoleIntegrationTests
 
 
     #region Delete Role
+
     [Theory]
-    [InlineData(null, true)]
-    [InlineData(null, false)]
-    [InlineData(null, false)]
-    public async Task DeleteRole_ValidInputs_ReturnsSuccess(Guid? id, bool s)
+    [InlineData("NotFound")]
+    [InlineData("BadRequest")]
+    public async Task DeleteRole_InvalidAttempts_ReturnsProperError(string scenario)
+    {
+        Guid roleId;
+        HttpStatusCode expectedStatus;
+
+        switch (scenario)
+        {
+            case "NotFound":
+                roleId = Guid.NewGuid();
+                expectedStatus = HttpStatusCode.NotFound;
+                break;
+
+            case "BadRequest":
+                var superAdmin = _fixture.Loader.Roles.First(r => r.Name == RolePolicies.SuperAdmin);
+                roleId = superAdmin.Id;
+                expectedStatus = HttpStatusCode.BadRequest;
+                break;
+
+            default:
+                throw new NotSupportedException(nameof(scenario));
+        }
+
+        var user = _fixture.GetSuperAdmin();
+        var url = $"{_mainEndpoint}/{roleId}";
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+
+        Assert.Equal(expectedStatus, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeleteRole_ValidDeletableRole_ReturnsNoContent()
     {
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
-        var (accessToken, _) = await TestUtils.Login(_client, user.Email!, _fixture.TestPassword);
-        var request = TestUtils.GetRequestWithAuth(HttpMethod.Delete, $"{_mainEndpoint}/{_roleIdToUpdate}", accessToken, null);
-
-        var response = await _client.SendAsync(request);
+        var url = $"{_mainEndpoint}/{_roleIdToDelete}";
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
-
 
     #endregion
 
 
     #region Add Permission
 
+    [Fact]
+    public async Task AddPermission_RoleNotFound_ReturnsNotFound()
+    {
+        var fakeRoleId = Guid.NewGuid();
+        var user = _fixture.GetSuperAdmin();
+        var url = FormatAddPermissionEndpoint(fakeRoleId);
+        var body = new Dictionary<string, int[]> { { "ids", new[] { _fixture.Loader.NotSuperAdminOnlyPermissions.First().Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_SuperAdminOnlyPermission_ReturnsBadRequest()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _fixture.Loader.AdminRole.Id;
+        var url = FormatAddPermissionEndpoint(roleId);
+        var body = new Dictionary<string, int[]> { { "ids", new[] { _fixture.Loader.SuperAdminOnlyPermission.Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_OneofThePermissionsNotFound_ReturnsBadRequest()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _fixture.Loader.AdminRole.Id;
+        var url = FormatAddPermissionEndpoint(roleId);
+        var fakePermissionId = 999999;
+        var body = new Dictionary<string, int[]> { { "ids", new[] { fakePermissionId, _fixture.Loader.NotSuperAdminOnlyPermissions.First().Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_OnePermissionAndIsNotFound_ReturnsBadRequest()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _fixture.Loader.AdminRole.Id;
+        var url = FormatAddPermissionEndpoint(roleId);
+        var fakePermissionId = 999999;
+        var body = new Dictionary<string, int[]> { { "ids", new[] { fakePermissionId } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_PermissionsWithOneIsAlreadyAssigned_ReturnsConflict()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _fixture.Loader.AdminRole.Id;
+        var url = FormatAddPermissionEndpoint(roleId);
+
+        var assignedPermission = _fixture.Loader.AdminRole.Permissions.First();
+        var notAssignedPermission = _fixture.Loader.Permissions.First(x => x.Name == TestDataLoader.TestPermissionNameX1);
+        var body = new Dictionary<string, int[]> { { "ids", new[] { assignedPermission.Id, notAssignedPermission.Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_OnePermissionThatIsAlreadyAssigned_ReturnsConflict()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _fixture.Loader.AdminRole.Id;
+        var url = FormatAddPermissionEndpoint(roleId);
+
+        var assignedPermission = _fixture.Loader.AdminRole.Permissions.First();
+        var body = new Dictionary<string, int[]> { { "ids", new[] { assignedPermission.Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_AddingOnePermissionCorrectly_ReturnsNoContent()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _roleIdToAddPermissions1;
+        var url = FormatAddPermissionEndpoint(roleId);
+
+        var notAssignedPermission1 = _fixture.Loader.NotSuperAdminOnlyPermissions.First(x => x.Name == TestDataLoader.TestPermissionNameX1);
+        var body = new Dictionary<string, int[]> { { "ids", new[] { notAssignedPermission1.Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddPermission_AddingMultiplePermissionsCorrectly_ReturnsNoContent()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _roleIdToAddPermissions2;
+        var url = FormatAddPermissionEndpoint(roleId);
+
+        var notAssignedPermission1 = _fixture.Loader.Permissions.First(x => x.Name == TestDataLoader.TestPermissionNameX1);
+        var notAssignedPermission2 = _fixture.Loader.Permissions.First(x => x.Name == TestDataLoader.TestPermissionNameX2);
+        var body = new Dictionary<string, int[]> { { "ids", new[] { notAssignedPermission1.Id, notAssignedPermission2.Id } } };
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Post, user.Email!,
+            _fixture.TestPassword, url, JsonContent.Create(body));
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
     #endregion
 
 
     #region Remove Permission
+
+    [Fact]
+    public async Task RemovePermission_NotExistingRole_ReturnsNotFound()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = Guid.NewGuid();
+        var url = FormatRemovePermissionEndpoint(roleId, _permissionIdToBeRemoved1);
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RemovePermission_NotExistingPermission_ReturnsNotFound()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _roleIdToRemovePermission1;
+        var notExistingPermissionId = 999999;
+        var url = FormatRemovePermissionEndpoint(roleId, notExistingPermissionId);
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RemovePermission_RemovingPermissionFromSuperAdminRole_ReturnsBadRequest()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var superAdminRole = _fixture.Loader.SuperAdminRole;
+        var roleId = superAdminRole.Id;
+        var url = FormatRemovePermissionEndpoint(roleId, superAdminRole.Permissions.First().Id);
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RemovePermission_AttemptingToRemoveNotAddedPermission_ReturnsBadRequest()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var adminRole = _fixture.Loader.AdminRole;
+        var roleId = adminRole.Id;
+        var url = FormatRemovePermissionEndpoint(roleId, _permissionIdToBeRemoved3);
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RemovePermission_ValidRemovale_ReturnsNoContent()
+    {
+        var user = _fixture.GetSuperAdmin();
+        var roleId = _roleIdToRemovePermission2;
+        var notExistingPermissionId = _permissionIdToBeRemoved2;
+        var url = FormatRemovePermissionEndpoint(roleId, notExistingPermissionId);
+
+        var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Delete, user.Email!, _fixture.TestPassword, url);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
 
     #endregion
 
@@ -233,33 +522,47 @@ public class RoleIntegrationTests
     {
         var guidId = Guid.NewGuid().ToString();
         var mainEndPointWithGuidId = _mainEndpoint + "/" + guidId;
-        return new List<object[]>
-        {
+        var addPermissionEndPoint = FormatAddPermissionEndpoint(Guid.NewGuid());
+        var addPermissionEndPointWithPermissionId = FormatRemovePermissionEndpoint(Guid.NewGuid(), 9999999);
+        return
+        [
             // success are set to bad request because we will have invalid payload result
             // get endpoint
-            new object[] { DefaultUserRoles.SuperAdmin, HttpMethod.Get, _mainEndpoint, HttpStatusCode.OK },
-            new object[] { DefaultUserRoles.Admin, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.User, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.None, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Unauthorized },
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Get, _mainEndpoint, HttpStatusCode.OK],
+            [DefaultUserRoles.Admin, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Get, _mainEndpoint, HttpStatusCode.Unauthorized],
 
             // create endpoint
-            new object[] { DefaultUserRoles.SuperAdmin, HttpMethod.Post, _mainEndpoint, HttpStatusCode.BadRequest },
-            new object[] { DefaultUserRoles.Admin, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.User, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.None, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Unauthorized },
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Post, _mainEndpoint, HttpStatusCode.BadRequest],
+            [DefaultUserRoles.Admin, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Post, _mainEndpoint, HttpStatusCode.Unauthorized],
 
             // update endpoint
-            new object[] { DefaultUserRoles.SuperAdmin, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.BadRequest },
-            new object[] { DefaultUserRoles.Admin, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.User, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.None, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Unauthorized },
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.BadRequest],
+            [DefaultUserRoles.Admin, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Put, mainEndPointWithGuidId, HttpStatusCode.Unauthorized],
 
             // delete endpoint
-            new object[] { DefaultUserRoles.SuperAdmin, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.NotFound },
-            new object[] { DefaultUserRoles.Admin, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.User, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Forbidden },
-            new object[] { DefaultUserRoles.None, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Unauthorized },
-        };
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.NotFound],
+            [DefaultUserRoles.Admin, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Unauthorized],
+
+            // create permission endpoint
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.NotFound],
+            [DefaultUserRoles.Admin, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Unauthorized],
+
+            // remove permission endpoint
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Delete, addPermissionEndPointWithPermissionId, HttpStatusCode.NotFound],
+            [DefaultUserRoles.Admin, HttpMethod.Delete, addPermissionEndPointWithPermissionId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.User, HttpMethod.Delete, addPermissionEndPointWithPermissionId, HttpStatusCode.Forbidden],
+            [DefaultUserRoles.None, HttpMethod.Delete, addPermissionEndPointWithPermissionId, HttpStatusCode.Unauthorized],
+        ];
     }
 
     [Theory]
@@ -283,4 +586,16 @@ public class RoleIntegrationTests
     }
 
     #endregion
+
+    private static string FormatRemovePermissionEndpoint(Guid roleId, int permissionId)
+    {
+        Assert.False(Guid.Empty == roleId);
+        return _mainEndpoint + "/" + roleId.ToString() + "/" + "permissions" + "/" + permissionId;
+    }
+
+    private static string FormatAddPermissionEndpoint(Guid roleId)
+    {
+        Assert.False(Guid.Empty == roleId);
+        return _mainEndpoint + "/" + roleId.ToString() + "/" + "permissions";
+    }
 }

@@ -1,19 +1,18 @@
 using Auth.Dtos.Role;
+using Auth.Utils;
 using FluentValidation;
 
 namespace Auth.Extensions.FluentValidationValidators;
 class RoleUpdateDtoValidator: AbstractValidator<RoleUpdateDto>
 {
-    private const int minLength = 3;
-    private const int maxLength = 36;
     public RoleUpdateDtoValidator()
     {
         RuleFor(r => r.DisplayName)
-        .Length(minLength, maxLength)
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
         .WithMessage("Display name must be between 3 and 36 characters.");
 
         RuleFor(r => r.Name)
-        .Length(minLength, maxLength)
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
         .WithMessage("Name must be between 3 and 36 characters.");
 
         RuleFor(r => r)
