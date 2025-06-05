@@ -11,12 +11,14 @@ using Xunit.Abstractions;
 namespace Auth.Tests.Endpoints.Roles;
 
 [Collection("IntegrationTests")]
-public class RoleIntegrationTests
+public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output) : IAsyncLifetime
 {
-    private readonly IntegrationTestsFixture _fixture;
-    private readonly ITestOutputHelper _out;
-    private readonly HttpClient _client;
+    private readonly IntegrationTestsFixture _fixture = fixture;
+    private readonly ITestOutputHelper _out = output;
+    private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
     private static readonly string _mainEndpoint = "api/roles";
+    private readonly Lock _initLock = new();
+    private static bool _testDataInitialized = false;
     private static Guid _roleIdToUpdate;
     private static Guid _roleIdToDelete;
     private static Guid _roleIdToAddPermissions1;
@@ -27,17 +29,18 @@ public class RoleIntegrationTests
     private static int _permissionIdToBeRemoved2;
     private static int _permissionIdToBeRemoved3;
 
-    public RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
-    {
-        _fixture = fixture;
-        _out = output;
-        _client = fixture.CreateClientWithTestOutput(output);
-
-        InitializeRolesToMutate();
-    }
-
-    private void InitializeRolesToMutate()
-    {
+    public async Task InitializeAsync()
+    {    
+        lock (_initLock)
+        {
+            if (_testDataInitialized)
+            {
+                return;
+            }
+        
+            _testDataInitialized = true;
+        }
+ 
         var roleToUpdate = new Role
         {
             Name = "NewRolex1",
@@ -101,43 +104,41 @@ public class RoleIntegrationTests
             IsDefaultAdmin = true,
             IsDefaultSuperAdmin = true,
         };
+    
+        using var scope = _fixture.Factory.Services.CreateScope();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-        Task.Run(async () =>
-        {
-            using var scope = _fixture.Factory.Services.CreateScope();
-            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        using var transaction = await unitOfWork.BeginTransactionAsync();
+        await unitOfWork.RolesRepository.CreateAsync(roleToUpdate);
+        await unitOfWork.RolesRepository.CreateAsync(roleToDelete);
+        await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions1);
+        await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions2);
+        await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission1);
+        await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
 
-            using var transaction = await unitOfWork.BeginTransactionAsync();
-            await unitOfWork.RolesRepository.CreateAsync(roleToUpdate);
-            await unitOfWork.RolesRepository.CreateAsync(roleToDelete);
-            await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions1);
-            await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions2);
-            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission1);
-            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
-            await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
+        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved1);
+        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved2);
+        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved3);
 
-            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved1);
-            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved2);
-            await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved3);
-           
-            await unitOfWork.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
-            roleToRemovePermission1.Permissions.Add(permissionToBeRemoved1);
-            roleToRemovePermission2.Permissions.Add(permissionToBeRemoved2);
-            await unitOfWork.SaveChangesAsync();
-            await transaction.CommitAsync();
+        roleToRemovePermission1.Permissions.Add(permissionToBeRemoved1);
+        roleToRemovePermission2.Permissions.Add(permissionToBeRemoved2);
+        await unitOfWork.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-            _roleIdToUpdate = roleToUpdate.Id;
-            _roleIdToDelete = roleToDelete.Id;
-            _roleIdToAddPermissions1 = roleToAddPermissions1.Id;
-            _roleIdToAddPermissions2 = roleToAddPermissions2.Id;
-            _roleIdToRemovePermission1 = roleToRemovePermission1.Id;
-            _roleIdToRemovePermission2 = roleToRemovePermission2.Id;
-            _permissionIdToBeRemoved1 = permissionToBeRemoved1.Id;
-            _permissionIdToBeRemoved2 = permissionToBeRemoved2.Id;
-            _permissionIdToBeRemoved3 = permissionToBeRemoved3.Id;
-        }).GetAwaiter().GetResult();
+        _roleIdToUpdate = roleToUpdate.Id;
+        _roleIdToDelete = roleToDelete.Id;
+        _roleIdToAddPermissions1 = roleToAddPermissions1.Id;
+        _roleIdToAddPermissions2 = roleToAddPermissions2.Id;
+        _roleIdToRemovePermission1 = roleToRemovePermission1.Id;
+        _roleIdToRemovePermission2 = roleToRemovePermission2.Id;
+        _permissionIdToBeRemoved1 = permissionToBeRemoved1.Id;
+        _permissionIdToBeRemoved2 = permissionToBeRemoved2.Id;
+        _permissionIdToBeRemoved3 = permissionToBeRemoved3.Id;
     }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 
     #region Get Roles (Pagination)
 

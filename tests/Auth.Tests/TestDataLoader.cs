@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Auth.Data;
 using Auth.Data.Seed;
 using Auth.Models;
@@ -28,15 +27,25 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public const string UserEmail = "emma.jones@gmail.com";
     public const string TestPermissionNameX1 = "TEST.PERMISSIONx1";
     public const string TestPermissionNameX2 = "TEST.PERMISSIONx2";
+    private readonly Lock _initLock = new();
+    private static bool _testDataInitialized = false;
     public Permission SuperAdminOnlyPermission { get; set; } = default!;
 
-    public async Task<(List<User> users, List<Role> roles)> InitializeAsync()
+    public async Task InitializeAsync()
     {
-        _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
-        var roles = await LoadRolesAndPermissions();
-        var users = await LoadUsers();
+        lock (_initLock)
+        {
+            if (_testDataInitialized)
+            {
+                return;
+            }
 
-        return (users, roles);
+            _testDataInitialized = true;
+        }
+
+        _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
+        await LoadRolesAndPermissions();
+        await LoadUsers();
     }
 
     public async Task CleanAsync(AppDbContext db)
