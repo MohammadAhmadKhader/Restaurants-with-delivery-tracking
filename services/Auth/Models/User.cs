@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Models;
@@ -8,10 +9,14 @@ public enum DefaultUserRoles { None, User, Admin, SuperAdmin }
 public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
 public class User : IdentityUser<Guid>
 {
+    [MaxLength(Constants.MaxFirstNameLength)]
     public string? FirstName { get; set; } = default!;
+
+    [MaxLength(Constants.MaxLastNameLength)]
     public string? LastName { get; set; } = default!;
 
     [EmailAddress]
+    [MaxLength(Constants.MaxEmailLength)]
     public override string? Email { get; set; } = default!;
     // just in case
     [JsonIgnore]

@@ -45,9 +45,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
             entity.HasIndex(r => r.NormalizedEmail).IsUnique();
 
-            entity.Property(u => u.UpdatedAt)
-            .ValueGeneratedOnAddOrUpdate();
-
             entity.HasMany(u => u.Roles)
             .WithMany(r => r.Users)
             .UsingEntity<IdentityUserRole<Guid>>(
@@ -67,6 +64,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
             entity.Property(u => u.CreatedAt).HasDefaultValueSql(currDateSqlStatement);
             entity.Property(u => u.UpdatedAt).HasDefaultValueSql(currDateSqlStatement);
+            entity.Property(u => u.UpdatedAt)
+            .ValueGeneratedOnAddOrUpdate();
 
             entity.Property(u => u.IsDeleted)
                 .HasDefaultValue(false);

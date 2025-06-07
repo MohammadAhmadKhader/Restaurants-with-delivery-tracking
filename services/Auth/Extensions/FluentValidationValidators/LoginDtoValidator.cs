@@ -10,8 +10,8 @@ class LoginDtoValidator : AbstractValidator<LoginDto>
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email.")
-            .MaximumLength(64).WithMessage("Email must be at most 64 characters.");
+            .EmailAddress()
+            .MaximumLength(64);
         
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.")

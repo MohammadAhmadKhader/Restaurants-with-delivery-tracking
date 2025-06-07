@@ -8,12 +8,10 @@ class RoleUpdateDtoValidator: AbstractValidator<RoleUpdateDto>
     public RoleUpdateDtoValidator()
     {
         RuleFor(r => r.DisplayName)
-        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
-        .WithMessage("Display name must be between 3 and 36 characters.");
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
 
         RuleFor(r => r.Name)
-        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
-        .WithMessage("Name must be between 3 and 36 characters.");
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
 
         RuleFor(r => r)
         .Must(r => !string.IsNullOrWhiteSpace(r.DisplayName) || !string.IsNullOrWhiteSpace(r.Name))

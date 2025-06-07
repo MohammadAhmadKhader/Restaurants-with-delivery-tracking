@@ -50,6 +50,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IAddressesService, AddressesService>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -123,6 +124,7 @@ app.UseAuthorization();
 app.MapAuthEndpoints();
 app.MapUsersEndpoints();
 app.MapRolesEndpoints();
+app.MapAddressesEndpoints();
 
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();

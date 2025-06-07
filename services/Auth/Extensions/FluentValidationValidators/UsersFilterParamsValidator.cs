@@ -12,8 +12,7 @@ class UserFilterParamsValidator: AbstractValidator<UsersFilterParams>
     {
         RuleFor(x => x.Email)
           .EmailAddress()
-          .When(x => !string.IsNullOrWhiteSpace(x.Email))
-          .WithMessage("Invalid email address");
+          .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
         RuleFor(x => x)
           .Must(x => !(x.CreatedAfter.HasValue && x.CreatedBefore.HasValue && x.CreatedAfter > x.CreatedBefore))

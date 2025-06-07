@@ -11,4 +11,17 @@ static class Constants
     public const int MaxLastNameLength = 36;
     public const int MinLastNameLength = 3;
     public const int MaxEmailLength = 64;
+
+    // address
+    public const int MinCityLength = 2;
+    public const int MaxCityLength = 100;
+    public const int MinCountryLength = 2;
+    public const int MaxCountryLength = 64;
+    public const int MinStateLength = 2;
+    public const int MaxStateLength = 64;
+    public const int MinPostalCodeLength = 3;
+    public const int MaxPostalCodeLength = 20;
+    public const int MinAddressLineLength = 5;
+    public const int MaxAddressLineLength = 255;
+    
 }

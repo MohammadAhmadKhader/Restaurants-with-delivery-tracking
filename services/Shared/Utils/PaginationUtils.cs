@@ -13,25 +13,40 @@ public class PaginationUtils
     public const int MinPageAllowed = 1;
     public const int MaxPageAllowed = int.MaxValue;
 
-    public static void Normalize(IPagination filterParams)
+    public static void Normalize(IPagination pagination)
     {
-        if (filterParams.Page == null || filterParams.Page < MinPageAllowed)
-        {
-            filterParams.Page = DefaultPage;
-        }
+        int? page = pagination.Page;
+        int? size = pagination.Size;
 
-        if (filterParams.Size == null || filterParams.Size < MinSizeAllowed)
-        {
-            filterParams.Size = DefaultSize;
-        }
-        else if (filterParams.Size > MaxSizeAllowed)
-        {
-            filterParams.Size = MaxSizeAllowed;
-        }
+        HandleNormalization(ref page, ref size);
+
+        pagination.Page = page;
+        pagination.Size = size;
     }
 
+    public static void Normalize(ref int? page, ref int? size)
+    {
+        HandleNormalization(ref page, ref size);
+    }
     public static object ResultOf<TData>(List<TData> data, int count, int? page, int? size)
     {
         return new PagedResult<TData>(Items: data, Page: page, Size: size, Count: count);
+    }
+
+    private static void HandleNormalization(ref int? page, ref int? size)
+    {
+        if (page == null || page < MinPageAllowed)
+        {
+            page = DefaultPage;
+        }
+
+        if (size == null || size < MinSizeAllowed)
+        {
+            size = DefaultSize;
+        }
+        else if (size > MaxSizeAllowed)
+        {
+            size = MaxSizeAllowed;
+        }
     }
 }

@@ -37,28 +37,28 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
             // firstName
             [
                 new { lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "First name is required."
+                expectedStatusCode, firstName, "FirstName is required."
             ],
             [
                 new { firstName = shortFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "First name must be between 3 and 36 characters."
+                expectedStatusCode, firstName, "FirstName must be between 3 and 36 characters."
             ],
             [
                 new { firstName = longFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "First name must be between 3 and 36 characters."
+                expectedStatusCode, firstName, "FirstName must be between 3 and 36 characters."
             ],
             // lastName
             [
                 new { firstName = "John", email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "Last name is required."
+                expectedStatusCode, lastName, "LastName is required."
             ],
             [
                 new { firstName = "John", lastName = shortLastName, email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "Last name must be between 3 and 36 characters."
+                expectedStatusCode, lastName, "LastName must be between 3 and 36 characters."
             ],
             [
                 new { firstName = "John", lastName = longLastName, email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "Last name must be between 3 and 36 characters."
+                expectedStatusCode, lastName, "LastName must be between 3 and 36 characters."
             ],
             // email
             [

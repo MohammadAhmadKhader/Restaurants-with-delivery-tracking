@@ -161,15 +161,15 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
         new object[] { new Dictionary<string, object> { ["name"] = null!, ["displayName"] = "DisplayName" },
             "name", "Name is required." },
         new object[] { new Dictionary<string, object> { ["name"] = "Name", ["displayName"] = null! },
-            "displayName", "Display name is required." },
+            "displayName", "DisplayName is required." },
         new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength - 1) },
             "name", "Name must be between 3 and 36 characters." },
         new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength), ["displayName"] = new string('a', Constants.MinRoleNameLength - 1) },
-            "displayName", "Display name must be between 3 and 36 characters." },
+            "displayName", "DisplayName must be between 3 and 36 characters." },
         new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength + 1) },
             "name", "Name must be between 3 and 36 characters." },
         new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength) ,["displayName"] = new string('x', Constants.MaxRoleNameLength + 1) },
-            "displayName", "Display name must be between 3 and 36 characters." },
+            "displayName", "DisplayName must be between 3 and 36 characters." },
     };
 
     [Theory]
@@ -211,8 +211,8 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     public static IEnumerable<object[]> UpdateRoleInvalidInputs =>
     [
-        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) }, "Display name must be between 3 and 36 characters."],
-        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) }, "Display name must be between 3 and 36 characters."],
+        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) }, "DisplayName must be between 3 and 36 characters."],
+        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) }, "DisplayName must be between 3 and 36 characters."],
         ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) }, "Name must be between 3 and 36 characters."],
         ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)}, "Name must be between 3 and 36 characters."],
         ["role", new { displayName = "", name = "" }, "At least one of 'Name' or 'DisplayName' must be provided."],

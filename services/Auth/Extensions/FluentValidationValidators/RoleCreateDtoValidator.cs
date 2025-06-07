@@ -8,13 +8,11 @@ class RoleCreateDtoValidator: AbstractValidator<RoleCreateDto>
     public RoleCreateDtoValidator()
     {
         RuleFor(x => x.DisplayName)
-        .NotEmpty().WithMessage("Display name is required.")
-        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
-        .WithMessage("Display name must be between 3 and 36 characters.");
-        
+        .NotEmpty().WithMessage("DisplayName is required.")
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
+
         RuleFor(x => x.Name)
         .NotEmpty().WithMessage("Name is required.")
-        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength)
-        .WithMessage("Name must be between 3 and 36 characters.");
+        .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
     }
 }
