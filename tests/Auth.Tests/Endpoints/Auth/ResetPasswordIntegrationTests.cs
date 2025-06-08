@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
+using Auth.Dtos.Auth;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Common;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -29,41 +31,50 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
             // oldPassword
             [
                 new { newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
-                expectedStatus, oldPassword, "OldPassword is required."
+                expectedStatus, oldPassword,
+                ValidationMessagesBuilder.Required(nameof(ResetPasswordDto.OldPassword))
             ],
             [
                 new { oldPassword = shortPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
-                expectedStatus, oldPassword, "OldPassword must be between 6 and 36 characters."
+                expectedStatus, oldPassword,
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.OldPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             [
                 new { oldPassword = longPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
-                expectedStatus, oldPassword, "OldPassword must be between 6 and 36 characters."
+                expectedStatus, oldPassword,
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.OldPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             // newPassword
             [
                 new { oldPassword = "oldPassword123", confirmNewPassword = "newPassword123" },
-                expectedStatus, newPassword, "NewPassword is required."
+                expectedStatus, newPassword,
+                ValidationMessagesBuilder.Required(nameof(ResetPasswordDto.NewPassword))
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = shortPassword, confirmNewPassword = shortPassword },
-                expectedStatus, newPassword, "NewPassword must be between 6 and 36 characters."
+                expectedStatus, newPassword, 
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.NewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
-                expectedStatus, newPassword, "NewPassword must be between 6 and 36 characters."
+                expectedStatus, newPassword, 
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.NewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             // confirmNewPassword
             [
                 new { oldPassword = "oldPassword123", newPassword = "newPassword123" },
-                expectedStatus, confirmNewPassword, "ConfirmNewPassword is required."
+                expectedStatus, confirmNewPassword,
+                ValidationMessagesBuilder.Required(nameof(ResetPasswordDto.ConfirmNewPassword))
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = shortPassword },
-                expectedStatus, confirmNewPassword, "ConfirmNewPassword must be between 6 and 36 characters."
+                expectedStatus, confirmNewPassword, 
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.ConfirmNewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
-                expectedStatus, confirmNewPassword, "ConfirmNewPassword must be between 6 and 36 characters."
+                expectedStatus, confirmNewPassword, 
+                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.ConfirmNewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = "differentPassword123" },

@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
-namespace Shared.Extensions;
-
 using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Logging;
+
+namespace Shared.Extensions;
 
 public static class TestExtensions
 {
@@ -46,7 +46,7 @@ public static class TestExtensions
                 logging.Services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(output));
             });
         });
-        
+
         return factory;
     }
 }

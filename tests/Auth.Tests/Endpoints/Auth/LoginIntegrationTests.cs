@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Auth.Dtos.Auth;
 using Auth.Dtos.User;
+using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Common;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -25,27 +27,33 @@ public class LoginIntegrationTests(IntegrationTestsFixture fixture, ITestOutputH
         [
             [
                 new { email = "email@gmail.com", password = TestUtils.GenerateRandomString(Constants.MinPasswordLength - 1) },
-                expectedStatusCode, "password", "Password must be between 6 and 36 characters."
+                expectedStatusCode, "password",
+                ValidationMessagesBuilder.LengthBetween("Password", Constants.MinPasswordLength,Constants.MaxPasswordLength)
             ],
             [
                 new { email = "email@gmail.com", password = TestUtils.GenerateRandomString(Constants.MaxPasswordLength + 1) },
-                expectedStatusCode, "password", "Password must be between 6 and 36 characters."
+                expectedStatusCode, "password",
+                ValidationMessagesBuilder.LengthBetween("Password", Constants.MinPasswordLength,Constants.MaxPasswordLength)
             ],
             [
                 new { email = "email@gmail.com", password = "" },
-                expectedStatusCode, "password", "Password is required."
+                expectedStatusCode, "password",
+                ValidationMessagesBuilder.Required("Password")
             ],
             [
                 new { email = "", password = TestUtils.GenerateRandomString(Constants.MinPasswordLength) },
-                expectedStatusCode, "email", "Email is required."
+                expectedStatusCode, "email",
+                ValidationMessagesBuilder.Required(nameof(User.Email))
             ],
             [
                 new { email = "invalid-email", password = TestUtils.GenerateRandomString(Constants.MinPasswordLength) },
-                expectedStatusCode, "email", "Invalid email."
+                expectedStatusCode, "email",
+                ValidationMessagesBuilder.InvalidEmail()
             ],
             [
                 new { email = new string('a', Constants.MaxEmailLength - "@gmail.com".Length + 1) + "@gmail.com", password = TestUtils.GenerateRandomString(Constants.MinPasswordLength) },
-                expectedStatusCode, "email", "Email must be at most 64 characters."
+                expectedStatusCode, "email",
+                ValidationMessagesBuilder.MaxLength(nameof(User.Email) ,Constants.MaxEmailLength)
             ]
         ];
     }

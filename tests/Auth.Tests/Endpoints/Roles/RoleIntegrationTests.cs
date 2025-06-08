@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using Auth.Dtos.Role;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Tests.Collections;
 using Auth.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Common;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -211,13 +213,27 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     public static IEnumerable<object[]> UpdateRoleInvalidInputs =>
     [
-        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) }, "DisplayName must be between 3 and 36 characters."],
-        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) }, "DisplayName must be between 3 and 36 characters."],
-        ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) }, "Name must be between 3 and 36 characters."],
-        ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)}, "Name must be between 3 and 36 characters."],
-        ["role", new { displayName = "", name = "" }, "At least one of 'Name' or 'DisplayName' must be provided."],
-        ["role", new { displayName = "   ", name = "   " }, "At least one of 'Name' or 'DisplayName' must be provided."],
-        ["role", new { displayName = (string?)null, name = (string?)null }, "At least one of 'Name' or 'DisplayName' must be provided."],
+        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) },
+        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.DisplayName), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+
+        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) },
+        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.DisplayName), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+
+        ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) },
+        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.Name), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+
+        ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)},
+        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.Name), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+
+        ["role", new { displayName = "", name = "" },
+            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
+
+        ["role", new { displayName = "   ", name = "   " },
+            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
+
+        ["role", new { displayName = (string?)null, name = (string?)null },
+            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
+            
     ];
 
     [Theory]

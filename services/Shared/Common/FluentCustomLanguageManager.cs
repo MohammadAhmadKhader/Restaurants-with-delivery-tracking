@@ -1,4 +1,5 @@
 using FluentValidation.Resources;
+using Shared.Constants;
 
 namespace Shared.Common;
 
@@ -6,20 +7,20 @@ public class FluentCustomLanguageManager : LanguageManager
 {
     public FluentCustomLanguageManager()
     {
-        AddTranslation("en", "LengthValidator", "{PropertyName} must be between {MinLength} and {MaxLength} characters.");
-        AddTranslation("en-US", "LengthValidator", "{PropertyName} must be between {MinLength} and {MaxLength} characters.");
-        AddTranslation("en-GB", "LengthValidator", "{PropertyName} must be between {MinLength} and {MaxLength} characters.");
+        AddTranslation("en", "LengthValidator", ValidationMessageTemplates.LENGTH_VALIDATOR);
+        AddTranslation("en-US", "LengthValidator", ValidationMessageTemplates.LENGTH_VALIDATOR);
+        AddTranslation("en-GB", "LengthValidator", ValidationMessageTemplates.LENGTH_VALIDATOR);
 
-        AddTranslation("en", "MaximumLengthValidator", "{PropertyName} must be at most {MaxLength} characters.");
-        AddTranslation("en-US", "MaximumLengthValidator", "{PropertyName} must be at most {MaxLength} characters.");
-        AddTranslation("en-GB", "MaximumLengthValidator", "{PropertyName} must be at most {MaxLength} characters.");
+        AddTranslation("en", "MaximumLengthValidator", ValidationMessageTemplates.MAXIMUM_LENGTH_VALIDATOR);
+        AddTranslation("en-US", "MaximumLengthValidator", ValidationMessageTemplates.MAXIMUM_LENGTH_VALIDATOR);
+        AddTranslation("en-GB", "MaximumLengthValidator", ValidationMessageTemplates.MAXIMUM_LENGTH_VALIDATOR);
 
-        AddTranslation("en", "MinimumLengthValidator", "{PropertyName} must be at least {MinLength} characters.");
-        AddTranslation("en-US", "MinimumLengthValidator", "{PropertyName} must be at least {MinLength} characters.");
-        AddTranslation("en-GB", "MinimumLengthValidator", "{PropertyName} must be at least {MinLength} characters.");
+        AddTranslation("en", "MinimumLengthValidator", ValidationMessageTemplates.MINIMUM_LENGTH_VALIDATOR);
+        AddTranslation("en-US", "MinimumLengthValidator", ValidationMessageTemplates.MINIMUM_LENGTH_VALIDATOR);
+        AddTranslation("en-GB", "MinimumLengthValidator", ValidationMessageTemplates.MINIMUM_LENGTH_VALIDATOR);
 
-        AddTranslation("en", "EmailValidator", "Invalid email.");
-        AddTranslation("en-US", "EmailValidator", "Invalid email.");
-        AddTranslation("en-GB", "EmailValidator", "Invalid email.");
+        AddTranslation("en", "EmailValidator", ValidationMessageTemplates.EMAIL_VALIDATOR);
+        AddTranslation("en-US", "EmailValidator", ValidationMessageTemplates.EMAIL_VALIDATOR);
+        AddTranslation("en-GB", "EmailValidator", ValidationMessageTemplates.EMAIL_VALIDATOR);
     }
 }

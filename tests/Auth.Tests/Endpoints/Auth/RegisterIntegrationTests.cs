@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Auth.Dtos.Auth;
 using Auth.Dtos.User;
+using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Common;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -37,54 +39,61 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
             // firstName
             [
                 new { lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "FirstName is required."
+                expectedStatusCode, firstName, ValidationMessagesBuilder.Required(nameof(User.FirstName))
             ],
             [
                 new { firstName = shortFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "FirstName must be between 3 and 36 characters."
+                expectedStatusCode, firstName,
+                ValidationMessagesBuilder.LengthBetween(nameof(User.FirstName), Constants.MinFirstNameLength,Constants.MaxFirstNameLength)
             ],
             [
                 new { firstName = longFirstName, lastName = "Doe", email = "john@example.com", password = "password123" },
-                expectedStatusCode, firstName, "FirstName must be between 3 and 36 characters."
+                expectedStatusCode, firstName,
+                ValidationMessagesBuilder.LengthBetween(nameof(User.FirstName), Constants.MinFirstNameLength,Constants.MaxFirstNameLength)
             ],
             // lastName
             [
                 new { firstName = "John", email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "LastName is required."
+                expectedStatusCode, lastName, ValidationMessagesBuilder.Required(nameof(User.LastName))
             ],
             [
                 new { firstName = "John", lastName = shortLastName, email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "LastName must be between 3 and 36 characters."
+                expectedStatusCode, lastName,
+                ValidationMessagesBuilder.LengthBetween(nameof(User.LastName), Constants.MinLastNameLength, Constants.MaxLastNameLength)
             ],
             [
                 new { firstName = "John", lastName = longLastName, email = "john@example.com", password = "password123" },
-                expectedStatusCode, lastName, "LastName must be between 3 and 36 characters."
+                expectedStatusCode, lastName,
+                ValidationMessagesBuilder.LengthBetween(nameof(User.LastName), Constants.MinLastNameLength, Constants.MaxLastNameLength)
             ],
             // email
             [
                 new { firstName = "John", lastName = "Doe", password = "password123" },
-                expectedStatusCode, email, "Email is required."
+                expectedStatusCode, email, ValidationMessagesBuilder.Required(nameof(User.Email))
             ],
             [
                 new { firstName = "John", lastName = "Doe", email = "invalid", password = "password123" },
-                expectedStatusCode, email, "Invalid email."
+                expectedStatusCode, email, ValidationMessagesBuilder.InvalidEmail()
             ],
             [
                 new { firstName = "John", lastName = "Doe", email = longEmail, password = "password123" },
-                expectedStatusCode, email, "Email must be at most 64 characters."
+                expectedStatusCode, email,
+                ValidationMessagesBuilder.MaxLength(nameof(User.Email) ,Constants.MaxEmailLength)
             ],
             // password
             [
                 new { firstName = "John", lastName = "Doe", email = "john@example.com" },
-                expectedStatusCode, password, "Password is required."
+                expectedStatusCode, password, ValidationMessagesBuilder.Required("Password")
             ],
             [
                 new { firstName = "John", lastName = "Doe", email = "john@example.com", password = shortPassword },
-                expectedStatusCode, password, "Password must be between 6 and 36 characters."
+                expectedStatusCode, password,
+                ValidationMessagesBuilder.LengthBetween("Password", Constants.MinPasswordLength,Constants.MaxPasswordLength)
             ],
             [
                 new { firstName = "John", lastName = "Doe", email = "john@example.com", password = longPassword },
-                expectedStatusCode, password, "Password must be between 6 and 36 characters."
+                expectedStatusCode, password,
+                ValidationMessagesBuilder.LengthBetween("Password", Constants.MinPasswordLength,Constants.MaxPasswordLength)
             ]
         ];
     }

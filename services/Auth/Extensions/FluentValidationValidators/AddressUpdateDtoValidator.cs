@@ -1,6 +1,10 @@
 using Auth.Dtos.Address;
+using Auth.Models;
 using Auth.Utils;
 using FluentValidation;
+using Shared.Common;
+using Shared.Constants;
+using Shared.Utils;
 
 namespace Auth.Extensions.FluentValidationValidators;
 
@@ -8,6 +12,12 @@ class AddressUpdateDtoValidator: AbstractValidator<AddressUpdateDto>
 {
     public AddressUpdateDtoValidator()
     {
+        var atLeastOneRequiredErrMsg = ValidationMessagesBuilder.AtLeastOneRequired(
+            nameof(Address.City),
+            nameof(Address.Country),
+            nameof(Address.AddressLine),
+            nameof(Address.PostalCode));
+            
         RuleFor(a => a.City)
         .Length(Constants.MinCityLength, Constants.MaxCityLength);
 
@@ -26,6 +36,6 @@ class AddressUpdateDtoValidator: AbstractValidator<AddressUpdateDto>
         RuleFor(a => a)
         .Must(a => a.City != null || a.Country != null || a.AddressLine != null || a.State != null || a.PostalCode != null)
         .WithName("address")
-        .WithMessage("At least one of 'City' or 'Country' or 'AddressLine' or 'State' or 'PostalCode' must be provided.");;
+        .WithMessage(atLeastOneRequiredErrMsg);
     }
 }
