@@ -16,7 +16,7 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
     private readonly ITestOutputHelper _out = output;
     private readonly string _endpoint = "api/auth/reset-password";
     private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
-    
+
     public static IEnumerable<object[]> InvalidResetPasswordInputs()
     {
         var expectedStatus = HttpStatusCode.BadRequest;
@@ -25,7 +25,7 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
         const string oldPassword = "oldPassword";
         const string newPassword = "newPassword";
         const string confirmNewPassword = "confirmNewPassword";
-    
+
         return
         [
             // oldPassword
@@ -37,12 +37,12 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
             [
                 new { oldPassword = shortPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
                 expectedStatus, oldPassword,
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.OldPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.OldPassword))
             ],
             [
                 new { oldPassword = longPassword, newPassword = "newPassword123", confirmNewPassword = "newPassword123" },
                 expectedStatus, oldPassword,
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.OldPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.OldPassword))
             ],
             // newPassword
             [
@@ -52,13 +52,13 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = shortPassword, confirmNewPassword = shortPassword },
-                expectedStatus, newPassword, 
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.NewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                expectedStatus, newPassword,
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.NewPassword))
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
-                expectedStatus, newPassword, 
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.NewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                expectedStatus, newPassword,
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.NewPassword))
             ],
             // confirmNewPassword
             [
@@ -68,13 +68,13 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = shortPassword },
-                expectedStatus, confirmNewPassword, 
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.ConfirmNewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                expectedStatus, confirmNewPassword,
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.ConfirmNewPassword))
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = longPassword, confirmNewPassword = longPassword },
-                expectedStatus, confirmNewPassword, 
-                ValidationMessagesBuilder.LengthBetween(nameof(ResetPasswordDto.ConfirmNewPassword), Constants.MinPasswordLength, Constants.MaxPasswordLength)
+                expectedStatus, confirmNewPassword,
+                PasswordLengthBetweenFormatter(nameof(ResetPasswordDto.ConfirmNewPassword))
             ],
             [
                 new { oldPassword = "oldPassword123", newPassword = "newPassword123", confirmNewPassword = "differentPassword123" },
@@ -97,4 +97,7 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
 
         await TestUtils.AssertValidationError(response, field, expectedMessage);
     }
+    
+    private static string PasswordLengthBetweenFormatter(string fieldName) =>
+        ValidationMessagesBuilder.LengthBetween(fieldName, Constants.MinPasswordLength, Constants.MaxPasswordLength);
 }

@@ -1,6 +1,7 @@
 using Auth.Dtos.Address;
 using Auth.Utils;
 using FluentValidation;
+using Shared.Extensions;
 
 namespace Auth.Extensions.FluentValidationValidators;
 class AddressCreateDtoValidator: AbstractValidator<AddressCreateDto>
@@ -8,23 +9,23 @@ class AddressCreateDtoValidator: AbstractValidator<AddressCreateDto>
     public AddressCreateDtoValidator()
     {
         RuleFor(a => a.City)
-        .NotEmpty().WithMessage("City is required.")
+        .NotEmptyString()
         .Length(Constants.MinCityLength, Constants.MaxCityLength);
 
         RuleFor(a => a.Country)
-        .NotEmpty().WithMessage("Country is required.")
+        .NotEmptyString()
         .Length(Constants.MinCountryLength, Constants.MaxCountryLength);
 
 
         RuleFor(a => a.AddressLine)
-        .NotEmpty().WithMessage("AddressLine is required.")
+        .NotEmptyString()
         .Length(Constants.MinAddressLineLength, Constants.MaxAddressLineLength);
 
         RuleFor(a => a.State)
         .Length(Constants.MinStateLength, Constants.MaxStateLength);
 
         RuleFor(a => a.PostalCode)
-        .NotEmpty().WithMessage("PostalCode is required.")
+        .NotEmptyString()
         .Length(Constants.MinPostalCodeLength, Constants.MaxPostalCodeLength);
     }
 }

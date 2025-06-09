@@ -18,12 +18,12 @@ public class UsersFilterSpecification : BaseSpecification<User>
 
         if (!string.IsNullOrWhiteSpace(filterParams.FirstName))
         {
-            spec = spec.And((u) => u.FirstName.Contains(filterParams.FirstName.ToLower()));
+            spec = spec.And((u) => u!.FirstName!.Contains(filterParams.FirstName.ToLower()));
         }
 
         if (!string.IsNullOrWhiteSpace(filterParams.LastName))
         {
-            spec = spec.And((u) => u.LastName.Contains(filterParams.LastName.ToLower()));
+            spec = spec.And((u) => u!.LastName!.Contains(filterParams.LastName.ToLower()));
         }
 
         if (filterParams.CreatedAfter.HasValue)
@@ -42,11 +42,11 @@ public class UsersFilterSpecification : BaseSpecification<User>
         {
             if (filterParams.SortField == "firstName")
             {
-                AddOrderBy((u) => u.FirstName);
+                AddOrderBy((u) => u!.FirstName!);
             }
             else if (filterParams.SortField == "lastName")
             {
-                AddOrderBy((u) => u.LastName);
+                AddOrderBy((u) => u!.LastName!);
             }
             else if (filterParams.SortField == "createdAt")
             {
@@ -57,11 +57,11 @@ public class UsersFilterSpecification : BaseSpecification<User>
         {
             if (filterParams.SortField == "firstName")
             {
-                AddOrderByDescending((u) => u.FirstName);
+                AddOrderByDescending((u) => u!.FirstName!);
             }
             else if (filterParams.SortField == "lastName")
             {
-                AddOrderByDescending((u) => u.LastName);
+                AddOrderByDescending((u) => u!.LastName!);
             }
             else if (filterParams.SortField == "createdAt")
             {

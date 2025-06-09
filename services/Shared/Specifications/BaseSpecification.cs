@@ -7,10 +7,10 @@ public abstract class BaseSpecification<TModel> : ISpecification<TModel>
     {
     }
 
-    public Expression<Func<TModel, bool>> Criteria { get; set; }
-    public IList<Expression<Func<TModel, object>>> Includes { get; set; }
-    public IList<string> IncludeStrings { get; set; }
-    public IList<SortExpression<TModel>> SortExpressions { get; set; }
+    public Expression<Func<TModel, bool>> Criteria { get; set; } = default!;
+    public IList<Expression<Func<TModel, object>>> Includes { get; set; } = default!;
+    public IList<string> IncludeStrings { get; set; } = default!;
+    public IList<SortExpression<TModel>> SortExpressions { get; set; } = default!;
     public int Take { get; set; }
     public int Skip { get; set; }
     public bool IsPagingEnabled { get; set; }

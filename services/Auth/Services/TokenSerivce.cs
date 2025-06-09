@@ -177,7 +177,7 @@ public class TokenService : ITokenService
         return new UserClaims
         {
             Email = user.Email!,
-            Roles = user.Roles.Select(r => r.Name).ToHashSet(),
+            Roles = user.Roles.Select(r => r.Name).ToHashSet()!,
             Permissions = user.Roles.SelectMany(r => r.Permissions.Select(p => p.Name)).Distinct().ToHashSet()
         };
     }

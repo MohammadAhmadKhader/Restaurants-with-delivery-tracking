@@ -35,6 +35,7 @@ app.MapAddressesEndpoints();
 
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseAppLocalization();
 
 // others
 await app.SeedDatabaseAsync();

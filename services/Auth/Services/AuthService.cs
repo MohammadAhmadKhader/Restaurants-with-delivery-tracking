@@ -29,7 +29,7 @@ public class AuthService(UserManager<User> userManager, SignInManager<User> sign
         }
 
         var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email!,
-         [.. user.Roles.Select(r => r.Name)], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]);
+         [.. user.Roles.Select(r => r.Name)!], [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]);
 
         return (user, tokenResponse);
     }

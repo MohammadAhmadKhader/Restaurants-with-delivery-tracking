@@ -25,7 +25,8 @@ public static class ValidationMessagesBuilder
             string.Join(" or ", fieldNames.Select(f => $"'{f}'")));
 
     public static string Required(string fieldName) =>
-        string.Format(ValidationMessageTemplates.REQUIRED_FIELD, fieldName);
+        ValidationMessageTemplates.REQUIRED_FIELD
+            .Replace("{PropertyName}", fieldName);
     
     public static string InvalidEmail() => ValidationMessageTemplates.EMAIL_VALIDATOR;
 }

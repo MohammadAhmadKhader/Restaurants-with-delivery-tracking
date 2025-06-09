@@ -1,6 +1,7 @@
 using Auth.Dtos.Auth;
 using Auth.Utils;
 using FluentValidation;
+using Shared.Extensions;
 
 namespace Auth.Extensions.FluentValidationValidators;
 
@@ -9,20 +10,20 @@ class RegisterDtoValidator: AbstractValidator<RegisterDto>
     public RegisterDtoValidator()
     {
         RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("FirstName is required.")
+            .NotEmptyString()
             .Length(Constants.MinFirstNameLength, Constants.MaxFirstNameLength);
 
         RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("LastName is required.")
+            .NotEmptyString()
             .Length(Constants.MinLastNameLength, Constants.MaxLastNameLength);
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
+            .NotEmptyString()
             .EmailAddress()
             .MaximumLength(Constants.MaxEmailLength);
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.")
+            .NotEmptyString()
             .Length(Constants.MinPasswordLength, Constants.MaxPasswordLength);
     }
 }

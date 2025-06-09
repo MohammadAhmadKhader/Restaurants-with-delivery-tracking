@@ -1,6 +1,7 @@
 using Auth.Dtos.Role;
 using Auth.Utils;
 using FluentValidation;
+using Shared.Extensions;
 
 namespace Auth.Extensions.FluentValidationValidators;
 class RoleCreateDtoValidator: AbstractValidator<RoleCreateDto>
@@ -8,11 +9,11 @@ class RoleCreateDtoValidator: AbstractValidator<RoleCreateDto>
     public RoleCreateDtoValidator()
     {
         RuleFor(x => x.DisplayName)
-        .NotEmpty().WithMessage("DisplayName is required.")
+        .NotEmptyString()
         .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
 
         RuleFor(x => x.Name)
-        .NotEmpty().WithMessage("Name is required.")
+        .NotEmptyString()
         .Length(Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
     }
 }

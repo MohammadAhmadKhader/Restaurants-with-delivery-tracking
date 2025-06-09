@@ -28,12 +28,30 @@ public class TestUtils
             Assert.Fail("Response does not contain 'errors' field");
         }
 
-        var errors = errorsElement.EnumerateArray().ToList();
+        var errors = errorsElement.EnumerateArray()
+            .Select(e => new
+            {
+                Field = e.GetProperty("field").GetString(),
+                Message = e.GetProperty("message").GetString()
+            }).ToList();
 
-        Assert.Contains(errors, e =>
-            e.GetProperty("field").GetString() == expectedField &&
-            e.GetProperty("message").GetString() == expectedMessage
-        );
+        var match = errors.FirstOrDefault(e =>
+            e.Field == expectedField &&
+            e.Message == expectedMessage);
+
+        if (match == null)
+        {
+            var allErrors = string.Join(Environment.NewLine,
+                errors.Select(e => $"- Field: '{e.Field}', Message: '{e.Message}'"));
+
+            Assert.Fail($"""
+                Expected validation error:
+                  Field: '{expectedField}'
+                  Message: '{expectedMessage}'
+                But got:
+                {allErrors}
+                """);
+        }
     }
 
     public static async Task<(string accessToken, string refreshToken)> Login(HttpClient authClient, string email, string password)

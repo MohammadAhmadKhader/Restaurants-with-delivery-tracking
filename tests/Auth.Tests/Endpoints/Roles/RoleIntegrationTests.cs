@@ -32,17 +32,17 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     private static int _permissionIdToBeRemoved3;
 
     public async Task InitializeAsync()
-    {    
+    {
         lock (_initLock)
         {
             if (_testDataInitialized)
             {
                 return;
             }
-        
+
             _testDataInitialized = true;
         }
- 
+
         var roleToUpdate = new Role
         {
             Name = "NewRolex1",
@@ -106,7 +106,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
             IsDefaultAdmin = true,
             IsDefaultSuperAdmin = true,
         };
-    
+
         using var scope = _fixture.Factory.Services.CreateScope();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
@@ -158,21 +158,21 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     #region Create Role
 
-    public static IEnumerable<object[]> CreateRoleInvalidInputs => new List<object[]>
-    {
-        new object[] { new Dictionary<string, object> { ["name"] = null!, ["displayName"] = "DisplayName" },
-            "name", "Name is required." },
-        new object[] { new Dictionary<string, object> { ["name"] = "Name", ["displayName"] = null! },
-            "displayName", "DisplayName is required." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength - 1) },
-            "name", "Name must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength), ["displayName"] = new string('a', Constants.MinRoleNameLength - 1) },
-            "displayName", "DisplayName must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength + 1) },
-            "name", "Name must be between 3 and 36 characters." },
-        new object[] { new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength) ,["displayName"] = new string('x', Constants.MaxRoleNameLength + 1) },
-            "displayName", "DisplayName must be between 3 and 36 characters." },
-    };
+    public static IEnumerable<object[]> CreateRoleInvalidInputs =>
+    [
+        [ new Dictionary<string, object> { ["name"] = null!, ["displayName"] = "DisplayName" },
+            "name", ValidationMessagesBuilder.Required(nameof(Role.Name)) ],
+        [ new Dictionary<string, object> { ["name"] = "Name", ["displayName"] = null! },
+            "displayName", ValidationMessagesBuilder.Required(nameof(Role.DisplayName)) ],
+        [ new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength - 1) },
+            "name", LengthBetweenFormatter(nameof(Role.Name)) ],
+        [ new Dictionary<string, object> { ["name"] = new string('a', Constants.MinRoleNameLength), ["displayName"] = new string('a', Constants.MinRoleNameLength - 1) },
+            "displayName", LengthBetweenFormatter(nameof(Role.DisplayName)) ],
+        [ new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength + 1) },
+            "name", LengthBetweenFormatter(nameof(Role.Name)) ],
+        [ new Dictionary<string, object> { ["name"] = new string('x', Constants.MaxRoleNameLength), ["displayName"] = new string('x', Constants.MaxRoleNameLength + 1) },
+            "displayName", LengthBetweenFormatter(nameof(Role.DisplayName)) ]
+    ];
 
     [Theory]
     [MemberData(nameof(CreateRoleInvalidInputs))]
@@ -213,17 +213,13 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     public static IEnumerable<object[]> UpdateRoleInvalidInputs =>
     [
-        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) },
-        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.DisplayName), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+        ["displayName", new { displayName = new string('a', Constants.MinRoleNameLength - 1) }, LengthBetweenFormatter(nameof(Role.DisplayName))],
 
-        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) },
-        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.DisplayName), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+        ["displayName", new { displayName =  new string('x', Constants.MaxRoleNameLength + 1) }, LengthBetweenFormatter(nameof(Role.DisplayName))],
 
-        ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) },
-        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.Name), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+        ["name", new { name = new string('a', Constants.MinRoleNameLength - 1) }, LengthBetweenFormatter(nameof(Role.Name))],
 
-        ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)},
-        ValidationMessagesBuilder.LengthBetween(nameof(RoleCreateDto.Name), Constants.MinRoleNameLength, Constants.MaxRoleNameLength)],
+        ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)}, LengthBetweenFormatter(nameof(Role.Name))],
 
         ["role", new { displayName = "", name = "" },
             ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
@@ -615,4 +611,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
         Assert.False(Guid.Empty == roleId);
         return _mainEndpoint + "/" + roleId.ToString() + "/" + "permissions";
     }
+
+    private static string LengthBetweenFormatter(string fieldName) =>
+        ValidationMessagesBuilder.LengthBetween(fieldName, Constants.MinRoleNameLength, Constants.MaxRoleNameLength);
 }
