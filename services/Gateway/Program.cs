@@ -1,23 +1,15 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
+using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+var host = builder.Host;
 
 builder.Configuration.AddJsonFile("./Properties/ocelot.json", optional: false, reloadOnChange: true);
 builder.Services.AddOcelot(builder.Configuration);
 builder.Configuration.AddEnvironmentVariables();
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console(
-        theme: AnsiConsoleTheme.Sixteen,
-        applyThemeToRedirectedOutput: true
-    )
-    .CreateLogger();
-
-builder.Host.UseSerilog();
+builder.Services.AddServiceLogging(host);
 
 var app = builder.Build();
 

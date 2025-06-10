@@ -13,6 +13,7 @@ public class AddressesRepository(AppDbContext ctx) : GenericRepository<Address, 
         return await _dbSet.Where(a => a.UserId == Id)
         .Skip(skip)
         .Take(size)
+        .OrderBy(x => x.Id)
         .ToListAsync();
     }
 

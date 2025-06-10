@@ -3,17 +3,11 @@ using FluentValidation.Results;
 
 namespace Shared.Exceptions;
 
-public class AppValidationException: Exception
+public class AppValidationException : ValidationException
 {
-    public string Field { get; set; } = default!;
-    public string Value { get; set; } = default!;
-    public AppValidationException(string field, string message): base()
-    {
-        var failure = new ValidationFailure(
-            propertyName: field, 
-            errorMessage: message
-        );
-
-        throw new ValidationException([ failure ]);
-    }
+    public AppValidationException(string field, string message) : base([new ValidationFailure(field, message)])
+    { }
+    
+    public AppValidationException(IEnumerable<ValidationFailure> failures): base(failures)
+    { }
 }

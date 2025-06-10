@@ -13,9 +13,7 @@ public static class TestExtensions
     public static void ApplyDefaultConfigurations<TDbContext>(this IWebHostBuilder builder, string connectionEnvVar)
         where TDbContext : DbContext
     {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-
-        builder.ConfigureServices(configSvcs =>
+        builder.UseEnvironment(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing").ConfigureServices(configSvcs =>
         {
             var appDbContextDescriptor = configSvcs.FirstOrDefault(desc => desc.ServiceType == typeof(DbContextOptions<TDbContext>));
             if (appDbContextDescriptor == null)

@@ -25,18 +25,18 @@ public static class UsersEndpoints
             var usersViews = users.Select(u => u.ToViewWithRolesDto()).ToList();
 
             return Results.Ok(PaginationUtils.ResultOf(usersViews, count, filterParams.Page, filterParams.Size));
-        }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.Admin, RolePolicies.SuperAdmin))
+        }).RequireAuthorization(RolePolicies.AdminsRolesPolicy)
         .AddEndpointFilter<ValidationFilter<UsersFilterParams>>();
 
 
-        group.MapPatch("/delete/{id:guid}", async (Guid id, IUsersService usersService) =>
+        group.MapPatch("/delete/{id}", async (Guid id, IUsersService usersService) =>
         {
             var (isSuccess, error) = await usersService.DeleteByIdAsync(id);
             if (!isSuccess)
             {
                 var code    = error.GetStatusCode();
                 var message = error.GetMessage();
-                return Results.Json(new { detail = message }, statusCode: code);
+                return ResponseUtils.Error(message, code);
             }
             
             return Results.NoContent(); 
@@ -47,7 +47,7 @@ public static class UsersEndpoints
             var userId = SecurityUtils.ExtractUserId(principal);
             if (userId == Guid.Empty)
             {
-                return Results.Forbid();
+                return ResponseUtils.Forbidden();
             }
 
             var (isSuccess, error) = await usersService.DeleteByIdAsync(userId);
@@ -55,27 +55,29 @@ public static class UsersEndpoints
             {
                 var code    = error.GetStatusCode();
                 var message = error.GetMessage();
-                return Results.Json(new { detail = message}, statusCode: code);
+                return ResponseUtils.Error(message, code);
             }
             
             return Results.NoContent(); 
         }).RequireAuthorization();
 
-
-        group.MapGet("/{id:guid}", async (Guid id, IUsersService usersService) =>
+        group.MapGet("/{id}", async (Guid id, IUsersService usersService) =>
         {
             var user = await usersService.FindByIdWithRolesAndPermissionsAsync(id);
+            if (user == null)
+            {
+                return ResponseUtils.NotFound("user");
+            }
   
             return Results.Ok(new { user = user.ToViewWithRolesAndPermissionsDto() });
-        }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.AdminRoles));
-
+        }).RequireAuthorization(RolePolicies.AdminsRolesPolicy);
 
         group.MapPut("/profile", async (IUsersService usersService, UserUpdateProfile dto, ClaimsPrincipal principal) =>
         {
             var userId = SecurityUtils.ExtractUserId(principal);
             if (userId == Guid.Empty)
             {
-                return Results.Forbid();
+                return ResponseUtils.Forbidden();
             }
 
             await usersService.UpdateProfileAsync(userId, dto);

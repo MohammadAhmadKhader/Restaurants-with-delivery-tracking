@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Utils;
+using Shared.Exceptions;
 
 namespace Shared.Filters;
 public class ValidationFilter<T> : IEndpointFilter where T : class
@@ -17,15 +17,13 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
         var entity = context.Arguments.OfType<T>().FirstOrDefault();
         if (entity is null)
         {
-            return Results.BadRequest("Invalid request payload.");
+            throw new InvalidOperationException("Invalid request payload.");
         }
 
         var validationResult = await validator.ValidateAsync(entity);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors
-                .Select(e => new { field = GeneralUtils.PascalToCamel(e.PropertyName), message = e.ErrorMessage });
-            return Results.BadRequest(new { errors });
+            throw new AppValidationException(validationResult.Errors);
         }
 
         return await next(context);

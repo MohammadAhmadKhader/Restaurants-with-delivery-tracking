@@ -34,7 +34,7 @@ public static class AddressesEndpoints
             return Results.Ok(new { address = addressView });
         }).AddEndpointFilter<ValidationFilter<AddressCreateDto>>();
 
-        group.MapPut("/{id:guid}", async (Guid id, IAddressesService addressesService, AddressUpdateDto dto, ClaimsPrincipal principal) =>
+        group.MapPut("/{id}", async (Guid id, IAddressesService addressesService, AddressUpdateDto dto, ClaimsPrincipal principal) =>
         {
             var userId = SecurityUtils.ExtractUserId(principal);
             var address = await addressesService.UpdateAsync(id, userId, dto);
@@ -42,7 +42,7 @@ public static class AddressesEndpoints
             return Results.NoContent();
         }).AddEndpointFilter<ValidationFilter<AddressUpdateDto>>();
         
-        group.MapDelete("/{id:guid}", async (Guid id, IAddressesService addressesService, ClaimsPrincipal principal) =>
+        group.MapDelete("/{id}", async (Guid id, IAddressesService addressesService, ClaimsPrincipal principal) =>
         {
             var userId = SecurityUtils.ExtractUserId(principal);
             await addressesService.DeleteByIdAsync(id, userId);

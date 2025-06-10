@@ -20,6 +20,7 @@ builder.Services.AddDatabase<AppDbContext>(config, "DefaultConnection");
 builder.Services.AddServiceLogging(host);
 builder.Services.AddFluentValidation();
 builder.Services.AddSeeding();
+builder.Services.AddAppProblemDetails();
 
 var app = builder.Build();
 

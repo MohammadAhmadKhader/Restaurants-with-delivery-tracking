@@ -11,7 +11,7 @@ public class RolesRepository(AppDbContext ctx) : GenericRepository<Role, Guid>(c
     {
         var skip = (page - 1) * size;
         var count = await _dbSet.Skip(skip).Take(size).CountAsync();
-        var roles = await _dbSet.Skip(skip).Take(size).ToListAsync();
+        var roles = await _dbSet.Skip(skip).Take(size).OrderBy(x => x.Name).ToListAsync();
 
         return (roles, count);
     }

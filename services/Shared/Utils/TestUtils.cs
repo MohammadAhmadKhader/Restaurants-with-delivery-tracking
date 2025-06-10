@@ -28,21 +28,35 @@ public class TestUtils
             Assert.Fail("Response does not contain 'errors' field");
         }
 
-        var errors = errorsElement.EnumerateArray()
-            .Select(e => new
+        if (errorsElement.ValueKind != JsonValueKind.Object)
+        {
+            Assert.Fail($"Response does not contain 'errors' field, received: {errorsElement.GetString()}");
+        }
+
+        var errors = new List<(string field, string message)>();
+        foreach (var prop in errorsElement.EnumerateObject())
+        {
+            var fieldName = prop.Name;
+            if (prop.Value.ValueKind != JsonValueKind.Array)
             {
-                Field = e.GetProperty("field").GetString(),
-                Message = e.GetProperty("message").GetString()
-            }).ToList();
+                Assert.Fail($"The key inside the errors Dictionary it's value was expected as Array but received: {prop.Value.ValueKind}");
+            }
+
+            foreach (var msgElem in prop.Value.EnumerateArray())
+            {
+                var msg = msgElem.GetString() ?? "";
+                errors.Add((field: fieldName, message: msg));
+            }
+        }
 
         var match = errors.FirstOrDefault(e =>
-            e.Field == expectedField &&
-            e.Message == expectedMessage);
+            e.field == expectedField &&
+            e.message == expectedMessage);
 
-        if (match == null)
+        if (match == default)
         {
             var allErrors = string.Join(Environment.NewLine,
-                errors.Select(e => $"- Field: '{e.Field}', Message: '{e.Message}'"));
+                errors.Select(e => $"- Field: '{e.field}', Message: '{e.message}'"));
 
             Assert.Fail($"""
                 Expected validation error:

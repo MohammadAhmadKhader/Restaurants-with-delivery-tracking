@@ -4,6 +4,7 @@ using Auth.Mappers;
 using System.Security.Claims;
 using Auth.Dtos.Auth;
 using Auth.Utils;
+using Shared.Utils;
 
 namespace Auth.Endpoints;
 public static class AuthEndpoints
@@ -39,7 +40,7 @@ public static class AuthEndpoints
             var refToken = req.RefreshToken;
             if (refToken == null || string.IsNullOrEmpty(refToken))
             {
-                return Results.BadRequest(new { detail = "Missing refresh-token" });
+                return ResponseUtils.Error("Missing refresh-token");
             }
 
             var tokens = await tokenService.RefreshTokenAsync(refToken);
@@ -55,7 +56,7 @@ public static class AuthEndpoints
             {
                 const string message = "User id claim was not found in the token.";
                 logger.LogError(message);
-                return Results.Unauthorized();
+                return ResponseUtils.Forbidden();
             }
             var userIdGuid = Guid.Parse(userId);
 
@@ -69,7 +70,7 @@ public static class AuthEndpoints
             var userId = SecurityUtils.ExtractUserId(principal);
             if (userId == Guid.Empty)
             {
-                return Results.Forbid();
+                return ResponseUtils.Forbidden();
             }
 
             await authService.ChangePassword(userId, dto);

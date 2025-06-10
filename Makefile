@@ -67,6 +67,6 @@ test-ci:
 #  make running testing per service
 define TEST_SERVICE
 test-$(1):
-	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS)
+	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS) --environment "ASPNETCORE_ENVIRONMENT=Testing"
 endef
 $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))

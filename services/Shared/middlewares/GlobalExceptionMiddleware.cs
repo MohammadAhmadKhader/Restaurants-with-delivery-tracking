@@ -1,6 +1,5 @@
-using System.Text.Json;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 
@@ -17,112 +16,94 @@ public class GlobalExceptionMiddleware
         _logger = logger;
     }
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {
             await _next(context);
         }
-        catch (InvalidOperationException ex)
-        {
-            SetResponseObjectFields(context, ex);
-            var response = new ProblemDetails
-            {
-                Title = ExceptionsTitles.InvalidOperationError.ToString(),
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Type = ex.GetType().Name
-            };
-
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
-        }
-        catch (ResourceNotFoundException ex)
-        {
-            SetResponseObjectFields(context, ex);
-            var response = new ProblemDetails
-            {
-                Title = ExceptionsTitles.NotFoundError.ToString(),
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Type = ex.GetType().Name
-            };
-
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
-        }
         catch (AppValidationException ex)
         {
-            SetResponseObjectFields(context, ex);
-            var response = new ProblemDetails
-            {
-                Title = ExceptionsTitles.ValidationError.ToString(),
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Type = ex.GetType().Name
-            };
+            _logger.LogWarning(ex, "Validation failed");
+            var validationErrors = ex.Errors.GroupBy(f => f.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(f => f.ErrorMessage).ToArray()
+            ).ToList();
 
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
-        }
-        catch (ConflictException ex)
-        {
-            SetResponseObjectFields(context, ex);
-            var response = new ProblemDetails
-            {
-                Title = ExceptionsTitles.ConflictError.ToString(),
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Type = ex.GetType().Name
-            };
+            var result = Results.ValidationProblem(
+                validationErrors,
+                title: ExceptionsTitles.ValidationError.ToString()
+            );
 
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await result.ExecuteAsync(context);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[GlobalExceptionMiddleware] Unknown exception has occured");
+            _logger.LogError(ex, "[GlobalExceptionMiddleware] Exception occurred");
 
-            SetResponseObjectFields(context, ex);
-
-            var response = new ProblemDetails
+            if (ex is BadHttpRequestException badReq && badReq.Message.StartsWith(BindingErrorMessageStart))
             {
-                Title = ExceptionsTitles.InternalServerError.ToString(),
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Type = ex.GetType().Name
-            };
+                var start = BindingErrorMessageStart.Length;
+                var end = badReq.Message.IndexOf("\" from", start);
 
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
+                var typeAndName = badReq.Message.Substring(start, end - start);
+                var parts = typeAndName.Split(' ');
+                var paramName = parts[1];
+
+                var statusCode = StatusCodes.Status400BadRequest;
+                var problem = Results.Problem(
+                    statusCode: statusCode,
+                    title: ExceptionsTitles.BindingError.ToString(),
+                    detail: string.Format("Invalid {0}.", paramName)
+                );
+
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = statusCode;
+
+                await problem.ExecuteAsync(context);
+            }
+            else
+            {
+                var (statusCode, title) = GetExceptionMetadata(ex);
+
+                var problem = Results.Problem(
+                    statusCode: statusCode,
+                    title: title,
+                    detail: ex.Message
+                );
+
+                context.Response.ContentType = "application/problem+json";
+                context.Response.StatusCode = statusCode;
+
+                await problem.ExecuteAsync(context);
+            }
         }
     }
 
-    private static int GetStatusCode(Exception ex)
+    private static (int StatusCode, string Title) GetExceptionMetadata(Exception ex)
     {
         return ex switch
         {
-            InvalidOperationException => StatusCodes.Status400BadRequest,
-            AppValidationException => StatusCodes.Status400BadRequest,
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-            ResourceNotFoundException => StatusCodes.Status404NotFound,
-            ConflictException => StatusCodes.Status409Conflict,
-            _ => StatusCodes.Status500InternalServerError
+            InvalidOperationException => (StatusCodes.Status400BadRequest, nameof(ExceptionsTitles.InvalidOperationError)),
+            AppValidationException => (StatusCodes.Status400BadRequest, nameof(ExceptionsTitles.ValidationError)),
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, nameof(ExceptionsTitles.UnauthorizedError)),
+            ResourceNotFoundException => (StatusCodes.Status404NotFound, nameof(ExceptionsTitles.NotFoundError)),
+            ConflictException => (StatusCodes.Status409Conflict, nameof(ExceptionsTitles.ConflictError)),
+            _ => (StatusCodes.Status500InternalServerError, nameof(ExceptionsTitles.InternalServerError))
         };
     }
-    private static void SetResponseObjectFields(HttpContext ctx, Exception ex)
-    {
-        ctx.Response.ContentType = "application/json";
-        ctx.Response.StatusCode = GetStatusCode(ex);
-    }
-
     public enum ExceptionsTitles
     {
         NotFoundError,
         ValidationError,
         ConflictError,
+        BindingError,
         UnauthorizedError,
         InternalServerError,
         InvalidOperationError
     }
+
+    private const string BindingErrorMessageStart = "Failed to bind parameter \"";
 }
