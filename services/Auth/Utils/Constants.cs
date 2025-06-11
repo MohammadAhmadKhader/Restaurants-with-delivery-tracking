@@ -23,5 +23,10 @@ static class Constants
     public const int MaxPostalCodeLength = 20;
     public const int MinAddressLineLength = 5;
     public const int MaxAddressLineLength = 255;
-    
+
+    public const int MinLongitude = -180;
+    public const int MaxLongitude = 180;
+
+    public const int MinLatitude = -90;
+    public const int MaxLatitude = 90;
 }

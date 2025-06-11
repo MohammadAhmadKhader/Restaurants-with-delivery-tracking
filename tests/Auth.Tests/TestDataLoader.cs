@@ -20,6 +20,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public Role SuperAdminRole = default!;
     public List<User> Users = default!;
     public List<Role> Roles = default!;
+    public List<Address> Addresses = default!;
     public List<Permission> NotSuperAdminOnlyPermissions { get; set; } = [];
     public List<Permission> Permissions { get; set; } = [];
     public const string SuperAdminEmail = "superAdmin@gmail.com";
@@ -46,6 +47,7 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
         await LoadRolesAndPermissions();
         await LoadUsers();
+        await LoadAddresses();
     }
 
     public async Task CleanAsync(AppDbContext db)
@@ -53,6 +55,12 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         var allUsers = await db.Users.ToListAsync();
         var allRoles = await db.Roles.ToListAsync();
         var allPermissions = await db.Permissions.ToListAsync();
+        var allAddresses = await db.Addresses.ToListAsync();
+
+        if (allAddresses.Any())
+        {
+            db.Addresses.RemoveRange(allAddresses);
+        }
 
         if (allUsers.Any())
         {
@@ -175,6 +183,34 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
 
         Roles = await _ctx.Roles.Include(x => x.Permissions).ToListAsync();
         return roles;
+    }
+
+    private async Task<List<Address>> LoadAddresses()
+    {
+        var addresses = new List<Address>();
+        var user = await _ctx.Users.Where(u => u.NormalizedEmail == UserEmail.ToUpper()).FirstOrDefaultAsync();
+        foreach (var jsonAddress in _jsonSeedData.Addresses)
+        {
+            var address = new Address
+            {
+                City = jsonAddress.City,
+                Country = jsonAddress.Country,
+                AddressLine = jsonAddress.AddressLine,
+                Latitude = jsonAddress.Latitude,
+                Longitude = jsonAddress.Longitude,
+                PostalCode = jsonAddress.PostalCode,
+                State = jsonAddress.State,
+                UserId = user!.Id,
+            };
+
+            addresses.Add(address);
+        }
+
+        await _ctx.Addresses.AddRangeAsync(addresses);
+        await _ctx.SaveChangesAsync();
+
+        Addresses = addresses;
+        return addresses;
     }
 
     private static Permission ConvertSeedToPermission(SeedPermission seedPermission)

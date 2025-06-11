@@ -298,5 +298,97 @@
             "isDefaultSuperAdmin": true,
             "comment":"this permission used for testing where we add permission to Admin Role or User Role"
         }
+    ],
+    "addresses":[
+        {
+          "city": "City1",
+          "state": "State1",
+          "country": "Country1",
+          "postalCode": "100001",
+          "addressLine": "1231 Example St",
+          "latitude": 11.0,
+          "longitude": 21.0
+        },
+        {
+          "city": "City2",
+          "state": "State2",
+          "country": "Country2",
+          "postalCode": "100002",
+          "addressLine": "1232 Example St",
+          "latitude": 12.0,
+          "longitude": 22.0
+        },
+        {
+          "city": "City3",
+          "state": "State3",
+          "country": "Country3",
+          "postalCode": "100003",
+          "addressLine": "1233 Example St",
+          "latitude": 13.0,
+          "longitude": 23.0
+        },
+        {
+          "city": "City4",
+          "state": "State4",
+          "country": "Country4",
+          "postalCode": "100004",
+          "addressLine": "1234 Example St",
+          "latitude": 14.0,
+          "longitude": 24.0
+        },
+        {
+          "city": "City5",
+          "state": "State5",
+          "country": "Country5",
+          "postalCode": "100005",
+          "addressLine": "1235 Example St",
+          "latitude": 15.0,
+          "longitude": 25.0
+        },
+        {
+          "city": "City6",
+          "state": "State6",
+          "country": "Country6",
+          "postalCode": "100006",
+          "addressLine": "1236 Example St",
+          "latitude": 16.0,
+          "longitude": 26.0
+        },
+        {
+          "city": "City7",
+          "state": "State7",
+          "country": "Country7",
+          "postalCode": "100007",
+          "addressLine": "1237 Example St",
+          "latitude": 17.0,
+          "longitude": 27.0
+        },
+        {
+          "city": "City8",
+          "state": "State8",
+          "country": "Country8",
+          "postalCode": "100008",
+          "addressLine": "1238 Example St",
+          "latitude": 18.0,
+          "longitude": 28.0
+        },
+        {
+          "city": "City9",
+          "state": "State9",
+          "country": "Country9",
+          "postalCode": "100009",
+          "addressLine": "1239 Example St",
+          "latitude": 19.0,
+          "longitude": 29.0
+        },
+        {
+          "city": "City10",
+          "state": "State10",
+          "country": "Country10",
+          "postalCode": "100010",
+          "addressLine": "12310 Example St",
+          "latitude": 20.0,
+          "longitude": 30.0
+        }
     ]
 }

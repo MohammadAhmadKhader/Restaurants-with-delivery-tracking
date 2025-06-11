@@ -84,4 +84,12 @@ public class IntegrationTestsFixture : IAsyncLifetime
     {
         return Loader.Users.First(u => u.Email == TestDataLoader.UserEmail);
     }
+
+    public User GetRandomUser()
+    {
+        return Loader.Users.First(
+        u => u.Email != TestDataLoader.UserEmail &&
+        u.Email != TestDataLoader.AdminEmail &&
+        u.Email != TestDataLoader.SuperAdminEmail);
+    }
 }

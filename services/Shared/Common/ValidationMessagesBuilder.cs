@@ -27,6 +27,12 @@ public static class ValidationMessagesBuilder
     public static string Required(string fieldName) =>
         ValidationMessageTemplates.REQUIRED_FIELD
             .Replace("{PropertyName}", fieldName);
-    
+
     public static string InvalidEmail() => ValidationMessageTemplates.EMAIL_VALIDATOR;
+
+    public static string InclusiveBetween(string propertyName, int from, int to) =>
+    ValidationMessageTemplates.INCLUSIVE_VALIDATOR
+        .Replace("{PropertyName}", propertyName)
+        .Replace("{From}", from.ToString())
+        .Replace("{To}", to.ToString());
 }

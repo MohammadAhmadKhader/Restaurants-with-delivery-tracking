@@ -29,8 +29,8 @@ public class AddressesService(IUnitOfWork unitOfWork) : IAddressesService
             AddressLine = dto.AddressLine,
             PostalCode = dto.PostalCode,
             State = dto.State,
-            Longitude = dto.Longitude,
-            Latitude = dto.Latitude,
+            Longitude = (decimal) dto.Longitude!,
+            Latitude = (decimal) dto.Latitude!,
         };
 
         var newAddress = await _unitOfWork.AddressesRepository.CreateAsync(address);

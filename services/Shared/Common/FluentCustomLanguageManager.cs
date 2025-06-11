@@ -9,6 +9,10 @@ public class FluentCustomLanguageManager : LanguageManager
     {
         AddTranslation("en", "LengthValidator", ValidationMessageTemplates.LENGTH_VALIDATOR);
 
+        AddTranslation("en", "NotNullValidator", ValidationMessageTemplates.REQUIRED_FIELD);
+
+        AddTranslation("en", "InclusiveBetweenValidator", ValidationMessageTemplates.INCLUSIVE_VALIDATOR);
+
         AddTranslation("en", "MaximumLengthValidator", ValidationMessageTemplates.MAXIMUM_LENGTH_VALIDATOR);
 
         AddTranslation("en", "MinimumLengthValidator", ValidationMessageTemplates.MINIMUM_LENGTH_VALIDATOR);

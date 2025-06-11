@@ -529,6 +529,35 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     #endregion
 
+    
+    #region Invalid Route Params
+
+    public static IEnumerable<object[]> InvalidRouteParams() {
+        var invalidId = "invalid-id";
+        var roleEndPointWithInvalidGuid = _mainEndpoint + "/" + invalidId;
+        var removePermFromRoleWithInvalidPermId = _mainEndpoint + "/" + Guid.NewGuid().ToString() + "/permissions/" + invalidId;
+        var addPermToRoleWithInvalidRoleId = _mainEndpoint + "/" + invalidId + "/permissions";
+
+        return [
+            [roleEndPointWithInvalidGuid, HttpMethod.Put],
+            [roleEndPointWithInvalidGuid, HttpMethod.Delete],
+            [addPermToRoleWithInvalidRoleId, HttpMethod.Post],
+            [removePermFromRoleWithInvalidPermId, HttpMethod.Delete]
+        ];
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidRouteParams))]
+    public async Task InvalidRouteParams_ReturnsBadRequest(string endpoint, HttpMethod method)
+    {
+        var user = _fixture.GetSuperAdmin();
+        var response = await TestUtils.SendWithAuthAsync(_client, method, user.Email!, _fixture.TestPassword, endpoint);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    #endregion
+
+
     #region Auth Tests
 
     public static IEnumerable<object[]> AuthUseCases()
@@ -590,8 +619,6 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
             DefaultUserRoles.None => null,
             _ => null
         };
-
-        _out.WriteLine(endpoint);
 
         (string, string)? userData = user != null ? (user.Email!, _fixture.TestPassword) : null;
 
