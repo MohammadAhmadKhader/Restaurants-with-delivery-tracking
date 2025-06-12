@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Auth.Dtos.Role;
+using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Tests.Collections;
@@ -223,15 +223,11 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
         ["name", new { name = new string('x', Constants.MaxRoleNameLength + 1)}, LengthBetweenFormatter(nameof(Role.Name))],
 
-        ["role", new { displayName = "", name = "" },
-            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
+        ["role", new { displayName = "", name = "" }, RoleUpdateDtoValidator.AtLeastOneRequiredErrorMessage],
 
-        ["role", new { displayName = "   ", name = "   " },
-            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
+        ["role", new { displayName = "   ", name = "   " }, RoleUpdateDtoValidator.AtLeastOneRequiredErrorMessage],
 
-        ["role", new { displayName = (string?)null, name = (string?)null },
-            ValidationMessagesBuilder.AtLeastOneRequired(nameof(RoleCreateDto.Name), nameof(RoleCreateDto.DisplayName))],
-            
+        ["role", new { displayName = (string?)null, name = (string?)null }, RoleUpdateDtoValidator.AtLeastOneRequiredErrorMessage],
     ];
 
     [Theory]
@@ -619,7 +615,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [MemberData(nameof(AuthUseCases))]
     public async Task AuthTests(DefaultUserRoles role, HttpMethod method, string endpoint, HttpStatusCode expectedStatusCode)
     {
-        TestUtils.LogPayload(_out, [new { role, method, endpoint, expectedStatusCode }]);
+        TestUtils.LogPayload(_out, [new { role = role.ToString(), method, endpoint, expectedStatusCode }]);
         var user = role switch
         {
             DefaultUserRoles.User => _fixture.GetUser(),

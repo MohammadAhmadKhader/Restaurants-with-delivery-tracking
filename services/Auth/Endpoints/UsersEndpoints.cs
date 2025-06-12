@@ -40,7 +40,7 @@ public static class UsersEndpoints
             }
             
             return Results.NoContent(); 
-        }).RequireAuthorization(policy => policy.RequireRole(RolePolicies.AdminRoles));
+        }).RequireAuthorization(RolePolicies.AdminsRolesPolicy);
 
         group.MapPatch("/self-delete", async (ClaimsPrincipal principal, IUsersService usersService) =>
         {
@@ -83,6 +83,7 @@ public static class UsersEndpoints
             await usersService.UpdateProfileAsync(userId, dto);
 
             return Results.NoContent();
-        }).RequireAuthorization();
+        }).RequireAuthorization()
+        .AddEndpointFilter<ValidationFilter<UserUpdateProfile>>();
     }
 }

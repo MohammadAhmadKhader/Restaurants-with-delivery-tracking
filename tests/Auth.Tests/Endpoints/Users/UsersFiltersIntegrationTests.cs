@@ -8,20 +8,13 @@ using Xunit.Abstractions;
 namespace Auth.Tests.Endpoints.Users;
 
 [Collection("IntegrationTests")]
-public class UsersFiltersIntegrationTests
+public class UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
 {
-    private readonly ITestOutputHelper _out;
-    private readonly IntegrationTestsFixture _fixture = default!;
+    private readonly ITestOutputHelper _out = output;
+    private readonly IntegrationTestsFixture _fixture = fixture;
     private readonly string _endpoint = "api/users";
-    private readonly HttpClient _client;
+    private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
     private const string collectionKey = "items";
-
-    public UsersFiltersIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHelper output)
-    {
-        _client = fixture.CreateClientWithTestOutput(output);
-        _fixture = fixture;
-        _out = output;
-    }
 
     [Theory]
     [InlineData("SuperAdmin")]
@@ -35,7 +28,7 @@ public class UsersFiltersIntegrationTests
         var user = role switch
         {
             "SuperAdmin" => _fixture.GetSuperAdmin(),
-            "Admin" => _fixture.Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.AdminEmail),
+            "Admin" => _fixture.GetAdmin(),
             _ => throw new ArgumentException("Unsupported role")
         };
         Assert.NotNull(user);

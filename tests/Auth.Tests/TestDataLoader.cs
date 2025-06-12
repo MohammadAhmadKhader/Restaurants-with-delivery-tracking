@@ -24,6 +24,9 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     public List<Permission> NotSuperAdminOnlyPermissions { get; set; } = [];
     public List<Permission> Permissions { get; set; } = [];
     public const string SuperAdminEmail = "superAdmin@gmail.com";
+    public const string SuperAdminEmailToTryDelete = "superAdminToDelete@gmail.com";
+    public const string AdminEmailToTryDelete = "adminToDelete@gmail.com";
+    public const string UserEmailToTryDelete = "userToDelete@gmail.com";
     public const string AdminEmail = "david.brown@gmail.com";
     public const string UserEmail = "emma.jones@gmail.com";
     public const string TestPermissionNameX1 = "TEST.PERMISSIONx1";
@@ -31,23 +34,29 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
     private readonly Lock _initLock = new();
     private static bool _testDataInitialized = false;
     public Permission SuperAdminOnlyPermission { get; set; } = default!;
+    private static readonly SemaphoreSlim semaphoreSlim = new(1, 1);
 
     public async Task InitializeAsync()
     {
-        lock (_initLock)
+        await semaphoreSlim.WaitAsync();
+        try
         {
             if (_testDataInitialized)
             {
                 return;
             }
 
+            _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
+            await LoadRolesAndPermissions();
+            await LoadUsers();
+            await LoadAddresses();
+
             _testDataInitialized = true;
         }
-
-        _jsonSeedData = await SeedingUtils.ParseJson<SeedDataModel>("./test-data.json");
-        await LoadRolesAndPermissions();
-        await LoadUsers();
-        await LoadAddresses();
+        finally
+        {
+            semaphoreSlim.Release();
+        }
     }
 
     public async Task CleanAsync(AppDbContext db)
@@ -103,6 +112,14 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
             }
             else if (user.Email == AdminEmail)
             {
+                user.Roles.Add(AdminRole);
+            }
+            else if (user.Email == SuperAdminEmailToTryDelete)
+            {
+                user.Roles.Add(SuperAdminRole);
+                user.Roles.Add(AdminRole);
+            }
+            else if (user.Email == AdminEmailToTryDelete) {
                 user.Roles.Add(AdminRole);
             }
 

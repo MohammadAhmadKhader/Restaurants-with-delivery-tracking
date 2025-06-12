@@ -7,6 +7,7 @@ using Xunit.Abstractions;
 using Auth.Models;
 using Microsoft.AspNetCore.Identity;
 using Shared.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Tests.Collections;
 
@@ -23,6 +24,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
     public readonly string TestPassword = TestDataLoader.TestPassword;
     private const string ConnectionEnvVar = "ConnectionStrings__DefaultConnection";
     private readonly ILogger<IntegrationTestsFixture> _logger;
+    public Permission SuperAdminOnlyPermission { get; set; } = default!;
     public IntegrationTestsFixture()
     {
         Env.Load();
@@ -70,6 +72,34 @@ public class IntegrationTestsFixture : IAsyncLifetime
     {
         return Factory.EnableTestLoggingToXunit(output).CreateClient();
     }
+    public async Task<TModel?> GetModelByPk<TModel>(object id, bool ignoreFilters = false, string pkName = "Id")
+        where TModel: class
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var query = db.Set<TModel>().AsQueryable<TModel>();
+
+        if (ignoreFilters)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, pkName)!.Equals(id));
+    }
+
+    public async Task<User?> GetUserFromDbByEmail(string email)
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+        return await db.Users
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.NormalizedEmail == email.ToUpper());
+    }
+
+    private static List<string> _usedRandomUsersEmails { get; set; } = [];
+
     public User GetSuperAdmin()
     {
         return Loader.Users.First(u => u.Email == TestDataLoader.SuperAdminEmail);
@@ -84,12 +114,33 @@ public class IntegrationTestsFixture : IAsyncLifetime
     {
         return Loader.Users.First(u => u.Email == TestDataLoader.UserEmail);
     }
+    public User GetUserToTryDelete()
+    {
+        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.UserEmailToTryDelete.ToUpper());
+    }
+
+
+    public User GetAdminToTryDelete()
+    {
+        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.AdminEmailToTryDelete.ToUpper());
+    }
+
+    public User GetSuperAdminToTryDelete()
+    {
+        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.SuperAdminEmailToTryDelete.ToUpper());
+    }
 
     public User GetRandomUser()
     {
-        return Loader.Users.First(
+        var user = Loader.Users.First(
         u => u.Email != TestDataLoader.UserEmail &&
-        u.Email != TestDataLoader.AdminEmail &&
-        u.Email != TestDataLoader.SuperAdminEmail);
+             u.Email != TestDataLoader.AdminEmail &&
+             u.Email != TestDataLoader.AdminEmailToTryDelete &&
+             u.Email != TestDataLoader.SuperAdminEmail &&
+             u.Email != TestDataLoader.SuperAdminEmailToTryDelete &&
+             !_usedRandomUsersEmails.Contains(u.Email!));
+
+        _usedRandomUsersEmails.Add(user.Email!);
+        return user;
     }
 }

@@ -152,7 +152,6 @@ public class TestUtils
         var request = GetRequestWithAuth(method, endpoint, accessToken, payload, false);
         var response = await authClient.SendAsync(request);
 
-
         Assert.Equal(expectedStatusCode, response.StatusCode);
     }
 

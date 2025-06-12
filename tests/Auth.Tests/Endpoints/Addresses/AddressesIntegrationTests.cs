@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Auth.Dtos.Address;
+using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
@@ -139,6 +139,9 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
         [ CreateAddressDictionary("state", new string('a', Constants.MinStateLength - 1)),"state", LengthBetweenFormatter(nameof(AddressUpdateDto.State)) ],
         [ CreateAddressDictionary("addressLine", new string('a', Constants.MinAddressLineLength - 1)), "addressLine", LengthBetweenFormatter(nameof(AddressUpdateDto.AddressLine)) ],
         [ CreateAddressDictionary("postalCode", new string('a', Constants.MinPostalCodeLength - 1)), "postalCode", LengthBetweenFormatter(nameof(AddressUpdateDto.PostalCode)) ],
+
+        // at least one required
+        [ new Dictionary<string, object> {}, "address", AddressUpdateDtoValidator.AtLeastOneRequiredErrorMessage],
     ];
 
     [Theory]
@@ -191,7 +194,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     }
 
     [Fact]
-    public async Task DeleteAddress_ValidDeletableRole_ReturnsNoContent()
+    public async Task DeleteAddress_ValidDeletableAddress_ReturnsNoContent()
     {
         var user = _fixture.GetUser();
         Assert.NotNull(user);
@@ -260,7 +263,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(AuthUseCases))]
     public async Task AuthTests(DefaultUserRoles role, HttpMethod method, string endpoint, HttpStatusCode expectedStatusCode)
     {
-        TestUtils.LogPayload(_out, [ new { role, method, endpoint, expectedStatusCode }]);
+        TestUtils.LogPayload(_out, [ new { role = role.ToString(), method, endpoint, expectedStatusCode }]);
         var user = role switch
         {
             DefaultUserRoles.User => _fixture.GetUser(),

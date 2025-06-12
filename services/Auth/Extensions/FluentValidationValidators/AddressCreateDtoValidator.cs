@@ -1,7 +1,7 @@
 using Auth.Dtos.Address;
 using Auth.Utils;
 using FluentValidation;
-using Shared.Constants;
+
 using Shared.Extensions;
 
 namespace Auth.Extensions.FluentValidationValidators;

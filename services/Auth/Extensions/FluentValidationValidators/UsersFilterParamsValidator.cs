@@ -21,7 +21,7 @@ class UserFilterParamsValidator: AbstractValidator<UsersFilterParams>
 
         RuleFor(x => x.SortField)
           .Must(s => s == null || _allowedSortFields.Contains(s))
-          .WithName("sortField")
+          .WithName(nameof(UsersFilterParams.SortField))
           .WithMessage("Invalid sort field");
 
         RuleFor(x => x.SortDir)

@@ -35,7 +35,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             ));
         });
 
-        modelBuilder.Entity<User>().ToTable("Users")
+        modelBuilder.Entity<User>().ToTable("Users");
+        modelBuilder.Entity<User>()
         .HasQueryFilter(u => !u.IsDeleted);
         
         modelBuilder.Entity<User>(entity =>
