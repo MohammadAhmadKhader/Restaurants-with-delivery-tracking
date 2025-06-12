@@ -1,7 +1,7 @@
 namespace Auth.Dtos.Role;
 
-public class RoleCreateDto
+public class RoleCreateDto(string? name, string? displayName)
 {
-    public string Name { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
+    public string Name { get; set; } = name?.Trim()!;
+    public string DisplayName { get; set; } = displayName?.Trim()!;
 }

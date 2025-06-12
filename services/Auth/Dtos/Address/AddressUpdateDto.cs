@@ -1,10 +1,10 @@
 namespace Auth.Dtos.Address;
 
-public class AddressUpdateDto
+public class AddressUpdateDto(string? city, string? state, string? country, string? postalCode, string? addressLine)
 {
-    public string? City { get; set; } = default!;
-    public string? State { get; set; } = default!;
-    public string? Country { get; set; } = default!;
-    public string? PostalCode { get; set; }
-    public string? AddressLine { get; set; }
+    public string? City { get; set; } = city?.Trim();
+    public string? State { get; set; } = state?.Trim();
+    public string? Country { get; set; } = country?.Trim();
+    public string? PostalCode { get; set; } = postalCode?.Trim();
+    public string? AddressLine { get; set; } = addressLine?.Trim();
 }

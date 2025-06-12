@@ -102,6 +102,7 @@ public class RegisterIntegrationTests(IntegrationTestsFixture fixture, ITestOutp
     [MemberData(nameof(InvalidRegisterInputs))]
     public async Task Register_InvalidInputs_ReturnsValidationError(object payload, HttpStatusCode expectedStatus, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [new { payload, expectedStatus, field, expectedMessage}]);
         var response = await _client.PostAsync(_endpoint, JsonContent.Create(payload));
         Assert.Equal(expectedStatus, response.StatusCode);
         await TestUtils.AssertValidationError(response, field, expectedMessage);

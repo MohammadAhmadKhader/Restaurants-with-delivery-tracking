@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Auth.Dtos.Address;
 using Auth.Models;
 using Auth.Tests.Collections;
@@ -19,6 +20,21 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     private static readonly string _endpoint = "api/users/addresses";
     private readonly HttpClient _client = fixture.CreateClientWithTestOutput(output);
 
+    #region Get User Addresses (Pagination)
+
+    [Theory]
+    [ClassData(typeof(PaginationTestData))]
+    public async Task GetUserAddress_PaginationTests(int? page, int? size, int expectedPage, int expectedSize)
+    {
+        TestUtils.LogPayload(_out, [new { page = page?.ToString() ?? "null", size = size?.ToString() ?? "null", expectedPage, expectedSize }]);
+        var user = _fixture.GetUser();
+        Assert.NotNull(user);
+
+        await PaginationTestUtils.TestPagination(_client, (user.Email, _fixture.TestPassword)!, _endpoint, page, size, expectedPage, expectedSize);
+    }
+
+    #endregion
+
     #region Create Address
 
     public static IEnumerable<object[]> CreateAddressInvalidInputs =>
@@ -36,22 +52,18 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
         ValidationMessagesBuilder.Required(nameof(AddressCreateDto.City)) ],
         [ CreateAddressDictionary("country", new string(' ', Constants.MinCountryLength)), "country",
         ValidationMessagesBuilder.Required(nameof(AddressCreateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string(' ', Constants.MinStateLength - 1)),"state", LengthBetweenFormatter(nameof(AddressCreateDto.State)) ],
         [ CreateAddressDictionary("addressLine", new string(' ', Constants.MinAddressLineLength)), "addressLine",
         ValidationMessagesBuilder.Required(nameof(AddressCreateDto.AddressLine)) ],
         [ CreateAddressDictionary("postalCode", new string(' ', Constants.MinPostalCodeLength)), "postalCode",
         ValidationMessagesBuilder.Required(nameof(AddressCreateDto.PostalCode)) ],
 
         // length validations with invalid // * max length
-        [ CreateAddressDictionary("city", new string('a', Constants.MaxCityLength + 1)), "city",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.City), Constants.MinCityLength, Constants.MaxCityLength) ],
-        [ CreateAddressDictionary("country", new string('a', Constants.MaxCountryLength + 1)),"country",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.Country), Constants.MinCountryLength, Constants.MaxCountryLength) ],
-        [ CreateAddressDictionary("state", new string('a', Constants.MaxStateLength + 1)),"state",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.State), Constants.MinStateLength, Constants.MaxStateLength) ],
-        [ CreateAddressDictionary("addressLine", new string('a', Constants.MaxAddressLineLength + 1)), "addressLine",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.AddressLine), Constants.MinAddressLineLength, Constants.MaxAddressLineLength) ],
-        [ CreateAddressDictionary("postalCode", new string('a', Constants.MaxPostalCodeLength + 1)), "postalCode",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.PostalCode), Constants.MinPostalCodeLength, Constants.MaxPostalCodeLength) ],
+        [ CreateAddressDictionary("city", new string('a', Constants.MaxCityLength + 1)), "city", LengthBetweenFormatter(nameof(AddressCreateDto.City)) ],
+        [ CreateAddressDictionary("country", new string('a', Constants.MaxCountryLength + 1)),"country", LengthBetweenFormatter(nameof(AddressCreateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string('a', Constants.MaxStateLength + 1)),"state", LengthBetweenFormatter(nameof(AddressCreateDto.State)) ],
+        [ CreateAddressDictionary("addressLine", new string('a', Constants.MaxAddressLineLength + 1)), "addressLine", LengthBetweenFormatter(nameof(AddressCreateDto.AddressLine)) ],
+        [ CreateAddressDictionary("postalCode", new string('a', Constants.MaxPostalCodeLength + 1)), "postalCode", LengthBetweenFormatter(nameof(AddressCreateDto.PostalCode)) ],
         // decimal
         [ CreateAddressDictionary("longitude", Constants.MaxLongitude + 0.1), "longitude",
         ValidationMessagesBuilder.InclusiveBetween(nameof(AddressCreateDto.Longitude), Constants.MinLongitude, Constants.MaxLongitude)  ],
@@ -59,16 +71,11 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
         ValidationMessagesBuilder.InclusiveBetween(nameof(AddressCreateDto.Latitude), Constants.MinLatitude, Constants.MaxLatitude) ],
 
         // length validations with invalid // * min length
-        [ CreateAddressDictionary("city", new string('a', Constants.MinCityLength - 1)), "city",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.City), Constants.MinCityLength, Constants.MaxCityLength) ],
-        [ CreateAddressDictionary("country", new string('a', Constants.MinCountryLength - 1)),"country",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.Country), Constants.MinCountryLength, Constants.MaxCountryLength) ],
-        [ CreateAddressDictionary("state", new string('a', Constants.MinStateLength - 1)),"state",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.State), Constants.MinStateLength, Constants.MaxStateLength) ],
-        [ CreateAddressDictionary("addressLine", new string('a', Constants.MinAddressLineLength - 1)), "addressLine",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.AddressLine), Constants.MinAddressLineLength, Constants.MaxAddressLineLength) ],
-        [ CreateAddressDictionary("postalCode", new string('a', Constants.MinPostalCodeLength - 1)), "postalCode",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressCreateDto.PostalCode), Constants.MinPostalCodeLength, Constants.MaxPostalCodeLength) ],
+        [ CreateAddressDictionary("city", new string('a', Constants.MinCityLength - 1)), "city", LengthBetweenFormatter(nameof(AddressCreateDto.City)) ],
+        [ CreateAddressDictionary("country", new string('a', Constants.MinCountryLength - 1)),"country", LengthBetweenFormatter(nameof(AddressCreateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string('a', Constants.MinStateLength - 1)),"state", LengthBetweenFormatter(nameof(AddressCreateDto.State)) ],
+        [ CreateAddressDictionary("addressLine", new string('a', Constants.MinAddressLineLength - 1)), "addressLine", LengthBetweenFormatter(nameof(AddressCreateDto.AddressLine)) ],
+        [ CreateAddressDictionary("postalCode", new string('a', Constants.MinPostalCodeLength - 1)), "postalCode", LengthBetweenFormatter(nameof(AddressCreateDto.PostalCode)) ],
         // decimal
         [ CreateAddressDictionary("longitude", Constants.MinLongitude - 0.1), "longitude",
         ValidationMessagesBuilder.InclusiveBetween(nameof(AddressCreateDto.Longitude), Constants.MinLongitude, Constants.MaxLongitude) ],
@@ -80,6 +87,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(CreateAddressInvalidInputs))]
     public async Task CreateAddress_InvalidInputs_ReturnsValidationError(Dictionary<string, object> payloadDict, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [new { payloadDict, field, expectedMessage }]);
         var jsonPayload = JsonContent.Create(payloadDict);
 
         var user = _fixture.GetSuperAdmin();
@@ -111,45 +119,33 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
 
     public static IEnumerable<object[]> UpdateAddressInvalidInputs =>
     [
-        // // validations against white spaces
-        // [ CreateAddressDictionary("city", new string(' ', Constants.MinCityLength)), "city",
-        // ValidationMessagesBuilder.Required(nameof(AddressUpdateDto.City)) ],
-        // [ CreateAddressDictionary("country", new string(' ', Constants.MinCountryLength)), "country",
-        // ValidationMessagesBuilder.Required(nameof(AddressUpdateDto.Country)) ],
-        // [ CreateAddressDictionary("addressLine", new string(' ', Constants.MinAddressLineLength)), "addressLine",
-        // ValidationMessagesBuilder.Required(nameof(AddressUpdateDto.AddressLine)) ],
-        // [ CreateAddressDictionary("postalCode", new string(' ', Constants.MinPostalCodeLength)), "postalCode",
-        // ValidationMessagesBuilder.Required(nameof(AddressUpdateDto.PostalCode)) ],
+        // validations against white spaces
+        [ CreateAddressDictionary("city", new string(' ', Constants.MinCityLength - 1)), "city", LengthBetweenFormatter(nameof(AddressUpdateDto.City)) ],
+        [ CreateAddressDictionary("country", new string(' ', Constants.MinCountryLength - 1)),"country", LengthBetweenFormatter(nameof(AddressUpdateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string(' ', Constants.MinStateLength - 1)),"state", LengthBetweenFormatter(nameof(AddressUpdateDto.State)) ],
+        [ CreateAddressDictionary("addressLine", new string(' ', Constants.MinAddressLineLength - 1)), "addressLine", LengthBetweenFormatter(nameof(AddressUpdateDto.AddressLine)) ],
+        [ CreateAddressDictionary("postalCode", new string(' ', Constants.MinPostalCodeLength - 1)), "postalCode", LengthBetweenFormatter(nameof(AddressUpdateDto.PostalCode)) ],
 
         // length validations with invalid // * max length
-        [ CreateAddressDictionary("city", new string('a', Constants.MaxCityLength + 1)), "city",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.City), Constants.MinCityLength, Constants.MaxCityLength) ],
-        [ CreateAddressDictionary("country", new string('a', Constants.MaxCountryLength + 1)),"country",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.Country), Constants.MinCountryLength, Constants.MaxCountryLength) ],
-        [ CreateAddressDictionary("state", new string('a', Constants.MaxStateLength + 1)),"state",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.State), Constants.MinStateLength, Constants.MaxStateLength) ],
-        [ CreateAddressDictionary("addressLine", new string('a', Constants.MaxAddressLineLength + 1)), "addressLine",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.AddressLine), Constants.MinAddressLineLength, Constants.MaxAddressLineLength) ],
-        [ CreateAddressDictionary("postalCode", new string('a', Constants.MaxPostalCodeLength + 1)), "postalCode",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.PostalCode), Constants.MinPostalCodeLength, Constants.MaxPostalCodeLength) ],
+        [ CreateAddressDictionary("city", new string('a', Constants.MaxCityLength + 1)), "city", LengthBetweenFormatter(nameof(AddressUpdateDto.City)) ],
+        [ CreateAddressDictionary("country", new string('a', Constants.MaxCountryLength + 1)),"country", LengthBetweenFormatter(nameof(AddressUpdateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string('a', Constants.MaxStateLength + 1)),"state", LengthBetweenFormatter(nameof(AddressUpdateDto.State)) ],
+        [ CreateAddressDictionary("addressLine", new string('a', Constants.MaxAddressLineLength + 1)), "addressLine", LengthBetweenFormatter(nameof(AddressUpdateDto.AddressLine)) ],
+        [ CreateAddressDictionary("postalCode", new string('a', Constants.MaxPostalCodeLength + 1)), "postalCode", LengthBetweenFormatter(nameof(AddressUpdateDto.PostalCode)) ],
 
         // length validations with invalid // * min length
-        [ CreateAddressDictionary("city", new string('a', Constants.MinCityLength - 1)), "city",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.City), Constants.MinCityLength, Constants.MaxCityLength) ],
-        [ CreateAddressDictionary("country", new string('a', Constants.MinCountryLength - 1)),"country",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.Country), Constants.MinCountryLength, Constants.MaxCountryLength) ],
-        [ CreateAddressDictionary("state", new string('a', Constants.MinStateLength - 1)),"state",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.State), Constants.MinStateLength, Constants.MaxStateLength) ],
-        [ CreateAddressDictionary("addressLine", new string('a', Constants.MinAddressLineLength - 1)), "addressLine",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.AddressLine), Constants.MinAddressLineLength, Constants.MaxAddressLineLength) ],
-        [ CreateAddressDictionary("postalCode", new string('a', Constants.MinPostalCodeLength - 1)), "postalCode",
-        ValidationMessagesBuilder.LengthBetween(nameof(AddressUpdateDto.PostalCode), Constants.MinPostalCodeLength, Constants.MaxPostalCodeLength) ],
+        [ CreateAddressDictionary("city", new string('a', Constants.MinCityLength - 1)), "city", LengthBetweenFormatter(nameof(AddressUpdateDto.City)) ],
+        [ CreateAddressDictionary("country", new string('a', Constants.MinCountryLength - 1)),"country", LengthBetweenFormatter(nameof(AddressUpdateDto.Country)) ],
+        [ CreateAddressDictionary("state", new string('a', Constants.MinStateLength - 1)),"state", LengthBetweenFormatter(nameof(AddressUpdateDto.State)) ],
+        [ CreateAddressDictionary("addressLine", new string('a', Constants.MinAddressLineLength - 1)), "addressLine", LengthBetweenFormatter(nameof(AddressUpdateDto.AddressLine)) ],
+        [ CreateAddressDictionary("postalCode", new string('a', Constants.MinPostalCodeLength - 1)), "postalCode", LengthBetweenFormatter(nameof(AddressUpdateDto.PostalCode)) ],
     ];
 
     [Theory]
     [MemberData(nameof(UpdateAddressInvalidInputs))]
     public async Task UpdateAddress_InvalidInputs_ReturnsValidationError(Dictionary<string, object> payloadDict, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [ new { payloadDict, field, expectedMessage }]);
         var addressId = Guid.NewGuid();
         var jsonPayload = JsonContent.Create(payloadDict);
 
@@ -225,6 +221,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(InvalidRouteParams))]
     public async Task InvalidRouteParams_ReturnsBadRequest(string endpoint, HttpMethod method)
     {
+        TestUtils.LogPayload(_out, [new { endpoint, method }]);
         var user = _fixture.GetSuperAdmin();
         var response = await TestUtils.SendWithAuthAsync(_client, method, user.Email!, _fixture.TestPassword, endpoint);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -263,6 +260,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(AuthUseCases))]
     public async Task AuthTests(DefaultUserRoles role, HttpMethod method, string endpoint, HttpStatusCode expectedStatusCode)
     {
+        TestUtils.LogPayload(_out, [ new { role, method, endpoint, expectedStatusCode }]);
         var user = role switch
         {
             DefaultUserRoles.User => _fixture.GetUser(),

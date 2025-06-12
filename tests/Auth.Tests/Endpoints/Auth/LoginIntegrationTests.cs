@@ -62,6 +62,7 @@ public class LoginIntegrationTests(IntegrationTestsFixture fixture, ITestOutputH
     [MemberData(nameof(InvalidLoginInputs))]
     public async Task Login_InvalidInputs_ReturnsValidationError(object payload, HttpStatusCode expectedStatus, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [new { payload, expectedStatus, field, expectedMessage}]);
         var response = await _client.PostAsync(_endpoint, JsonContent.Create(payload));
         Assert.Equal(expectedStatus, response.StatusCode);
         await TestUtils.AssertValidationError(response, field, expectedMessage);

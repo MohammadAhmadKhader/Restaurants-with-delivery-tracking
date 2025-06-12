@@ -148,6 +148,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [ClassData(typeof(PaginationTestData))]
     public async Task GetRoles_PaginationTests(int? page, int? size, int expectedPage, int expectedSize)
     {
+        TestUtils.LogPayload(_out, [new { page = page?.ToString() ?? "null", size = size?.ToString() ?? "null", expectedPage, expectedSize }]);
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
@@ -178,6 +179,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [MemberData(nameof(CreateRoleInvalidInputs))]
     public async Task CreateRole_InvalidInputas_ReturnsValidationError(Dictionary<string, object> payloadDict, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [new { payloadDict, field, expectedMessage }]);
         var jsonPayload = JsonContent.Create(payloadDict);
 
         var user = _fixture.GetSuperAdmin();
@@ -236,6 +238,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [MemberData(nameof(UpdateRoleInvalidInputs))]
     public async Task UpdateRole_InvalidInputs_ReturnsValidationError(string fieldName, object payload, string expectedError)
     {
+        TestUtils.LogPayload(_out, [new { fieldName, payload, expectedError }]);
         var roleId = Guid.NewGuid();
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
@@ -254,6 +257,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [InlineData(new string[] { "name", "displayName" }, new string[] { "Updated Role Namex3", "Updated Role Display Namex3" })]
     public async Task UpdateRole_ValidInputs_ReturnsSuccess(string[] fieldName, string[] fieldValue)
     {
+        TestUtils.LogPayload(_out, [new { fieldName, fieldValue }]);
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
 
@@ -263,6 +267,8 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
             payload[fieldName[i]] = fieldValue[i];
         }
         var jsonPayload = JsonContent.Create(payload);
+
+        TestUtils.LogPayload(_out, [new { payload }]);
 
         var url = $"{_mainEndpoint}/{_roleIdToUpdate}";
         var response = await TestUtils.SendWithAuthAsync(_client, HttpMethod.Put, user.Email!, _fixture.TestPassword, url, jsonPayload);
@@ -314,6 +320,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
             default:
                 throw new NotSupportedException(nameof(scenario));
         }
+        TestUtils.LogPayload(_out, [new { roleId, expectedStatus }]);
 
         var user = _fixture.GetSuperAdmin();
         var url = $"{_mainEndpoint}/{roleId}";
@@ -550,6 +557,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [MemberData(nameof(InvalidRouteParams))]
     public async Task InvalidRouteParams_ReturnsBadRequest(string endpoint, HttpMethod method)
     {
+        TestUtils.LogPayload(_out, [new { method, endpoint }]);
         var user = _fixture.GetSuperAdmin();
         var response = await TestUtils.SendWithAuthAsync(_client, method, user.Email!, _fixture.TestPassword, endpoint);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -611,6 +619,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
     [MemberData(nameof(AuthUseCases))]
     public async Task AuthTests(DefaultUserRoles role, HttpMethod method, string endpoint, HttpStatusCode expectedStatusCode)
     {
+        TestUtils.LogPayload(_out, [new { role, method, endpoint, expectedStatusCode }]);
         var user = role switch
         {
             DefaultUserRoles.User => _fixture.GetUser(),

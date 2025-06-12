@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Shared.Utils;
 
@@ -164,5 +165,19 @@ public class TestUtils
 
         var response = await authClient.SendAsync(request);
         return response;
+    }
+
+    public static void LogPayload(ITestOutputHelper output, object[] args, string label = "Arguments")
+    {
+        if (args != null && args.Length > 0)
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(args, options);
+            output.WriteLine($"{label}: {json}");
+        }
+        else
+        {
+            output.WriteLine("No args were provided.");
+        }
     }
 }

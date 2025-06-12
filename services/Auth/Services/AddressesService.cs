@@ -11,7 +11,7 @@ public class AddressesService(IUnitOfWork unitOfWork) : IAddressesService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private const string resourceName = "address";
-    public async Task<List<Address>> FindAllByUserIdAsync(Guid userId, int page, int limit)
+    public async Task<(List<Address> addresses, int count)> FindAllByUserIdAsync(Guid userId, int page, int limit)
     {
         return await _unitOfWork.AddressesRepository.FindAllByUserIdAsync(userId, page, limit);
     }

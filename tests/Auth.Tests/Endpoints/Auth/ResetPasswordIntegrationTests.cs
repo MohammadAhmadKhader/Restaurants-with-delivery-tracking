@@ -87,6 +87,7 @@ public class ResetPasswordIntegrationTests(IntegrationTestsFixture fixture, ITes
     [MemberData(nameof(InvalidResetPasswordInputs))]
     public async Task ResetPassword_InvalidInputs_ReturnsValidationError(object payload, HttpStatusCode expectedStatus, string field, string expectedMessage)
     {
+        TestUtils.LogPayload(_out, [new { payload, expectedStatus, field, expectedMessage}]);
         var user = _fixture.Loader.Users.ElementAtOrDefault(0);
         Assert.NotNull(user);
 

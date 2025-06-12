@@ -28,6 +28,7 @@ public class UsersFiltersIntegrationTests
     [InlineData("Admin")]
     public async Task FilterUsers_WithDifferentAdminRoles_ReturnsFilteredUsers(string role)
     {
+        TestUtils.LogPayload(_out, [new { role }]);
         var queryParams = new Dictionary<string, string>{};
         var queryString = TestUtils.GetQueryString(queryParams);
 
@@ -85,6 +86,7 @@ public class UsersFiltersIntegrationTests
     [InlineData("email", "superAdmin@gmail.com")]
     public async Task FilterUsers_ByField_ReturnsFilteredUsers(string fieldName, string expectedValue)
     {
+        TestUtils.LogPayload(_out, [new { fieldName, expectedValue }]);
         var queryParams = new Dictionary<string, string>
         {
             { fieldName, expectedValue }
@@ -201,12 +203,14 @@ public class UsersFiltersIntegrationTests
     [InlineData("createdAt")]
     public async Task FilterUsers_SortByFieldAscending_ReturnsUsersSortedByField(string field)
     {
+        TestUtils.LogPayload(_out, [new { field }]);
         var queryParams = new Dictionary<string, string>
         {
             { "sortField", field },
             { "sortDir", "asc" },
         };
         var queryString = TestUtils.GetQueryString(queryParams);
+        TestUtils.LogPayload(_out, [new { queryString }]);
 
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);
@@ -238,12 +242,14 @@ public class UsersFiltersIntegrationTests
     [InlineData("createdAt")]
     public async Task FilterUsers_SortByFieldDescending_ReturnsUsersSortedByField(string field)
     {
+        TestUtils.LogPayload(_out, [new { field }]);
         var queryParams = new Dictionary<string, string>
         {
             { "sortField", field },
             { "sortDir", "desc" },
         };
         var queryString = TestUtils.GetQueryString(queryParams);
+        TestUtils.LogPayload(_out, [new { queryString }]);
 
         var user = _fixture.GetSuperAdmin();
         Assert.NotNull(user);

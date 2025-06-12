@@ -19,10 +19,10 @@ public static class AddressesEndpoints
         {
             PaginationUtils.Normalize(ref page, ref size);
             var userId = SecurityUtils.ExtractUserId(principal);
-            var addresses = await addressesService.FindAllByUserIdAsync(userId, page!.Value, size!.Value);
+            var (addresses, count) = await addressesService.FindAllByUserIdAsync(userId, page!.Value, size!.Value);
             var addressesView = addresses.Select(a => a.ToViewDto()).ToList();
 
-            return Results.Ok(new { addresses = addressesView });
+            return Results.Ok(PaginationUtils.ResultOf(addressesView, count, page, size));
         });
 
         group.MapPost("", async (IAddressesService addressesService, AddressCreateDto dto, ClaimsPrincipal principal) =>
