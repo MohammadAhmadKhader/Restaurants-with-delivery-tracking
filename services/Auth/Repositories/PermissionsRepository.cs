@@ -1,6 +1,7 @@
 
 using Auth.Data;
 using Auth.Models;
+using Auth.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Repositories;
@@ -9,11 +10,9 @@ public class PermissionsRepository(AppDbContext ctx) : IPermissionsRepository
 {
     private readonly DbSet<Permission> _dbSet = ctx.Set<Permission>();
     private readonly AppDbContext _ctx = ctx;
-
     public async Task<Permission> CreateAsync(Permission permission)
     {
         var res = await _dbSet.AddAsync(permission);
-        await _ctx.SaveChangesAsync();
         return res.Entity;
     }
 

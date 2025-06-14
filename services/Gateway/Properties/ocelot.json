@@ -39,6 +39,66 @@
             "UpstreamPathTemplate": "/api/roles/{everything}",
             "DownstreamPathTemplate": "/api/roles/{everything}",
             "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5029
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
+            "UpstreamPathTemplate": "/api/restaurants/{everything}",
+            "DownstreamPathTemplate": "/api/restaurants/{everything}",
+            "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5090
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
+            "UpstreamPathTemplate": "/api/reviews/{everything}",
+            "DownstreamPathTemplate": "/api/reviews/{everything}",
+            "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5115
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
+            "UpstreamPathTemplate": "/api/locations/{everything}",
+            "DownstreamPathTemplate": "/api/locations/{everything}",
+            "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5281
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
+            "UpstreamPathTemplate": "/api/orders/{everything}",
+            "DownstreamPathTemplate": "/api/orders/{everything}",
+            "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5206
+                }
+            ],
+            "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
+            "UpstreamPathTemplate": "/api/payments/{everything}",
+            "DownstreamPathTemplate": "/api/payments/{everything}",
+            "DownstreamScheme": "http"
         }
     ]
 }

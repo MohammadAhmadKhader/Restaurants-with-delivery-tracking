@@ -4,6 +4,7 @@ using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Specifications;
 using Microsoft.EntityFrameworkCore;
+using Shared.Data.Patterns.GenericRepository;
 using Shared.Specifications;
 
 namespace Auth.Repositories;
@@ -24,7 +25,7 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         .FirstOrDefaultAsync();
     }
 
-    public async Task<(IReadOnlyList<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
+    public async Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
     {
         var query = _dbSet.AsQueryable();
         var spec = new UsersFilterSpecification(filterParams);
@@ -53,10 +54,5 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         .FirstOrDefaultAsync();
 
         return user;
-    }
-
-    public override async Task<bool> DeleteAsync(Guid id)
-    {
-        throw new NotImplementedException();
     }
 }

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-
+namespace Orders.Models;
 public enum OrderStatus { PLACED, ACCEPTED, PREPARING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED }
 public class Order
 {

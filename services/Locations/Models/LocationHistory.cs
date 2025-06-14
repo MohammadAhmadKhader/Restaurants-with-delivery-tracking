@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Locations.Models;
 public class LocationHistory
 {
     [Key]

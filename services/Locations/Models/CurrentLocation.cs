@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Locations.Models;
+
 public class CurrentLocation
 {
     [Key]

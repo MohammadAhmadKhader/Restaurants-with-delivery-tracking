@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
+namespace Reviews.Models;
+
 [Index(nameof(OrderId), IsUnique = true)]
 public class MenuItemReview
 {

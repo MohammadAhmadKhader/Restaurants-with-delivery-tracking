@@ -4,10 +4,7 @@ using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Dtos.Auth;
 using Sprache;
-using Auth.Extensions;
 using Shared.Exceptions;
-using FluentValidation;
-using FluentValidation.Results;
 
 namespace Auth.Services;
 

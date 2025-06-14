@@ -3,6 +3,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -178,5 +181,22 @@ public class TestUtils
         {
             output.WriteLine("No args were provided.");
         }
+    }
+
+    public static async Task<TModel?> GetModelByPk<TModel, TDbContext, TProgram>(WebApplicationFactory<TProgram> factory, object id, bool ignoreFilters = false, string pkName = "Id")
+        where TModel : class
+        where TProgram : class
+        where TDbContext : DbContext
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TDbContext>();
+        var query = db.Set<TModel>().AsQueryable<TModel>();
+
+        if (ignoreFilters)
+        {
+            query = query.IgnoreQueryFilters();
+        }
+
+        return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, pkName)!.Equals(id));
     }
 }

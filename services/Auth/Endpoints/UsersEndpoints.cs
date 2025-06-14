@@ -34,7 +34,7 @@ public static class UsersEndpoints
             var (isSuccess, error) = await usersService.DeleteByIdAsync(id);
             if (!isSuccess)
             {
-                var code    = error.GetStatusCode();
+                var code = error.GetStatusCode();
                 var message = error.GetMessage();
                 return ResponseUtils.Error(message, code);
             }
@@ -53,7 +53,7 @@ public static class UsersEndpoints
             var (isSuccess, error) = await usersService.DeleteByIdAsync(userId);
             if (!isSuccess)
             {
-                var code    = error.GetStatusCode();
+                var code = error.GetStatusCode();
                 var message = error.GetMessage();
                 return ResponseUtils.Error(message, code);
             }

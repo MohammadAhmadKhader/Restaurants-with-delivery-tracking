@@ -2,20 +2,12 @@ using Auth.Data;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
+using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Repositories;
 
 public class RolesRepository(AppDbContext ctx) : GenericRepository<Role, Guid>(ctx), IRolesRepository
 {
-    public async Task<(List<Role> roles, int count)> FindAllAsync(int page, int size)
-    {
-        var skip = (page - 1) * size;
-        var count = await _dbSet.Skip(skip).Take(size).CountAsync();
-        var roles = await _dbSet.Skip(skip).Take(size).OrderBy(x => x.Name).ToListAsync();
-
-        return (roles, count);
-    }
-
     public async Task<Role?> FindByNameAsync(string name)
     {
         return await _dbSet.Where(x => x.NormalizedName == name.ToUpper()).FirstOrDefaultAsync();

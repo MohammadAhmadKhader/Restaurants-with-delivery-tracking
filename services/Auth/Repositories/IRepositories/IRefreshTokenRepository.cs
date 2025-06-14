@@ -1,4 +1,3 @@
-using Auth.Dtos;
 using Auth.Dtos.Auth;
 
 namespace Auth.Repositories.IRepositories;

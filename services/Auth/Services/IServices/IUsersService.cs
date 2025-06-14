@@ -12,6 +12,6 @@ public interface IUsersService
     Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id);
     Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email);
     Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto);
-    Task<(IReadOnlyList<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams);
+    Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams);
     Task<(bool isSuccess, DeleteUserError error)> DeleteByIdAsync(Guid id);
 }

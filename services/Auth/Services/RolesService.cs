@@ -25,7 +25,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
 
     public async Task<(List<Role> roles, int count)> FindAllAsync(int page, int size)
     {
-        var (roles, count) = await _unitOfWork.RolesRepository.FindAllAsync(page, size);
+        var (roles, count) = await _unitOfWork.RolesRepository.FindAllOrderedDescAtAsync(page, size);
         return (roles, count);
     }
 

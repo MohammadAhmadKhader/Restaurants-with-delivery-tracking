@@ -1,5 +1,6 @@
 using Auth.Models;
 
+namespace Auth.Repositories.IRepositories;
 public interface IPermissionsRepository
 {
     Task<Permission?> FindByIdAsync(int id);

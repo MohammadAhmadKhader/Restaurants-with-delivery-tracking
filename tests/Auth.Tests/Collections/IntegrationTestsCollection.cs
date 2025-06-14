@@ -8,6 +8,7 @@ using Auth.Models;
 using Microsoft.AspNetCore.Identity;
 using Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Shared.Utils;
 
 namespace Auth.Tests.Collections;
 
@@ -75,16 +76,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
     public async Task<TModel?> GetModelByPk<TModel>(object id, bool ignoreFilters = false, string pkName = "Id")
         where TModel: class
     {
-        using var scope = Factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var query = db.Set<TModel>().AsQueryable<TModel>();
-
-        if (ignoreFilters)
-        {
-            query = query.IgnoreQueryFilters();
-        }
-
-        return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, pkName)!.Equals(id));
+        return await TestUtils.GetModelByPk<TModel, AppDbContext, Program>(Factory, id, ignoreFilters, pkName);
     }
 
     public async Task<User?> GetUserFromDbByEmail(string email)

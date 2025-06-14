@@ -24,7 +24,7 @@ public class UsersService(IUnitOfWork unitOfWork) : IUsersService
         return exists;
     }
 
-    public async Task<(IReadOnlyList<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
+    public async Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
     {
         return await _unitOfWork.UsersRepository.FilterUsersAsync(filterParams);
     }

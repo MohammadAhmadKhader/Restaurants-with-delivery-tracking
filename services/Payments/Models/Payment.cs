@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Payments.Models;
 public enum PaymentStatus { PENDING, PAID, FAILED }
 public enum PaymentMethod { CREDIT_CARD, DEBIT_CARD, UPI, CASH_ON_DELIVERY }
 public class Payment

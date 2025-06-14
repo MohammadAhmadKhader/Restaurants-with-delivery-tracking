@@ -1,5 +1,6 @@
 using Auth.Repositories;
 using Auth.Repositories.IRepositories;
+using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Extensions;
 public static class RepositoryExtensions
