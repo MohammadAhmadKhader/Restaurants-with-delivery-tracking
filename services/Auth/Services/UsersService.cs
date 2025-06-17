@@ -8,14 +8,15 @@ using Shared.Exceptions;
 
 namespace Auth.Services;
 
-public class UsersService(IUnitOfWork unitOfWork) : IUsersService
+public class UsersService(IUnitOfWork unitOfWork, IUsersRepository usersRepository) : IUsersService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUsersRepository _usersRepository = usersRepository;
     private const string resourceName = "user";
 
     public async Task<bool> ExistsByEmailAsync(string email)
     {
-        var exists = await _unitOfWork.UsersRepository.ExistsByEmailAsync(email);
+        var exists = await _usersRepository.ExistsByEmailAsync(email);
         if (exists)
         {
             throw new ConflictException("Email", email, ConflictType.Duplicate);
@@ -26,27 +27,27 @@ public class UsersService(IUnitOfWork unitOfWork) : IUsersService
 
     public async Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
     {
-        return await _unitOfWork.UsersRepository.FilterUsersAsync(filterParams);
+        return await _usersRepository.FilterUsersAsync(filterParams);
     }
 
     public async Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email)
     {
-        return await _unitOfWork.UsersRepository.FindByEmailWithRolesAndPermissionsAsync(email);;
+        return await _usersRepository.FindByEmailWithRolesAndPermissionsAsync(email);;
     }
 
     public async Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id)
     {
-        return await _unitOfWork.UsersRepository.FindByIdWithRolesAndPermissionsAsync(id);
+        return await _usersRepository.FindByIdWithRolesAndPermissionsAsync(id);
     }
 
     public async Task<User?> FindByIdAsync(Guid id)
     {
-        return await _unitOfWork.UsersRepository.FindByIdAsync(id);
+        return await _usersRepository.FindByIdAsync(id);
     }
 
     public async Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto)
     {
-        var user = await _unitOfWork.UsersRepository.FindByIdAsync(id);
+        var user = await _usersRepository.FindByIdAsync(id);
         if (user == null)
         {
             throw new ResourceNotFoundException(resourceName);
@@ -60,12 +61,12 @@ public class UsersService(IUnitOfWork unitOfWork) : IUsersService
 
     public async Task<User?> FindByIdWithRolesAsync(Guid id)
     {
-        return await _unitOfWork.UsersRepository.FindByIdWithRolesAsync(id);
+        return await _usersRepository.FindByIdWithRolesAsync(id);
     }
 
     public async Task<(bool isSuccess, DeleteUserError error)> DeleteByIdAsync(Guid id)
     {
-        var user = await _unitOfWork.UsersRepository.FindByIdWithRolesAsync(id);
+        var user = await _usersRepository.FindByIdWithRolesAsync(id);
         if (user == null)
         {
             return (false, DeleteUserError.NotFound);

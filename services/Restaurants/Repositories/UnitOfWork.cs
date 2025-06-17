@@ -9,11 +9,13 @@ public class UnitOfWork : IUnitOfWork
     private readonly AppDbContext _ctx;
     public IMenusRepository MenusRepository { get; set; }
     public IRestaurantsRepository RestaurantsRepository { get; set; }
+    public IRestaurantInvitationsRepository RestaurantInvitationsRepository { get; set; }
     public UnitOfWork(AppDbContext ctx)
     {
         _ctx = ctx;
         MenusRepository = new MenusRepository(_ctx);
         RestaurantsRepository = new RestaurantsRepository(_ctx);
+        RestaurantInvitationsRepository = new RestaurantInvitationsRepository(_ctx);
     }
     public async Task<DbTransaction> BeginTransactionAsync()
     {

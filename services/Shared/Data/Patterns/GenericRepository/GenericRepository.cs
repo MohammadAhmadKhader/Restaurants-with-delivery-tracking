@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -90,12 +91,12 @@ public class GenericRepository<TModel, TPrimaryKey> : IGenericRepository<TModel,
         _dbSet.Remove(model);
         return true;
     }
-    
+
     public EntityEntry<TModel> Delete(TModel model)
     {
         return _dbSet.Remove(model);
     }
-    
+
     public async Task<int> DeleteManyAsync(IEnumerable<TPrimaryKey> ids, string pkName = "Id")
     {
         var models = await _dbSet
@@ -108,5 +109,15 @@ public class GenericRepository<TModel, TPrimaryKey> : IGenericRepository<TModel,
 
         _dbSet.RemoveRange(models);
         return models.Count;
+    }
+
+    public async Task<TModel?> FindByMatchAsync(Expression<Func<TModel, bool>> match)
+    {
+        return await _dbSet.FirstOrDefaultAsync(match);
+    }
+    
+    public async Task<bool> ExistsByMatchAsync(Expression<Func<TModel, bool>> match)
+    {
+        return await _dbSet.AnyAsync(match);
     }
 }

@@ -24,6 +24,7 @@ public class User : IdentityUser<Guid>
 
     [Required]
     public bool IsDeleted { get; set; }
+    // public Guid TenantId { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public ICollection<Role> Roles { get; set; } = new HashSet<Role>();

@@ -7,17 +7,18 @@ using Shared.Exceptions;
 
 namespace Auth.Services;
 
-public class AddressesService(IUnitOfWork unitOfWork) : IAddressesService
+public class AddressesService(IUnitOfWork unitOfWork, IAddressesRepository addressesRepository) : IAddressesService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IAddressesRepository _addressesRepository = addressesRepository;
     private const string resourceName = "address";
     public async Task<(List<Address> addresses, int count)> FindAllByUserIdAsync(Guid userId, int page, int limit)
     {
-        return await _unitOfWork.AddressesRepository.FindAllByUserIdAsync(userId, page, limit);
+        return await _addressesRepository.FindAllByUserIdAsync(userId, page, limit);
     }
     public async Task<Address?> FindByIdAsync(Guid id)
     {
-        return await _unitOfWork.AddressesRepository.FindByIdAsync(id);
+        return await _addressesRepository.FindByIdAsync(id);
     }
     public async Task<Address> CreateAsync(Guid userId, AddressCreateDto dto)
     {
@@ -33,7 +34,7 @@ public class AddressesService(IUnitOfWork unitOfWork) : IAddressesService
             Latitude = (decimal) dto.Latitude!,
         };
 
-        var newAddress = await _unitOfWork.AddressesRepository.CreateAsync(address);
+        var newAddress = await _addressesRepository.CreateAsync(address);
         await _unitOfWork.SaveChangesAsync();
 
         return newAddress;
@@ -61,7 +62,7 @@ public class AddressesService(IUnitOfWork unitOfWork) : IAddressesService
             throw new ResourceNotFoundException(resourceName);
         }
 
-        _unitOfWork.AddressesRepository.Delete(address);
+        _addressesRepository.Delete(address);
         await _unitOfWork.SaveChangesAsync();
     }
 }

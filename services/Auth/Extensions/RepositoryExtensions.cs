@@ -9,6 +9,7 @@ public static class RepositoryExtensions
     {
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IRolesRepository, RolesRepository>();
+        services.AddScoped<IPermissionsRepository, PermissionsRepository>();
         services.AddScoped<IAddressesRepository, AddressesRepository>();
         services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

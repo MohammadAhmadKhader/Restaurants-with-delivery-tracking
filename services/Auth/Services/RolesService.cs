@@ -9,29 +9,35 @@ using Auth.Mappers;
 
 namespace Auth.Services;
 
-public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager) : IRolesService
+public class RolesService(
+    IUnitOfWork unitOfWork,
+    RoleManager<Role> roleManager,
+    IRolesRepository rolesRepository,
+    IPermissionsRepository permissionsRepository) : IRolesService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
     private const string resourceName = "role";
     public async Task<Role?> FindByIdAsync(Guid id)
     {
-        return await _unitOfWork.RolesRepository.FindByIdAsync(id);
+        return await _rolesRepository.FindByIdAsync(id);
     }
 
     public async Task<Role?> FindByNameAsync(string name)
     {
-        return await _unitOfWork.RolesRepository.FindByNameAsync(name);
+        return await _rolesRepository.FindByNameAsync(name);
     }
 
     public async Task<(List<Role> roles, int count)> FindAllAsync(int page, int size)
     {
-        var (roles, count) = await _unitOfWork.RolesRepository.FindAllOrderedDescAtAsync(page, size);
+        var (roles, count) = await _rolesRepository.FindAllOrderedDescAtAsync(page, size);
         return (roles, count);
     }
 
     public async Task<Role> CreateAsync(RoleCreateDto dto)
     {
-        var existedRole = await _unitOfWork.RolesRepository.FindByNameOrDisplayNameAsync(dto.Name, dto.DisplayName);
+        var existedRole = await _rolesRepository.FindByNameOrDisplayNameAsync(dto.Name, dto.DisplayName);
         if (existedRole != null)
         {
             if (dto.DisplayName == existedRole.DisplayName)
@@ -105,7 +111,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
 
     public async Task<Role> AddPermissions(Guid roleId, List<int> permissionsIds)
     {
-        var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
+        var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         if (role == null)
         {
             throw new ResourceNotFoundException(resourceName);
@@ -116,7 +122,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
             throw new InvalidOperationException("this role can not be modified");
         }
 
-        var permissionsToAdd = await _unitOfWork.PermissionsRepository.FindByIds(permissionsIds);
+        var permissionsToAdd = await _permissionsRepository.FindByIds(permissionsIds);
         var fetchedIds = permissionsToAdd.Select(p => p.Id).ToHashSet();
         if (permissionsToAdd.Count != permissionsIds.Count)
         {
@@ -150,7 +156,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
 
     public async Task<Role> RemovePermission(Guid roleId, int permissionId)
     {
-        var role = await _unitOfWork.RolesRepository.FindByIdWithPermissionsAsync(roleId);
+        var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         if (role == null)
         {
             throw new ResourceNotFoundException(resourceName, roleId.ToString());
@@ -161,7 +167,7 @@ public class RolesService(IUnitOfWork unitOfWork, RoleManager<Role> roleManager)
             throw new InvalidOperationException("this role can not be modified");
         }
 
-        var permission = await _unitOfWork.PermissionsRepository.FindByIdAsync(permissionId);
+        var permission = await _permissionsRepository.FindByIdAsync(permissionId);
         if (permission == null)
         {
             throw new ResourceNotFoundException("permission", permissionId);

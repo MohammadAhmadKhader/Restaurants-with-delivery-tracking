@@ -13,15 +13,26 @@ public class DatabaseSeeder: IDatabaseSeeder
     private readonly RoleManager<Role> _roleManager;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DatabaseSeeder> _logger;
+    private readonly IRolesRepository _rolesRepository;
+    private readonly IPermissionsRepository _permissionsRepository;
 
-    public DatabaseSeeder(AppDbContext context, UserManager<User> userManager,
-    RoleManager<Role> roleManager, IUnitOfWork unitOfWork, ILogger<DatabaseSeeder> logger)
+    public DatabaseSeeder(
+        AppDbContext context,
+        UserManager<User> userManager,
+        RoleManager<Role> roleManager,
+        IUnitOfWork unitOfWork,
+        ILogger<DatabaseSeeder> logger,
+        IRolesRepository rolesRepository,
+        IPermissionsRepository permissionsRepository)
     {
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _rolesRepository = rolesRepository;
+        _permissionsRepository = permissionsRepository;
+        
     }
     public async Task SeedAsync()
     {
@@ -104,7 +115,7 @@ public class DatabaseSeeder: IDatabaseSeeder
 
             foreach (var permissionSeed in seedData.Permissions)
             {
-                var permissionExists = await _unitOfWork.PermissionsRepository.ExistsByName(permissionSeed.Name);
+                var permissionExists = await _permissionsRepository.ExistsByName(permissionSeed.Name);
                 if (permissionExists)
                 {
                     continue;
@@ -119,17 +130,17 @@ public class DatabaseSeeder: IDatabaseSeeder
                     IsDefaultSuperAdmin = permissionSeed.IsDefaultSuperAdmin,
                 };
 
-                await _unitOfWork.PermissionsRepository.CreateAsync(permission);
+                await _permissionsRepository.CreateAsync(permission);
             }
             await _unitOfWork.SaveChangesAsync();
 
             // * Seeding Permissions to the Roles
 
-            var UserRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.User);
-            var AdminRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.Admin);
-            var SuperAdminRole = await _unitOfWork.RolesRepository.FindByNameWithPermissionsAsync(RolePolicies.SuperAdmin);
+            var UserRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.User);
+            var AdminRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.Admin);
+            var SuperAdminRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.SuperAdmin);
 
-            var permissions = await _unitOfWork.PermissionsRepository.FindAllAsync();
+            var permissions = await _permissionsRepository.FindAllAsync();
 
             // checking for each permission if its default is set to a user/admin/superAdmin
             // if it is and its not already added then they are added to the role permissions collection

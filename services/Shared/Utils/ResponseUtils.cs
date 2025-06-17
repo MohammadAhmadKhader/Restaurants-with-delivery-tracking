@@ -10,10 +10,15 @@ public class ResponseUtils
     {
         return Results.Problem(statusCode: (int)HttpStatusCode.Forbidden, detail: detail);
     }
+    
+    public static IResult BadRequest(string detail)
+    {
+        return Results.Problem(statusCode: (int)HttpStatusCode.BadRequest, detail: detail);
+    }
 
     public static IResult Unauthorized(string detail = "Unauthorized")
     {
-        return Results.Problem(statusCode: (int) HttpStatusCode.Unauthorized, detail: detail);
+        return Results.Problem(statusCode: (int)HttpStatusCode.Unauthorized, detail: detail);
     }
 
     public static IResult NotFound(string resourceName)

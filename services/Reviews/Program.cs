@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host);
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDatabase<AppDbContext>(config);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 

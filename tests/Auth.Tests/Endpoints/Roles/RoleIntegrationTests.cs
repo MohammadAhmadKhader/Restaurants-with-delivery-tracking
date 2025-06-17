@@ -109,18 +109,20 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
         using var scope = _fixture.Factory.Services.CreateScope();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var rolesRepository = scope.ServiceProvider.GetRequiredService<IRolesRepository>();
+        var permissionsRepository = scope.ServiceProvider.GetRequiredService<IPermissionsRepository>();
 
         using var transaction = await unitOfWork.BeginTransactionAsync();
-        await unitOfWork.RolesRepository.CreateAsync(roleToUpdate);
-        await unitOfWork.RolesRepository.CreateAsync(roleToDelete);
-        await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions1);
-        await unitOfWork.RolesRepository.CreateAsync(roleToAddPermissions2);
-        await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission1);
-        await unitOfWork.RolesRepository.CreateAsync(roleToRemovePermission2);
+        await rolesRepository.CreateAsync(roleToUpdate);
+        await rolesRepository.CreateAsync(roleToDelete);
+        await rolesRepository.CreateAsync(roleToAddPermissions1);
+        await rolesRepository.CreateAsync(roleToAddPermissions2);
+        await rolesRepository.CreateAsync(roleToRemovePermission1);
+        await rolesRepository.CreateAsync(roleToRemovePermission2);
 
-        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved1);
-        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved2);
-        await unitOfWork.PermissionsRepository.CreateAsync(permissionToBeRemoved3);
+        await permissionsRepository.CreateAsync(permissionToBeRemoved1);
+        await permissionsRepository.CreateAsync(permissionToBeRemoved2);
+        await permissionsRepository.CreateAsync(permissionToBeRemoved3);
 
         await unitOfWork.SaveChangesAsync();
 
