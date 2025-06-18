@@ -8,6 +8,7 @@ public static class ServicesExtensions
     {
         services.AddScoped<IMenusService, MenusService>();
         services.AddScoped<IRestaurantsService, RestaurantsService>();
+        services.AddScoped<IRestaurantInvitationsService, RestaurantInvitationsService>();
 
         return services;
     }

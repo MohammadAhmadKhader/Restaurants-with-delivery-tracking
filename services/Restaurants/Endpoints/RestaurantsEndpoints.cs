@@ -73,5 +73,10 @@ public static class RestaurantsEndpoints
 
             return Results.Ok(new { restaurant });
         });
+
+        group.MapPost("/test", async (object body) =>
+        {
+            return Results.Ok(new { body });
+        });
     }
 }

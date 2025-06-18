@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Common;
 
 namespace Shared.Extensions;
 public static class JsonOptionsExtensions
@@ -9,8 +10,8 @@ public static class JsonOptionsExtensions
     {
         services.Configure<JsonOptions>(options =>
         {
-            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            options.SerializerOptions.PropertyNamingPolicy = AppJsonSerializerOptions.Options.PropertyNamingPolicy;
+            options.SerializerOptions.DictionaryKeyPolicy = AppJsonSerializerOptions.Options.DictionaryKeyPolicy;
         });
 
         return services;

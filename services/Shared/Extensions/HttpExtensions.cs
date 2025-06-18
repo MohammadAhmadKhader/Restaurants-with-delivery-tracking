@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Http;
+using Shared.Http.Clients;
+using Shared.Interfaces;
 
 namespace Shared.Extensions;
 
@@ -18,6 +21,19 @@ public static class HttpExtensions
                 ctx.ProblemDetails.Extensions.TryAdd("traceId", activity?.TraceId);
             };
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddHttpClientWithClientServices(this IServiceCollection services)
+    {
+        services.AddTransient<AuthenticationClientHandler>();
+        services.AddHttpClient<IHttpClientService, HttpClientService>()
+                .AddHttpMessageHandler<AuthenticationClientHandler>();
+        services.AddScoped<ITokenProvider, TokenProvider>();
+
+        services.AddSingleton<IRestaurantServiceClient, RestaurantServiceClient>();
+        services.AddSingleton<IAuthServiceClient, AuthServiceClient>();
 
         return services;
     }

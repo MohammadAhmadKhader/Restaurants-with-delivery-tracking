@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Auth.Dtos.Auth;
 using Auth.Utils;
 using Shared.Utils;
+using Shared.Interfaces;
 
 namespace Auth.Endpoints;
 public static class AuthEndpoints
@@ -74,9 +75,15 @@ public static class AuthEndpoints
             }
 
             await authService.ChangePassword(userId, dto);
-    
+
             return Results.NoContent();
         }).RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
+        
+        group.MapGet("/test", async (IRestaurantServiceClient restaurantServiceClient) =>
+        {
+            var resp = await restaurantServiceClient.TestPostAsync(new { data = "some data"});
+            return Results.Ok(resp);
+        });
     }
 }

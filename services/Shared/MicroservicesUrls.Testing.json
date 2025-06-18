@@ -1,0 +1,10 @@
+{
+    "MicroservicesUrls": {
+      "AuthService": "http://auth:8080",
+      "OrdersService": "http://orders:8080",
+      "PaymentsService": "http://payments:8080",
+      "LocationsService": "http://locations:8080",
+      "RestaurantsService": "http://restaurants:8080",
+      "ReviewsService": "http://reviews:8080"
+    }
+}

@@ -21,6 +21,7 @@ builder.Services.AddServiceLogging(host);
 builder.Services.AddFluentValidation();
 builder.Services.AddSeeding();
 builder.Services.AddAppProblemDetails();
+builder.Services.AddHttpClientWithClientServices();
 
 var app = builder.Build();
 
