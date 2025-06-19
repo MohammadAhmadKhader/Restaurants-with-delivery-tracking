@@ -1,4 +1,4 @@
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Auth.Utils;
 using FluentValidation;

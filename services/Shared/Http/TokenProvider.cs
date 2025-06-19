@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 
 namespace Shared.Http;
 

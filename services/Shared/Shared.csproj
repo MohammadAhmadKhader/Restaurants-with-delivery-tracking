@@ -28,4 +28,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\contracts\Auth.Contracts\Auth.Contracts.csproj" />
+    <ProjectReference Include="..\..\contracts\Restaurants.Contracts\Restaurants.Contracts.csproj" />
+    <ProjectReference Include="..\..\contracts\Shared.Contracts\Shared.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

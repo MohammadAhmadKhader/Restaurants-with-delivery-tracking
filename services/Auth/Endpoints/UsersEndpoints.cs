@@ -1,6 +1,6 @@
 using Auth.Services.IServices;
 using Auth.Mappers;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.User;
 using Shared.Filters;
 using Shared.Utils;
 using Auth.Utils;

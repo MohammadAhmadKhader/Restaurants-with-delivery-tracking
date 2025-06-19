@@ -1,6 +1,6 @@
 
 using System.Security.Claims;
-using Auth.Dtos.Address;
+using Auth.Contracts.Dtos.Address;
 using Auth.Services.IServices;
 using Auth.Utils;
 using Shared.Utils;

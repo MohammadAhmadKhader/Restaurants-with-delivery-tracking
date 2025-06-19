@@ -1,4 +1,4 @@
-using Auth.Dtos.Role;
+using Auth.Contracts.Dtos.Role;
 using Auth.Services.IServices;
 using Shared.Dtos;
 using Shared.Utils;

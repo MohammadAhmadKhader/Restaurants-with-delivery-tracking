@@ -1,4 +1,4 @@
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 namespace Shared.Utils;
 
 public class SortingUtils(List<string> sortFields, string defaultSortField = "createdAt", string defaultSortDir = "desc")

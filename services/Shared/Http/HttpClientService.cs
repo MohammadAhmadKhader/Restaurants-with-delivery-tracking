@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Shared.Common;
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 
 namespace Shared.Http;
 

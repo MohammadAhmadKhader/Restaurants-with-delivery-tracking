@@ -1,8 +1,5 @@
 using Auth.Services;
 using Auth.Services.IServices;
-using Shared.Http;
-using Shared.Http.Clients;
-using Shared.Interfaces;
 
 namespace Auth.Extensions;
 public static class ServicesExtensions

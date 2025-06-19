@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Shared.Specifications;
 

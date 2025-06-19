@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Auth.Dtos.Address;
+using Auth.Contracts.Dtos.Address;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Tests.Collections;

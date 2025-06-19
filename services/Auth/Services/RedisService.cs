@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Auth.Dtos;
 using Auth.Services.IServices;
 using StackExchange.Redis;
 

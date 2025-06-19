@@ -1,4 +1,4 @@
-using Restaurants.Dtos;
+using Restaurants.Contracts.Dtos;
 using Restaurants.Mappers;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;

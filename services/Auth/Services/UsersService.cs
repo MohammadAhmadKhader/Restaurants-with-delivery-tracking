@@ -1,10 +1,10 @@
-using Auth.Dtos.User;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
 using Auth.Mappers;
 using Auth.Utils;
 using Shared.Exceptions;
+using Auth.Contracts.Dtos.User;
 
 namespace Auth.Services;
 

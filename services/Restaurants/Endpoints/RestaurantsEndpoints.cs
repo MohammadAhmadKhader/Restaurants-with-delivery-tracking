@@ -1,11 +1,7 @@
-using System.Net;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
-using Restaurants.Dtos;
+using Restaurants.Contracts.Dtos;
 using Restaurants.Services.IServices;
 using Shared.Utils;
-using Xunit.Sdk;
 
 namespace Restaurants.Endpoints;
 public static class RestaurantsEndpoints

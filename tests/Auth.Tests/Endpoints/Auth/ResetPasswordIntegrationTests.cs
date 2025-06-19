@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Auth.Dtos.Auth;
+using Auth.Contracts.Dtos.Auth;
 using Auth.Tests.Collections;
 using Auth.Utils;
 using Shared.Common;

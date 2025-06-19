@@ -1,5 +1,3 @@
-using Auth.Dtos;
-
 namespace Auth.Services.IServices;
 public interface IRedisService
 {

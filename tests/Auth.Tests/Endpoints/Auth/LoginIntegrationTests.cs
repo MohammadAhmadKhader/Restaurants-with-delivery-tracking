@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Auth.Dtos.Auth;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.Auth;
+using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;

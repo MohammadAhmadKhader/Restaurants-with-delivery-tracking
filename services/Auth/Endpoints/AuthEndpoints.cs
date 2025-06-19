@@ -2,10 +2,10 @@ using Auth.Services.IServices;
 using Shared.Filters;
 using Auth.Mappers;
 using System.Security.Claims;
-using Auth.Dtos.Auth;
 using Auth.Utils;
 using Shared.Utils;
-using Shared.Interfaces;
+using Auth.Contracts.Dtos.Auth;
+using Restaurants.Contracts.Clients;
 
 namespace Auth.Endpoints;
 public static class AuthEndpoints

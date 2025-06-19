@@ -1,5 +1,4 @@
-
-using Auth.Dtos.Address;
+using Auth.Contracts.Dtos.Address;
 using Auth.Models;
 
 namespace Auth.Mappers;

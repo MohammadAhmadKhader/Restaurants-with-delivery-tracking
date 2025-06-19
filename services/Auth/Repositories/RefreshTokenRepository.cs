@@ -1,6 +1,5 @@
 using System.Text.Json;
-using Auth.Dtos;
-using Auth.Dtos.Auth;
+using Auth.Contracts.Dtos.Auth;
 using Auth.Repositories.IRepositories;
 using StackExchange.Redis;
 using IDatabase = StackExchange.Redis.IDatabase;

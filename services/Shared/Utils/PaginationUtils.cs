@@ -1,5 +1,5 @@
 using Shared.Dtos;
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 namespace Shared.Utils;
 
 public class PaginationUtils

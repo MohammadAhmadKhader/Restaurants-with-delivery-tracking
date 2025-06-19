@@ -1,5 +1,5 @@
-using Auth.Dtos;
-using Auth.Dtos.Role;
+using Auth.Contracts.Dtos;
+using Auth.Contracts.Dtos.Role;
 using Auth.Models;
 
 namespace Auth.Mappers;

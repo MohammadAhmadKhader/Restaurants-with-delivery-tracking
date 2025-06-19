@@ -4,14 +4,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf 
-          Include="$(MSBuildThisFileDirectory)protos/**/*.proto" 
-          GrpcServices="None"
-          Link="protos/%(RecursiveDir)%(Filename)%(Extension)"
-          ProtoRoot="$(MSBuildThisFileDirectory)protos/"
-        />
-    </ItemGroup>
-    <ItemGroup>
         <!-- * Gateway -->
         <PackageVersion Include="Ocelot" Version="24.0.0" />
 
@@ -26,21 +18,13 @@
         <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 
-        <!-- * Protos related -->
-
-        <!--  this is needed so we can access the generated code (types) -->
-        <PackageVersion Include="Grpc.Tools" Version="2.72.0" />
-
-        <!-- this is required to compile otherwise will complain about 'Google.Protobuf.IBufferMessage' -->
-        <PackageVersion Include="Google.Protobuf" Version="3.25.1" />
-
         <!-- * Tests -->
         <PackageVersion Include="coverlet.collector" Version="6.0.2" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageVersion Include="xunit" Version="2.9.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
 
-        <!-- for improving logging -->
+        <!-- for improving tests logging -->
         <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="1.0.12" />
 
         <!-- * Others -->
@@ -49,10 +33,5 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4" />
         <PackageVersion Include="StackExchange.Redis" Version="2.8.37" />
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
-    </ItemGroup>
-
-    <ItemGroup>    
-        <!-- <PackageReference Include="Google.Protobuf" PrivateAssets="All" />
-        <PackageReference Include="Grpc.Tools" PrivateAssets="All" /> -->
     </ItemGroup>
 </Project>

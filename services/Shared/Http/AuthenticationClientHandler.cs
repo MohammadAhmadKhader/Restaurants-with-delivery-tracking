@@ -1,5 +1,5 @@
 
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 using System.Net.Http.Headers;
 
 namespace Shared.Http;

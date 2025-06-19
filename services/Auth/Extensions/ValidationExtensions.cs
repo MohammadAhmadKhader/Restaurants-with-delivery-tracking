@@ -1,7 +1,7 @@
-using Auth.Dtos.Address;
-using Auth.Dtos.Auth;
-using Auth.Dtos.Role;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.Address;
+using Auth.Contracts.Dtos.Auth;
+using Auth.Contracts.Dtos.Role;
+using Auth.Contracts.Dtos.User;
 using Auth.Extensions.FluentValidationValidators;
 using FluentValidation;
 using Shared.Extensions;

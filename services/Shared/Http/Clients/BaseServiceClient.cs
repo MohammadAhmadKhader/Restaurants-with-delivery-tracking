@@ -1,4 +1,4 @@
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
 
 namespace Shared.Http.Clients;
 

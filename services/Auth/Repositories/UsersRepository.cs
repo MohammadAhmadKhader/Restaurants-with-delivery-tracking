@@ -1,5 +1,5 @@
 using Auth.Data;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Specifications;

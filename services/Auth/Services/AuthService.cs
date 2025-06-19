@@ -2,7 +2,7 @@ using Auth.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
-using Auth.Dtos.Auth;
+using Auth.Contracts.Dtos.Auth;
 using Sprache;
 using Shared.Exceptions;
 

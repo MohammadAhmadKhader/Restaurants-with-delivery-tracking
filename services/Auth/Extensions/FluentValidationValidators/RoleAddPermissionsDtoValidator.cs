@@ -1,4 +1,4 @@
-using Auth.Dtos.Role;
+using Auth.Contracts.Dtos.Role;
 using FluentValidation;
 
 namespace Auth.Extensions.FluentValidationValidators;

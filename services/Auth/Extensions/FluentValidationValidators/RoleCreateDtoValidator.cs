@@ -1,4 +1,4 @@
-using Auth.Dtos.Role;
+using Auth.Contracts.Dtos.Role;
 using Auth.Utils;
 using FluentValidation;
 using Shared.Extensions;

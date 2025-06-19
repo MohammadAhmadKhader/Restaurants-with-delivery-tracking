@@ -1,5 +1,4 @@
-using Auth.Dtos;
-using Auth.Dtos.User;
+using Auth.Contracts.Dtos.User;
 using Auth.Models;
 
 namespace Auth.Services.IServices;

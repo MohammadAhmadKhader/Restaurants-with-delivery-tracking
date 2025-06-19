@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Http;
 using Shared.Http.Clients;
-using Shared.Interfaces;
+using Shared.Contracts.Interfaces;
+using Restaurants.Contracts.Clients;
+using Auth.Contracts.Clients;
 
 namespace Shared.Extensions;
 
