@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Shared.Dtos;
+using Shared.Contracts.Dtos;
 using Xunit;
 namespace Shared.Utils;
 

@@ -1,6 +1,6 @@
 using Auth.Contracts.Dtos.Role;
 using Auth.Services.IServices;
-using Shared.Dtos;
+using Shared.Contracts.Dtos;
 using Shared.Utils;
 using Auth.Mappers;
 using Auth.Utils;

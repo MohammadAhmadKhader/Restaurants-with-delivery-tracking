@@ -36,7 +36,7 @@ public class RestaurantInvitationsService(IUnitOfWork unitOfWork) : IRestaurantI
         return invitiation;
     }
 
-    public async Task<RestaurantInvitation?> CreateAsync(string email, Guid senderId)
+    public async Task<RestaurantInvitation> CreateAsync(string email, Guid senderId)
     {
         var newToken = Guid.NewGuid();
         var invitiation = new RestaurantInvitation

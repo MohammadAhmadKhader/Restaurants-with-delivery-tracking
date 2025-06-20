@@ -6,6 +6,7 @@ using Auth.Utils;
 using Shared.Utils;
 using Auth.Mappers;
 using Shared.Filters;
+using Shared.Contracts.Dtos;
 
 namespace Auth.Endpoints;
 
@@ -15,11 +16,15 @@ public static class AddressesEndpoints
     {
         var group = app.MapGroup("/api/users/addresses").RequireAuthorization();
 
-        group.MapGet("", async (int? page, int? size, IAddressesService addressesService, ClaimsPrincipal principal) =>
+        group.MapGet("", async ([AsParameters] PagedRequest pagedReq, IAddressesService addressesService, ClaimsPrincipal principal) =>
         {
-            PaginationUtils.Normalize(ref page, ref size);
+            PaginationUtils.Normalize(pagedReq);
+            var page = pagedReq.Page!.Value;
+            var size = pagedReq.Size!.Value;
+
             var userId = SecurityUtils.ExtractUserId(principal);
-            var (addresses, count) = await addressesService.FindAllByUserIdAsync(userId, page!.Value, size!.Value);
+            
+            var (addresses, count) = await addressesService.FindAllByUserIdAsync(userId, page, size);
             var addressesView = addresses.Select(a => a.ToViewDto()).ToList();
 
             return Results.Ok(PaginationUtils.ResultOf(addressesView, count, page, size));

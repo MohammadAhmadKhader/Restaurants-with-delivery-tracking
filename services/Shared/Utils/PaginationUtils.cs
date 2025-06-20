@@ -1,4 +1,4 @@
-using Shared.Dtos;
+using Shared.Contracts.Dtos;
 using Shared.Contracts.Interfaces;
 namespace Shared.Utils;
 

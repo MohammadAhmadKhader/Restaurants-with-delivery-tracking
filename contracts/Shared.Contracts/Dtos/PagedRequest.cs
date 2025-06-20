@@ -1,6 +1,6 @@
 using Shared.Contracts.Interfaces;
 
-namespace Shared.Dtos;
+namespace Shared.Contracts.Dtos;
 
 public class PagedRequest: IPagination
 {

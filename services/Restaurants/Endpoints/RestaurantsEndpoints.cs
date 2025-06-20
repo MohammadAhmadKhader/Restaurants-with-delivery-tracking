@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Restaurants.Contracts.Dtos;
+using Restaurants.Mappers;
 using Restaurants.Services.IServices;
 using Shared.Utils;
 
@@ -18,14 +19,14 @@ public static class RestaurantsEndpoints
                 return ResponseUtils.NotFound("restaurant");
             }
 
-            return Results.Ok(new { restaurant = rest });
+            return Results.Ok(new { restaurant = rest.ToViewDto() });
         });
 
         group.MapPost("/", async (RestaurantCreateDto dto, [FromQuery] string? token, IRestaurantsService restaurantsService) =>
         {
             var newResturat = await restaurantsService.CreateAsync(dto, token);
 
-            return Results.Ok(new { restaurant = newResturat });
+            return Results.Ok(new { restaurant = newResturat.ToViewDto() });
         });
 
         group.MapPost("/send-invitation", async (
@@ -35,7 +36,7 @@ public static class RestaurantsEndpoints
             var userId = Guid.NewGuid();
             var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, userId);
 
-            return Results.Ok(new { invitation });
+            return Results.Ok(new { invitation = invitation.ToViewDto() });
         });
 
         group.MapGet("/invitations", async ([FromQuery] string? token, IRestaurantInvitationsService invitationsService) =>
@@ -67,10 +68,10 @@ public static class RestaurantsEndpoints
 
             var restaurant = await restaurantsService.CreateAsync(null!, token!);
 
-            return Results.Ok(new { restaurant });
+            return Results.Ok(new { restaurant = restaurant.ToViewDto() });
         });
 
-        group.MapPost("/test", async (object body) =>
+        group.MapPost("/test", (object body) =>
         {
             return Results.Ok(new { body });
         });

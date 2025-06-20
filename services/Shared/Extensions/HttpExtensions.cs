@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Http;
-using Shared.Http.Clients;
 using Shared.Contracts.Interfaces;
 using Restaurants.Contracts.Clients;
 using Auth.Contracts.Clients;
+using Refit;
+using Shared.Config;
 
 namespace Shared.Extensions;
 
@@ -27,15 +28,69 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddHttpClientWithClientServices(this IServiceCollection services)
+    public static IServiceCollection AddHttpClientsDependencies(this IServiceCollection services)
     {
         services.AddTransient<AuthenticationClientHandler>();
-        services.AddHttpClient<IHttpClientService, HttpClientService>()
-                .AddHttpMessageHandler<AuthenticationClientHandler>();
         services.AddScoped<ITokenProvider, TokenProvider>();
 
-        services.AddSingleton<IRestaurantServiceClient, RestaurantServiceClient>();
-        services.AddSingleton<IAuthServiceClient, AuthServiceClient>();
+        return services;
+    }
+
+    public static IServiceCollection AddAuthClients(this IServiceCollection services)
+    {
+        var urls = MicroservicesUrlsProvider.Config;
+
+        services.AddRefitClient<IAuthServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.AuthService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        services.AddRefitClient<IUsersServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.AuthService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        services.AddRefitClient<IRolesServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.AuthService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        services.AddRefitClient<IAddressesServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.AuthService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRestaurantsClients(this IServiceCollection services)
+    {
+        var urls = MicroservicesUrlsProvider.Config;
+
+        services.AddRefitClient<IRestaurantServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.RestaurantsService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddHttpClientsDependenciesWithClientsServices(this IServiceCollection services)
+    {
+        services.AddHttpClientsDependencies();
+
+        services.AddAuthClients();
+        services.AddRestaurantsClients();
 
         return services;
     }

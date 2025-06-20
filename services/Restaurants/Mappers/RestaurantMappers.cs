@@ -14,4 +14,17 @@ public static class RestaurantMappers
             Phone = dto.Phone
         };
     }
+
+    public static RestaurantViewDto ToViewDto(this Restaurant restaurant)
+    {
+        return new RestaurantViewDto
+        {
+            Id = restaurant.Id,
+            Name = restaurant.Name,
+            Description = restaurant.Description,
+            Phone = restaurant.Phone,
+            IsOpen = restaurant.IsOpen,
+            CreatedAt = restaurant.CreatedAt,
+        };
+    }
 }

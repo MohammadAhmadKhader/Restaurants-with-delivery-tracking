@@ -6,8 +6,11 @@ using Auth.Utils;
 using Shared.Utils;
 using Auth.Contracts.Dtos.Auth;
 using Restaurants.Contracts.Clients;
+using Auth.Contracts.Clients;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Endpoints;
+
 public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
@@ -79,11 +82,14 @@ public static class AuthEndpoints
             return Results.NoContent();
         }).RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
-        
-        group.MapGet("/test", async (IRestaurantServiceClient restaurantServiceClient) =>
+
+        group.MapGet("/test", async ([FromServices] IRestaurantServiceClient restaurantServiceClient,[FromServices] IUsersServiceClient usersServiceClient) =>
         {
-            var resp = await restaurantServiceClient.TestPostAsync(new { data = "some data"});
-            return Results.Ok(resp);
+            var resp = await restaurantServiceClient.TestPostAsync(new { data = "some data" });
+            var userId = Guid.Parse("0196ff3e-43ca-7f6c-8569-c5413f4dd5dd");
+            var userResp = await usersServiceClient.GetUserByIdAsync(userId);
+      
+            return Results.Ok(new { testResp = resp, user = userResp.User });
         });
     }
 }

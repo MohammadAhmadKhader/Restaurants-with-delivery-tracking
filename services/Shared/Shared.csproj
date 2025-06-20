@@ -20,6 +20,7 @@
     <PackageReference Include="Meziantou.Extensions.Logging.Xunit" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Refit.HttpClientFactory" />
   </ItemGroup>
 
   <ItemGroup>

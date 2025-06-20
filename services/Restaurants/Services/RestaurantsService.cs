@@ -23,7 +23,7 @@ public class RestaurantsService(
         return await _unitOfWork.RestaurantsRepository.FindByIdAsync(id);
     }
 
-    public async Task<Restaurant?> CreateAsync(RestaurantCreateDto dto, string? token)
+    public async Task<Restaurant> CreateAsync(RestaurantCreateDto dto, string? token)
     {
         var isSuccess = Guid.TryParse(token, out var guidToken);
         if (!isSuccess)
