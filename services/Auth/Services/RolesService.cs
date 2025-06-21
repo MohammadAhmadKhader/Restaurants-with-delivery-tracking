@@ -6,16 +6,18 @@ using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Shared.Exceptions;
 using Auth.Mappers;
+using Shared.Data.Patterns.UnitOfWork;
+using Auth.Data;
 
 namespace Auth.Services;
 
 public class RolesService(
-    IUnitOfWork unitOfWork,
+    IUnitOfWork<AppDbContext> unitOfWork,
     RoleManager<Role> roleManager,
     IRolesRepository rolesRepository,
     IPermissionsRepository permissionsRepository) : IRolesService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IRolesRepository _rolesRepository = rolesRepository;
     private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
     private const string resourceName = "role";

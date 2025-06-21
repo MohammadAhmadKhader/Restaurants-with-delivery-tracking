@@ -1,5 +1,7 @@
+using Reviews.Data;
 using Reviews.Repositories;
 using Reviews.Repositories.IRepositories;
+using Shared.Data.Patterns.UnitOfWork;
 
 namespace Reviews.Extensions;
 public static class RepositoryExtensions
@@ -8,7 +10,7 @@ public static class RepositoryExtensions
     {
         services.AddScoped<IMenuItemReviewsRepository, MenuItemReviewsRepository>();
         services.AddScoped<IRestaurantReviewRepository, RestaurantReviewRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
         
         return services;
     }

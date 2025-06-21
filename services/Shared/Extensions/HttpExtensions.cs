@@ -31,6 +31,7 @@ public static class HttpExtensions
     public static IServiceCollection AddHttpClientsDependencies(this IServiceCollection services)
     {
         services.AddTransient<AuthenticationClientHandler>();
+        services.AddHttpContextAccessor();
         services.AddScoped<ITokenProvider, TokenProvider>();
 
         return services;

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Auth.Data;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
@@ -7,6 +8,7 @@ using Auth.Tests.Collections;
 using Auth.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Common;
+using Shared.Data.Patterns.UnitOfWork;
 using Shared.Utils;
 using Xunit.Abstractions;
 
@@ -108,7 +110,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
         };
 
         using var scope = _fixture.Factory.Services.CreateScope();
-        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork<AppDbContext>>();
         var rolesRepository = scope.ServiceProvider.GetRequiredService<IRolesRepository>();
         var permissionsRepository = scope.ServiceProvider.GetRequiredService<IPermissionsRepository>();
 

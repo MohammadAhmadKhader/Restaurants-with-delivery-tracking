@@ -1,6 +1,8 @@
+using Auth.Data;
 using Auth.Repositories;
 using Auth.Repositories.IRepositories;
 using Shared.Data.Patterns.GenericRepository;
+using Shared.Data.Patterns.UnitOfWork;
 
 namespace Auth.Extensions;
 public static class RepositoryExtensions
@@ -13,7 +15,7 @@ public static class RepositoryExtensions
         services.AddScoped<IAddressesRepository, AddressesRepository>();
         services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
         
         return services;
     }

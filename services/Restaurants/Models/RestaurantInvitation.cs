@@ -10,5 +10,5 @@ public class RestaurantInvitation
     public string InvitedEmail { get; set; } = default!;
     public Guid InvitedById { get; set; }
     public DateTime ExpiresAt { get; set; }
-    public DateTime UsedAt { get; set; }
+    public DateTime? UsedAt { get; set; }
 }

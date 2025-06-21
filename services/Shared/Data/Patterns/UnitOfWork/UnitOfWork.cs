@@ -1,17 +1,15 @@
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Payments.Data;
-using Payments.Repositories.IRepositories;
 
-namespace Payments.Repositories;
-public class UnitOfWork : IUnitOfWork
+namespace Shared.Data.Patterns.UnitOfWork;
+public class UnitOfWork<TContext> : IUnitOfWork<TContext>
+    where TContext: DbContext
 {
-    private readonly AppDbContext _ctx;
-    public IPaymentsRepository PaymentsRepository { get; set; }
-    public UnitOfWork(AppDbContext ctx)
+    private readonly TContext _ctx;
+    public UnitOfWork(TContext ctx)
     {
         _ctx = ctx;
-        PaymentsRepository = new PaymentsRepository(_ctx);
     }
     public async Task<DbTransaction> BeginTransactionAsync()
     {

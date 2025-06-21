@@ -5,12 +5,14 @@ using Auth.Mappers;
 using Auth.Utils;
 using Shared.Exceptions;
 using Auth.Contracts.Dtos.User;
+using Shared.Data.Patterns.UnitOfWork;
+using Auth.Data;
 
 namespace Auth.Services;
 
-public class UsersService(IUnitOfWork unitOfWork, IUsersRepository usersRepository) : IUsersService
+public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository usersRepository) : IUsersService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IUsersRepository _usersRepository = usersRepository;
     private const string resourceName = "user";
 

@@ -6,5 +6,5 @@ public class RestaurantInvitationViewDto
     public Guid Token { get; set; }
     public string InvitedEmail { get; set; } = default!;
     public DateTime ExpiresAt { get; set; }
-    public DateTime UsedAt { get; set; }
+    public DateTime? UsedAt { get; set; }
 }

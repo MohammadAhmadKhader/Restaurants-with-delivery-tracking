@@ -17,6 +17,9 @@ builder.Services.AddServiceLogging(host);
 builder.Services.AddDatabase<AppDbContext>(config);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
+builder.Services
+.AddHttpClientsDependencies()
+.AddAuthClients();
 
 var app = builder.Build();
 

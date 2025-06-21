@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\contracts\Shared.Contracts\Shared.Contracts.csproj" /> 
+    <ProjectReference Include="..\..\contracts\Auth.Contracts\Auth.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

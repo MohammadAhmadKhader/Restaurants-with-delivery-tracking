@@ -1,3 +1,4 @@
+using Auth.Contracts.Clients;
 using Microsoft.AspNetCore.Mvc;
 using Restaurants.Contracts.Dtos;
 using Restaurants.Mappers;
@@ -22,19 +23,19 @@ public static class RestaurantsEndpoints
             return Results.Ok(new { restaurant = rest.ToViewDto() });
         });
 
-        group.MapPost("/", async (RestaurantCreateDto dto, [FromQuery] string? token, IRestaurantsService restaurantsService) =>
-        {
-            var newResturat = await restaurantsService.CreateAsync(dto, token);
+        // group.MapPost("/", async (RestaurantCreateDto dto, [FromQuery] string? token, IRestaurantsService restaurantsService) =>
+        // {
+        //     var newResturat = await restaurantsService.CreateAsync(dto, token);
 
-            return Results.Ok(new { restaurant = newResturat.ToViewDto() });
-        });
+        //     return Results.Ok(new { restaurant = newResturat.ToViewDto() });
+        // });
 
         group.MapPost("/send-invitation", async (
             RestaurantInvitationCreateDto dto,
             IRestaurantInvitationsService restaurantInvitationsService) =>
         {
-            var userId = Guid.NewGuid();
-            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, userId);
+            var ownerId = Guid.NewGuid();
+            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, ownerId);
 
             return Results.Ok(new { invitation = invitation.ToViewDto() });
         });
@@ -59,14 +60,16 @@ public static class RestaurantsEndpoints
             RestaurantInvitationAcceptDto dto,
             [FromQuery] string? token,
             IRestaurantInvitationsService restaurantInvitationsService,
-            IRestaurantsService restaurantsService) =>
+            IRestaurantsService restaurantsService,
+            IAuthServiceClient authServiceClient) =>
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return ResponseUtils.BadRequest("token is required.");
             }
-
-            var restaurant = await restaurantsService.CreateAsync(null!, token!);
+            
+            var newUser = await authServiceClient.RegisterAsync(dto.User);
+            var restaurant = await restaurantsService.CreateAsync(dto.Restaurant, token, newUser.User.Id);
 
             return Results.Ok(new { restaurant = restaurant.ToViewDto() });
         });

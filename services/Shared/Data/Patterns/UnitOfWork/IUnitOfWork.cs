@@ -1,10 +1,11 @@
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
-namespace Payments.Repositories.IRepositories;
+namespace Shared.Data.Patterns.UnitOfWork;
 
-public interface IUnitOfWork
+public interface IUnitOfWork<TContext> 
+    where TContext: DbContext
 {
-    IPaymentsRepository PaymentsRepository { get; }
     Task<DbTransaction> BeginTransactionAsync();
     Task CommitTransactionAsync(DbTransaction tx);
     Task RollBackAsync(DbTransaction tx);

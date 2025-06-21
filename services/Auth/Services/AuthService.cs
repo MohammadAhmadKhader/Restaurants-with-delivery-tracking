@@ -1,15 +1,16 @@
 using Auth.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Auth.Models;
-using Auth.Repositories.IRepositories;
+using Shared.Data.Patterns.UnitOfWork;
 using Auth.Contracts.Dtos.Auth;
 using Sprache;
 using Shared.Exceptions;
+using Auth.Data;
 
 namespace Auth.Services;
 
 public class AuthService(UserManager<User> userManager, SignInManager<User> signInManager,
- IUsersService usersService, IUnitOfWork unitOfWork, ITokenService tokenService, IPasswordHasher<User> bcrypt) : IAuthService
+ IUsersService usersService, IUnitOfWork<AppDbContext> unitOfWork, ITokenService tokenService, IPasswordHasher<User> bcrypt) : IAuthService
 {
     public async Task<(User, TokenResponse)> Login(LoginDto dto)
     {

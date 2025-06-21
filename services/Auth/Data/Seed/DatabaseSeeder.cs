@@ -3,6 +3,7 @@ using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
+using Shared.Data.Patterns.UnitOfWork;
 
 namespace Auth.Data.Seed;
 
@@ -11,7 +12,7 @@ public class DatabaseSeeder: IDatabaseSeeder
     private readonly AppDbContext _context;
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<Role> _roleManager;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork<AppDbContext> _unitOfWork;
     private readonly ILogger<DatabaseSeeder> _logger;
     private readonly IRolesRepository _rolesRepository;
     private readonly IPermissionsRepository _permissionsRepository;
@@ -20,7 +21,7 @@ public class DatabaseSeeder: IDatabaseSeeder
         AppDbContext context,
         UserManager<User> userManager,
         RoleManager<Role> roleManager,
-        IUnitOfWork unitOfWork,
+        IUnitOfWork<AppDbContext> unitOfWork,
         ILogger<DatabaseSeeder> logger,
         IRolesRepository rolesRepository,
         IPermissionsRepository permissionsRepository)
