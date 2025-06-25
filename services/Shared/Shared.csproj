@@ -21,10 +21,14 @@
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="Refit.HttpClientFactory" />
+    <PackageReference Include="Confluent.Kafka" />
+
+    <PackageReference Include="MassTransit" />
+    <PackageReference Include="MassTransit.Kafka" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="MicroservicesUrls*.json">
+    <None Include="globalsettings*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

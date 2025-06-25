@@ -21,6 +21,8 @@ builder.Services
 .AddHttpClientsDependencies()
 .AddAuthClients();
 
+builder.Services.AddKafkaHandlers();
+
 var app = builder.Build();
 
 // middlewares
@@ -30,4 +32,5 @@ app.UseAppLocalization();
 app.MapRestaurantsEndpoints();
 
 app.Run();
+
 public partial class Program { }

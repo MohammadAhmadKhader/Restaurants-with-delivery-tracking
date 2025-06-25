@@ -6,5 +6,11 @@
       "LocationsService": "http://localhost:5115",
       "RestaurantsService": "http://localhost:5029",
       "ReviewsService": "http://localhost:5090"
+    },
+    "Kafka":{
+        "BootstrapServers":"127.0.0.1:9092",
+        "Acks": "all",
+        "MessageTimeoutMs": 5000,
+        "RequestTimeoutMs": 5000
     }
 }

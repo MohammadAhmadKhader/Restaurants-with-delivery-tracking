@@ -2,7 +2,7 @@ SERVICES := Auth Reviews Orders Restaurants Payments Locations
 GATEWAY := Gateway
 
 PHONY := $(foreach S,$(SERVICES),$(S)-ef-list $(S)-ef-add $(S)-ef-update $(S)-ef-remove)
-.PHONY: $(PHONY)
+.PHONY: $(PHONY) list-topics describe-topic delete-topic create-topic
 
 help:
 	@echo "Usage:"
@@ -70,3 +70,43 @@ test-$(1):
 	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS) --environment "ASPNETCORE_ENVIRONMENT=Testing"
 endef
 $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))
+
+# * ———————————————————————————— Kafka Commands ————————————————————————————
+DOCKER_CMD = docker-compose -f ./stashed/docker-compose.yml exec -T kafka sh -c
+BOOTSTRAP = kafka:9092
+SCRIPTS_PATH = /opt/bitnami/kafka/bin
+TOPIC ?= test-topic
+
+list-topics:
+	@echo "Listing Kafka topics..."
+	$(DOCKER_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --list"
+
+describe-topic:
+	@echo "Describing topic: $(TOPIC)"
+	@$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --describe --topic $(TOPIC)"
+
+delete-topic:
+	@echo "Deleting topic: $(TOPIC)"
+	@$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --delete --topic $(TOPIC)"
+	
+delete-all-topics:
+	@echo "Deleting ALL Kafka topics..."
+	@$(KAFKA_CMD) 'for t in $$($(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --list); \
+	do echo "Deleting $$t"; \
+	$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --delete --topic $$t; done'
+
+TOPIC_OPTIONS = --partitions 1 --replication-factor 1
+create-topic:
+	@echo "Creating topic: $(TOPIC)"
+	$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --create --topic $(TOPIC) $(TOPIC_OPTIONS)"
+
+PAYLOAD ?= {"value":"hello world"}
+send-event:
+	@echo "Sending event to topic: $(TOPIC)" 
+	@echo "Payload: $(PAYLOAD)" \
+	$(KAFKA_CMD) "echo \"$(PAYLOAD)\" | $(SCRIPTS_PATH)/kafka-console-producer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC)"
+
+READ_ARGS ?= --from-beginning --timeout-ms 1000
+read-topic:
+	@echo "Reading all messages from topic: $(TOPIC)"
+	$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-console-consumer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC) $(READ_ARGS)"

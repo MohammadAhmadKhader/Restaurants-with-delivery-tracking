@@ -1,8 +1,11 @@
 using Auth.Contracts.Clients;
+using Auth.Contracts.Dtos.Auth;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Restaurants.Contracts.Dtos;
 using Restaurants.Mappers;
 using Restaurants.Services.IServices;
+using Shared.Kafka;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;
@@ -67,16 +70,31 @@ public static class RestaurantsEndpoints
             {
                 return ResponseUtils.BadRequest("token is required.");
             }
-            
+
             var newUser = await authServiceClient.RegisterAsync(dto.User);
             var restaurant = await restaurantsService.CreateAsync(dto.Restaurant, token, newUser.User.Id);
 
             return Results.Ok(new { restaurant = restaurant.ToViewDto() });
         });
 
-        group.MapPost("/test", (object body) =>
+        group.MapPost("/test", async ([FromServices] ITopicProducer<AcceptedInvitationEvent> producer, ILogger<Program> logger, HttpContext ctx) =>
         {
-            return Results.Ok(new { body });
+            logger.LogInformation("Creating event");
+            var ev = new AcceptedInvitationEvent(
+                Guid.NewGuid(),
+                new RestaurantCreateDto("restaurant-name", "restaurant-desc", "restaurant-phone"),
+                new RegisterDto("firstName", "lastName", "email", "password")
+            );
+
+            logger.LogInformation("Sending event {@AcceptedInvitationEvent}", ev);
+            await producer.Produce(ev);
+
+            return Results.Ok(new { ev });
+        });
+        
+        group.MapGet("/test", () =>
+        {
+            return Results.Ok(new { response = "response" });
         });
     }
 }
