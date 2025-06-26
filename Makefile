@@ -1,6 +1,14 @@
 SERVICES := Auth Reviews Orders Restaurants Payments Locations
 GATEWAY := Gateway
 
+Auth_SHORT_KEY := au
+Reviews_SHORT_KEY := rev
+Orders_SHORT_KEY := ord
+Restaurants_SHORT_KEY := rest
+Payments_SHORT_KEY := pay
+Locations_SHORT_KEY := loc
+Gateway_SHORT_KEY := gat
+
 PHONY := $(foreach S,$(SERVICES),$(S)-ef-list $(S)-ef-add $(S)-ef-update $(S)-ef-remove)
 .PHONY: $(PHONY) list-topics describe-topic delete-topic create-topic
 
@@ -40,6 +48,23 @@ $(1)-ef-update:
 
 $(1)-ef-remove:
 	@dotnet ef migrations remove --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
+
+# * short commands <----------------------------------------------
+
+$($(1)_SHORT_KEY)-e-l:
+	@dotnet ef migrations list --json --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
+
+$($(1)_SHORT_KEY)-e-a:
+	@if [ -z "$(name)" ]; then \
+	  echo "Error: name is not set. Usage: make $(1)-ef-add name=MigrationName"; exit 1; \
+	fi
+	@dotnet ef migrations add "$(name)" --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
+
+$($(1)_SHORT_KEY)-e-u:
+	@dotnet ef database update --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
+
+$($(1)_SHORT_KEY)-e-r:
+	@dotnet ef migrations remove --project services/$(1)/$(1).csproj --startup-project services/$(1) $(ARGS)
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
@@ -49,10 +74,19 @@ $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
 define RUN_SERVICE
 run-$(1):
 	dotnet run --project services/$(1)/$(1).csproj $(ARGS)
+
+run-w-$(1):
+	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
+
+r-$($(1)_SHORT_KEY):
+	dotnet watch run --project services/$(1)/$(1).csproj $(ARGS)
+
+rw-$($(1)_SHORT_KEY):
+	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call RUN_SERVICE,$(S))))
-$(eval $(call RUN_SERVICE,GATEWAY))
+$(eval $(call RUN_SERVICE,Gateway))
 
 run-all:
 	@echo "Running all Microservices..."; \

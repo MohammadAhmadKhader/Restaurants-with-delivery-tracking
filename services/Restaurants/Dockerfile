@@ -1,0 +1,31 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS publish
+
+WORKDIR /src
+
+COPY contracts/Shared.Contracts/Shared.Contracts.csproj ./contracts/Shared.Contracts/
+COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
+COPY contracts/Auth.Contracts/Auth.Contracts.csproj ./contracts/Auth.Contracts/
+
+COPY services/Shared/Shared.csproj ./services/Shared/
+COPY services/Restaurants/Restaurants.csproj ./services/Restaurants/
+
+RUN dotnet restore ./services/Restaurants/Restaurants.csproj
+
+COPY . .
+
+RUN dotnet publish ./services/Restaurants/Restaurants.csproj \
+    -c Release \
+    -r linux-musl-x64 \
+    --self-contained true \
+    -o /app/publish
+
+FROM alpine:latest
+
+RUN apk add --no-cache icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV ASPNETCORE_URLS=http://+:8080
+
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["./Restaurants"]

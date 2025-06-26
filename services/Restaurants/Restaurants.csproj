@@ -3,6 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Watch />
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\..\contracts\Restaurants.Contracts\Restaurants.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Include="**/*.cs" />
+    <Watch Include="appsettings*.json" />
   </ItemGroup>
 
 </Project>

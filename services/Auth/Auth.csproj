@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-WebApplication2-864b73c5-26bd-45d4-bb63-4d5e4ca43d0d</UserSecretsId>
+    <Watch />
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,5 +25,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" /> 
     <ProjectReference Include="..\..\contracts\Auth.Contracts\Auth.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Include="**/*.cs" />
+    <Watch Include="appsettings*.json" />
   </ItemGroup>
 </Project>

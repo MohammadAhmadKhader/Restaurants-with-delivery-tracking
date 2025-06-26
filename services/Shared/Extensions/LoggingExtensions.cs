@@ -3,15 +3,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Shared.Utils;
 
 namespace Shared.Extensions;
 public static class LoggingExtensions
 {
     public static IServiceCollection AddServiceLogging(this IServiceCollection services, ConfigureHostBuilder host)
     {
-        var isTesting = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing";
-        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-        var isProd = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production";
+        var isTesting = EnvironmentUtils.IsTesting();
+        var isDevelopment = EnvironmentUtils.IsDevelopment();
+        var isProd = EnvironmentUtils.IsProduction();
        
         host.UseSerilog((ctx, services, cfg) =>
         {
