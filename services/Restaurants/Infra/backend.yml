@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurants-service
+  namespace: kafka
+spec:
+  selector:
+    app: restaurants-depl
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurants-depl
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      app: restaurants-depl
+  template:
+    metadata:
+      labels:
+        app: restaurants-depl
+    spec:
+      containers:
+      - name: restaurants-depl
+        image: fooddelivery-restaurants-service:latest
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        env:
+          - name: Kafka__BootstrapServers
+            value: "my-cluster-kafka-bootstrap:9092"
+          - name: "ASPNETCORE_ENVIRONMENT"
+            value: "Development"
+          - name: "ConnectionStrings__DefaultConnection"
+            value: "Host=restaurants-db-rw;Port=5432;Database=foodDelivery_restaurants;Username=postgres;Password=123456"
+          - name: "ASPNETCORE_URLS"
+            value: "http://+:8080"
+          - name: "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"
+            value: "false"
+
+        ports:
+        - containerPort: 8080

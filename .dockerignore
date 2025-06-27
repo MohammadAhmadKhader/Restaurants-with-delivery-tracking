@@ -1,0 +1,9 @@
+/.vscode
+**/*.env
+/.env.act
+**/*stashed
+/tests
+**/*.md
+**/*.example
+.editorconfig
+Makefile

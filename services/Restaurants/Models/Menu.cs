@@ -7,7 +7,7 @@ public class Menu
 {
     [Key]
     public int Id { get; set; }
-    public int RestaurantId { get; set; }
+    public Guid RestaurantId { get; set; }
     public string Category { get; set; } = default!;
     public string Name { get; set; } = default!;
 

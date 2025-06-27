@@ -106,14 +106,17 @@ endef
 $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))
 
 # * ———————————————————————————— Kafka Commands ————————————————————————————
-DOCKER_CMD = docker-compose -f ./stashed/docker-compose.yml exec -T kafka sh -c
-BOOTSTRAP = kafka:9092
-SCRIPTS_PATH = /opt/bitnami/kafka/bin
-TOPIC ?= test-topic
+NAMESPACE=kafka
+CLUSTER=my-cluster
+KAFKA_POD := $(shell kubectl get pods -n kafka -l strimzi.io/name=$(CLUSTER)-kafka -o jsonpath='{.items[0].metadata.name}')
+KAFKA_CMD=kubectl exec -n kafka $(KAFKA_POD) -- sh -c
+BOOTSTRAP=localhost:9094
+TOPIC ?=test-topic
+SCRIPTS_PATH=/opt/kafka/bin
 
 list-topics:
 	@echo "Listing Kafka topics..."
-	$(DOCKER_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --list"
+	@$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --list"
 
 describe-topic:
 	@echo "Describing topic: $(TOPIC)"
@@ -144,3 +147,7 @@ READ_ARGS ?= --from-beginning --timeout-ms 1000
 read-topic:
 	@echo "Reading all messages from topic: $(TOPIC)"
 	$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-console-consumer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC) $(READ_ARGS)"
+
+# * ———————————————————————————— Skaffold Commands ————————————————————————————
+k8s-build-f:
+	@skaffold dev --cache-artifacts=false

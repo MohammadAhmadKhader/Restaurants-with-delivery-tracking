@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine
+WORKDIR /app
+COPY . .
+
+RUN dotnet restore services/Restaurants/Restaurants.csproj
+RUN apk add --no-cache icu-libs
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile", "--project", "services/Restaurants/Restaurants.csproj"]
