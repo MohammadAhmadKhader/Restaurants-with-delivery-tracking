@@ -7,3 +7,4 @@
 **/*.example
 .editorconfig
 Makefile
+**/Infra/*.yml

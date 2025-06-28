@@ -4,8 +4,7 @@ metadata:
   name: test-app
 build:  
   tagPolicy:
-    envTemplate:
-      template: "{{.IMAGE_NAME}}:latest"
+    sha256: {}
   artifacts:
   - image: fooddelivery-restaurants-service
     context: ./
@@ -24,7 +23,6 @@ build:
   local:
       push: false
       useBuildkit: true
-      tryImportMissing: true
 manifests:
   rawYaml:
     - ./services/Restaurants/Infra/secrets.yml

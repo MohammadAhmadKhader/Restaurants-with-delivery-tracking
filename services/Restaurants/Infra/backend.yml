@@ -25,6 +25,13 @@ spec:
       labels:
         app: restaurants-depl
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z restaurants-db-rw 5432; do echo "Waiting for PostgreSQL..."; sleep 2; done']
+        - name: wait-for-kafka
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z my-cluster-kafka-bootstrap 9092; do echo "waiting for kafka..."; sleep 2; done;']
       containers:
       - name: restaurants-depl
         image: fooddelivery-restaurants-service:latest

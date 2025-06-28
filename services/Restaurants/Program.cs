@@ -22,6 +22,7 @@ builder.Services
 .AddAuthClients();
 
 builder.Services.AddKafkaHandlers();
+builder.Host.ValidateScopes();
 
 var app = builder.Build();
 

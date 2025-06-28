@@ -22,6 +22,7 @@ builder.Services.AddFluentValidation();
 builder.Services.AddSeeding();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddHttpClientsDependenciesWithClientsServices();
+builder.Host.ValidateScopes();
 
 var app = builder.Build();
 

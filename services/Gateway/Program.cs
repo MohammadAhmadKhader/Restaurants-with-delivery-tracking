@@ -10,6 +10,7 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddServiceLogging(host);
+builder.Host.ValidateScopes();
 
 var app = builder.Build();
 

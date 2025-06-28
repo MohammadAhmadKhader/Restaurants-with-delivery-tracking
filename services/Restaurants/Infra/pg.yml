@@ -5,6 +5,7 @@ metadata:
   namespace: kafka
 spec:
   instances: 2
+  enableSuperuserAccess: true
   superuserSecret:
     name: pg-credentials
   bootstrap:

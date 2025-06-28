@@ -17,7 +17,7 @@ builder.Services.AddServiceLogging(host);
 builder.Services.AddDatabase<AppDbContext>(config);
 builder.Services.AddRepositories();
 builder.Services.AddServices();
-
+builder.Host.ValidateScopes();
 
 var app = builder.Build();
 

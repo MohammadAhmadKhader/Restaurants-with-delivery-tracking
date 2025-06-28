@@ -68,6 +68,7 @@ $($(1)_SHORT_KEY)-e-r:
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call EF_RULES,$(S))))
+$(eval $(call EF_RULES,Gateway))
 
 # * ———————————————————————————— Local Running commands ————————————————————————————
 #  make running command per service
