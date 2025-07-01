@@ -1,0 +1,15 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: databases
+manifests:
+  rawYaml:
+    - ./services/Restaurants/Infra/pg-secrets.yml
+    - ./services/Restaurants/Infra/pg.yml
+
+    - ./services/Auth/Infra/pg-secrets.yml
+    - ./services/Auth/Infra/pg.yml
+            
+deploy:
+  kubectl: 
+    defaultNamespace: kafka

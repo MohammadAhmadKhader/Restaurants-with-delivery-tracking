@@ -1,34 +1,47 @@
 apiVersion: skaffold/v3
 kind: Config
 metadata:
-  name: test-app
+  name: services
 build:  
   tagPolicy:
-    sha256: {}
+    gitCommit: {}
   artifacts:
-  - image: fooddelivery-restaurants-service
-    context: ./
-    
-    docker:
-      noCache: false
-      dockerfile: ./services/Restaurants/Infra/Dockerfile.dev
-     
-    sync:
-      infer:
-        - "services/Restaurants/**/*.cs"
-        - "contracts/**/*.cs"
-        - "services/Shared/**/*.cs"
-        - "**/*.json"
-      
+    # - image: fooddelivery-restaurants-service
+    #   context: ./
+    #   docker:
+    #     noCache: false
+    #     dockerfile: ./services/Restaurants/Infra/Dockerfile.dev
+    #   sync:
+    #     infer:
+    #       - "services/**/*.cs"
+    #       - "**/*.json"
+    #       - "**/*.yml"
+
+    - image: fooddelivery-auth-service
+      context: ./
+      docker:
+        noCache: true
+        dockerfile: ./services/Auth/Infra/Dockerfile.dev
+      sync:
+        infer:
+          - "services/**/*.cs"
+          - "**/*.json"
+          - "**/*.yml"
+
   local:
       push: false
       useBuildkit: true
+
 manifests:
   rawYaml:
-    - ./services/Restaurants/Infra/secrets.yml
-    - ./services/Restaurants/Infra/pg.yml
-    - ./infra/kafka.yml
-    - ./services/Restaurants/Infra/backend.yml
+    # # Restaurants service
+    # - ./services/Restaurants/Infra/backend-secrets.yml
+    # - ./services/Restaurants/Infra/backend.yml
+
+    # Auth service
+    - ./services/Auth/Infra/backend-secrets.yml
+    - ./services/Auth/Infra/backend.yml
             
 deploy:
-  kubectl: {}
+  kubectl: 
+    defaultNamespace: kafka

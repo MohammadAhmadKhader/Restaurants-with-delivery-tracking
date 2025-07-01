@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
+using Shared.Utils;
 using StackExchange.Redis;
 
 namespace Shared.Extensions;
@@ -16,7 +19,7 @@ public static class InfrastructureExtensions
             {
                 throw new ArgumentException("Connection string 'Redis' is not configured");
             }
-        
+
             return ConnectionMultiplexer.Connect(url);
         });
 
@@ -38,5 +41,23 @@ public static class InfrastructureExtensions
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// this only must be used in early development and only works in development environment.
+    /// </summary>
+    public static WebApplication EnsureDatabaseCreated<TContext>(this WebApplication app)
+        where TContext : DbContext
+    {
+        if (!EnvironmentUtils.IsDevelopment())
+        {
+            return app;
+        }
+        
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<TContext>();
+        db.Database.EnsureCreated();
+     
+        return app;
     }
 }

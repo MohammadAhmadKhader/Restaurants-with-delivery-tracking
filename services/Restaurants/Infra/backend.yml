@@ -28,7 +28,7 @@ spec:
       initContainers:
         - name: wait-for-postgres
           image: busybox:latest
-          command: ['sh', '-c', 'until nc -z restaurants-db-rw 5432; do echo "Waiting for PostgreSQL..."; sleep 2; done']
+          command: ['sh', '-c', 'until nc -z restaurants-db-rw 5432; do echo "Waiting for PostgreSQL..."; sleep 2; done;']
         - name: wait-for-kafka
           image: busybox:latest
           command: ['sh', '-c', 'until nc -z my-cluster-kafka-bootstrap 9092; do echo "waiting for kafka..."; sleep 2; done;']
@@ -39,14 +39,22 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        
+
         env:
           - name: Kafka__BootstrapServers
             value: "my-cluster-kafka-bootstrap:9092"
           - name: "ASPNETCORE_ENVIRONMENT"
             value: "Development"
           - name: "ConnectionStrings__DefaultConnection"
-            value: "Host=restaurants-db-rw;Port=5432;Database=foodDelivery_restaurants;Username=postgres;Password=123456"
+            valueFrom:
+                secretKeyRef:
+                  name: "backend-restaurants-secret"
+                  key: "ConnectionStrings__DefaultConnection"
+          - name: "ConnectionStrings__REDIS"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-restaurants-secret"
+                key: "ConnectionStrings__REDIS"
           - name: "ASPNETCORE_URLS"
             value: "http://+:8080"
           - name: "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"

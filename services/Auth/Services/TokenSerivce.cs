@@ -8,6 +8,7 @@ using Auth.Contracts.Dtos.Auth;
 using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Exceptions;
 
 namespace Auth.Services;
 public class TokenService : ITokenService
@@ -175,9 +176,31 @@ public class TokenService : ITokenService
 
         return new UserClaims
         {
+            UserId = user.Id,
             Email = user.Email!,
             Roles = user.Roles.Select(r => r.Name).ToHashSet()!,
             Permissions = user.Roles.SelectMany(r => r.Permissions.Select(p => p.Name)).Distinct().ToHashSet()
         };
+    }
+
+    public UserClaims GetUserClaims(ClaimsPrincipal principal)
+    {
+        var hasParsed = Guid.TryParse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedUserId);
+        if (!hasParsed)
+        {
+            // if claims have no userId and the use ris authenticated that has to be internal server error
+            // or some auth error that must have the result hiddeen fro security purposes
+            throw new InternalServerException();
+        }
+
+        var claims = new UserClaims
+        {
+            UserId = parsedUserId,
+            Email = principal.FindFirst(ClaimTypes.Email)?.Value!,
+            Roles = principal.FindAll(ClaimTypes.Role).Select(x => x.Value).ToHashSet(),
+            Permissions = principal.FindAll("permission").Select(x => x.Value).ToHashSet()
+        };
+
+        return claims;
     }
 }

@@ -21,7 +21,7 @@ builder.Services
 .AddHttpClientsDependencies()
 .AddAuthClients();
 
-builder.Services.AddKafkaHandlers();
+builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
 
 var app = builder.Build();
@@ -31,6 +31,7 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAppLocalization();
 
 app.MapRestaurantsEndpoints();
+app.EnsureDatabaseCreated<AppDbContext>();
 
 app.Run();
 

@@ -48,28 +48,27 @@ public class RestaurantInvitationsService(
 
     public async Task<RestaurantInvitation> CreateAsync(string email, Guid senderId)
     {
-        var newToken = Guid.NewGuid();
         var invitiation = new RestaurantInvitation
         {
             InvitedById = senderId,
             InvitedEmail = email,
-            Token = newToken,
             ExpiresAt = DateTime.UtcNow.AddDays(InvitiationLifetimeInDays),
         };
 
         var createdInvitation = await _restaurantInvitationsRepository.CreateAsync(invitiation);
+        await _unitOfWork.SaveChangesAsync();
         return createdInvitation;
     }
 
-    public async Task<bool> InvitiationExistsAsync(string token)
+    public async Task<bool> InvitiationExistsAsync(string id)
     {
-        var isSuccess = Guid.TryParse(token, out var guidToken);
+        var isSuccess = Guid.TryParse(id, out var guid);
         if (!isSuccess)
         {
             return false;
         }
 
         return await _restaurantInvitationsRepository
-        .ExistsByMatchAsync((inv) => inv.Token == guidToken && inv.ExpiresAt > DateTime.UtcNow);
+        .ExistsByMatchAsync((inv) => inv.Id == guid && inv.ExpiresAt > DateTime.UtcNow);
     }
 }

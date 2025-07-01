@@ -1,19 +1,19 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: restaurants-db
+  name: auth-db
   namespace: kafka
 spec:
   instances: 2
   enableSuperuserAccess: true
   superuserSecret:
-    name: pg-restaurants-credentials
+    name: pg-auth-credentials
   bootstrap:
     initdb:
-      database: foodDelivery_restaurants
+      database: foodDelivery_auth
       owner: postgres
       secret:
-        name: pg-restaurants-credentials
+        name: pg-auth-credentials
   imageName: ghcr.io/cloudnative-pg/postgresql:14.9
   storage:
     size: 1Gi

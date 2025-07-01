@@ -1,0 +1,13 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: clusters
+
+manifests:
+  rawYaml:
+    - ./infra/kafka.yml
+    - ./infra/ingress.yml
+    - ./infra/redis.yml
+            
+deploy:
+  kubectl: {}

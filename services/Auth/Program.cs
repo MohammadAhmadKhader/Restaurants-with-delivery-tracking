@@ -22,6 +22,7 @@ builder.Services.AddFluentValidation();
 builder.Services.AddSeeding();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddHttpClientsDependenciesWithClientsServices();
+builder.Services.AddKafkaHandlers();
 builder.Host.ValidateScopes();
 
 var app = builder.Build();
@@ -39,8 +40,9 @@ app.MapAddressesEndpoints();
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAppLocalization();
-
 // others
+
+app.EnsureDatabaseCreated<AppDbContext>();
 await app.SeedDatabaseAsync();
 
 app.Run();

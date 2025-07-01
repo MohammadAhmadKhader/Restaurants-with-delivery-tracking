@@ -28,7 +28,7 @@ public class RestaurantsService(
         return await _restaurantsRepository.FindByIdAsync(id);
     }
 
-    public async Task<Restaurant> CreateAsync(RestaurantCreateDto dto, string? token, Guid ownerId)
+    public async Task<Restaurant> CreateAsync(RestaurantCreateDto dto, Guid token, Guid ownerId)
     {
         var exists = await _restaurantsRepository.ExistsByMatchAsync((rest) => rest.Name == dto.Name);
         if (exists)
@@ -36,15 +36,8 @@ public class RestaurantsService(
             throw new ConflictException($"restaurant with name '{dto.Name}' already exists", ConflictType.Duplicate);
         }
 
-        var isSuccess = Guid.TryParse(token, out var guidToken);
-        if (!isSuccess)
-        {
-            throw new InvalidOperationException("invalid invitation token");
-        }
-
         using var tx = await _unitOfWork.BeginTransactionAsync();
-
-        var inv = await _restaurantInvitationsService.MarkInvitationAsUsedAsync(guidToken);
+        var inv = await _restaurantInvitationsService.MarkInvitationAsUsedAsync(token);
 
         var rest = dto.ToModel();
         rest.OwnerId = ownerId;

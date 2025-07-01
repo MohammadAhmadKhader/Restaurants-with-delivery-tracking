@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Auth.Contracts.Clients;
 using Auth.Contracts.Dtos.Auth;
 using MassTransit;
@@ -35,22 +36,23 @@ public static class RestaurantsEndpoints
 
         group.MapPost("/send-invitation", async (
             RestaurantInvitationCreateDto dto,
-            IRestaurantInvitationsService restaurantInvitationsService) =>
+            IRestaurantInvitationsService restaurantInvitationsService,
+            IAuthServiceClient authServiceClient) =>
         {
-            var ownerId = Guid.NewGuid();
-            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, ownerId);
+            var claims = await authServiceClient.Claims();
+            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, claims.UserId);
 
             return Results.Ok(new { invitation = invitation.ToViewDto() });
         });
 
-        group.MapGet("/invitations", async ([FromQuery] string? token, IRestaurantInvitationsService invitationsService) =>
+        group.MapGet("/invitations", async ([FromQuery] string? invId, IRestaurantInvitationsService invitationsService) =>
         {
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(invId))
             {
                 return ResponseUtils.BadRequest("token is required.");
             }
 
-            var invitation = await invitationsService.InvitiationExistsAsync(token);
+            var invitation = await invitationsService.InvitiationExistsAsync(invId);
             if (!invitation)
             {
                 return ResponseUtils.NotFound("restaurant-invitation");
@@ -61,29 +63,23 @@ public static class RestaurantsEndpoints
 
         group.MapPost("/accept-invitation", async (
             RestaurantInvitationAcceptDto dto,
-            [FromQuery] string? token,
             IRestaurantInvitationsService restaurantInvitationsService,
             IRestaurantsService restaurantsService,
             IAuthServiceClient authServiceClient) =>
         {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                return ResponseUtils.BadRequest("token is required.");
-            }
-
             var newUser = await authServiceClient.RegisterAsync(dto.User);
-            var restaurant = await restaurantsService.CreateAsync(dto.Restaurant, token, newUser.User.Id);
+            var restaurant = await restaurantsService.CreateAsync(dto.Restaurant, dto.InviteId, newUser.User.Id);
 
             return Results.Ok(new { restaurant = restaurant.ToViewDto() });
         });
 
-        group.MapPost("/test", async ([FromServices] ITopicProducer<AcceptedInvitationEvent> producer, ILogger<Program> logger, HttpContext ctx) =>
+        group.MapPost("/test", async ([FromServices] ITopicProducer<AcceptedInvitationEvent> producer, ILogger<Program> logger, HttpContext ctx, RestaurantInvitationAcceptDto dto) =>
         {
             logger.LogInformation("Creating event");
             var ev = new AcceptedInvitationEvent(
-                Guid.NewGuid(),
-                new RestaurantCreateDto("restaurant-name", "restaurant-desc", "restaurant-phone"),
-                new RegisterDto("firstName", "lastName", "email", "password")
+                dto.InviteId,
+                dto.Restaurant,
+                dto.User
             );
 
             logger.LogInformation("Sending event {@AcceptedInvitationEvent}", ev);
@@ -94,7 +90,7 @@ public static class RestaurantsEndpoints
         
         group.MapGet("/test", () =>
         {
-            return Results.Ok(new { response = "response" });
+            return Results.Ok(new { response = "responses" });
         });
     }
 }

@@ -91,5 +91,11 @@ public static class AuthEndpoints
       
             return Results.Ok(new { testResp = resp, user = userResp.User });
         });
+        
+        group.MapGet("/claims", (ClaimsPrincipal principal, ITokenService tokenService) =>
+        {
+            var claims = tokenService.GetUserClaims(principal);
+            return Results.Ok(claims);
+        }).RequireAuthorization();
     }
 }

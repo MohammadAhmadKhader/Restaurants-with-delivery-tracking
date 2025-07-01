@@ -80,7 +80,7 @@ run-w-$(1):
 	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
 
 r-$($(1)_SHORT_KEY):
-	dotnet watch run --project services/$(1)/$(1).csproj $(ARGS)
+	dotnet run --project services/$(1)/$(1).csproj $(ARGS)
 
 rw-$($(1)_SHORT_KEY):
 	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
@@ -109,7 +109,8 @@ $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))
 # * ———————————————————————————— Kafka Commands ————————————————————————————
 NAMESPACE=kafka
 CLUSTER=my-cluster
-KAFKA_POD := $(shell kubectl get pods -n kafka -l strimzi.io/name=$(CLUSTER)-kafka -o jsonpath='{.items[0].metadata.name}')
+KAFKA_POD := ""
+KAFKA_POD := $(shell kubectl get pods -n kafka -l strimzi.io/name=$(CLUSTER)-kafka -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
 KAFKA_CMD=kubectl exec -n kafka $(KAFKA_POD) -- sh -c
 BOOTSTRAP=localhost:9094
 TOPIC ?=test-topic
@@ -149,6 +150,65 @@ read-topic:
 	@echo "Reading all messages from topic: $(TOPIC)"
 	$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-console-consumer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC) $(READ_ARGS)"
 
-# * ———————————————————————————— Skaffold Commands ————————————————————————————
+# * ———————————————————————————— K8S & Skaffold Commands ————————————————————————————
 k8s-build-f:
 	@skaffold dev --cache-artifacts=false
+
+up-clusters:
+	@skaffold dev --filename ./skaffold-clusters.yml
+
+up-dbs:
+	@skaffold dev --filename ./skaffold-dbs.yml
+
+up:
+	@skaffold dev --filename ./skaffold.yml
+
+down:
+	@skaffold delete --filename ./skaffold.yml
+
+down-clusters:
+	@skaffold delete --filename ./skaffold-clusters.yml
+
+down-dbs:
+	@skaffold delete --filename ./skaffold-dbs.yml
+
+down-all:
+	@skaffold delete --filename ./skaffold.yml
+	@skaffold delete --filename ./skaffold-clusters.yml
+	@skaffold delete --filename ./skaffold-dbs.yml
+
+
+SECRETS_NAMESPACE ?=$(NAMESPACE)
+DEFAULT_PG_USERNAME=postgres
+DEFAULT_PG_PASSWORD=123456
+
+define K8S_SECRETS
+s-gen-$($(1)_SHORT_KEY):
+	@kubectl create secret generic 'backend-$(shell echo $(1) | tr A-Z a-z)-secret' --from-env-file=./services/$(1)/.k8s.env \
+	 --namespace=$(SECRETS_NAMESPACE) --dry-run=client \
+	 -o yaml | sed '/creationTimestamp/d' > ./services/$(1)/Infra/backend-secrets.yml
+
+s-del-$($(1)_SHORT_KEY):
+	@kubectl delete -f ./services/$(1)/Infra/backend-secrets.yml
+
+s-read-$($(1)_SHORT_KEY):
+	@kubectl get secret backend-$(shell echo $(1) | tr A-Z a-z)-secret -o json | jq '.data | map_values(@base64d)' --namespace=$(SECRETS_NAMESPACE)
+
+s-update-$($(1)_SHORT_KEY):
+	@kubectl apply -f ./services/$(1)/Infra/backend-secrets.yml
+endef
+
+$(foreach S,$(SERVICES),$(eval $(call K8S_SECRETS,$(S))))
+
+define PG_SECRETS
+gen-$($(1)_SHORT_KEY)-pgs:
+	kubectl create secret generic pg-$(shell echo $(1) | tr A-Z a-z)-credentials \
+		--namespace=$(SECRETS_NAMESPACE) \
+		--type=kubernetes.io/basic-auth \
+		--from-literal=username=$$(or $(PG_USERNAME),$(DEFAULT_PG_USERNAME)) \
+		--from-literal=password=$$(or $(PG_PASSWORD),$(DEFAULT_PG_PASSWORD)) \
+		--dry-run=client -o yaml | sed '/creationTimestamp/d' \
+		> ./services/$(1)/Infra/pg-secrets.yaml
+endef
+
+$(foreach S,$(SERVICES),$(eval $(call PG_SECRETS,$(S))))

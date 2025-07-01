@@ -4,22 +4,22 @@ WORKDIR /app
 
 COPY Directory.Packages.props ./
 COPY contracts/Shared.Contracts/Shared.Contracts.csproj ./contracts/Shared.Contracts/
-COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
 COPY contracts/Auth.Contracts/Auth.Contracts.csproj ./contracts/Auth.Contracts/
+COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
 
 COPY services/Shared/Shared.csproj ./services/Shared/
-COPY services/Restaurants/Restaurants.csproj ./services/Restaurants/
+COPY services/Auth/Auth.csproj ./services/Auth/
 
 RUN apk add --no-cache icu-libs
-RUN dotnet restore services/Restaurants/Restaurants.csproj
+RUN dotnet restore services/Auth/Auth.csproj
 
 COPY contracts/Shared.Contracts/ ./contracts/Shared.Contracts/
-COPY contracts/Restaurants.Contracts/ ./contracts/Restaurants.Contracts/
 COPY contracts/Auth.Contracts/ ./contracts/Auth.Contracts/
+COPY contracts/Restaurants.Contracts/ ./contracts/Restaurants.Contracts/
 
 COPY services/Shared/ ./services/Shared/
-COPY services/Restaurants/ ./services/Restaurants/
+COPY services/Auth/ ./services/Auth/
 
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile", "--no-hot-reload", "--project", "services/Restaurants/Restaurants.csproj"]
+ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile", "--no-hot-reload", "--project", "services/Auth/Auth.csproj"]

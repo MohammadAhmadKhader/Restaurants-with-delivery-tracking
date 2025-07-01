@@ -25,6 +25,7 @@
 
     <PackageReference Include="MassTransit" />
     <PackageReference Include="MassTransit.Kafka" />
+    <PackageReference Include="MassTransit.Redis" />
   </ItemGroup>
 
   <ItemGroup>
