@@ -13,4 +13,5 @@ public interface IUsersService
     Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto);
     Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams);
     Task<(bool isSuccess, DeleteUserError error)> DeleteByIdAsync(Guid id);
+    Task CompensateOwnerCreationAsync(Guid ownerId);
 }

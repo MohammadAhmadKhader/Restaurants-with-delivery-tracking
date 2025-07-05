@@ -10,10 +10,11 @@ using Auth.Data;
 
 namespace Auth.Services;
 
-public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository usersRepository) : IUsersService
+public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository usersRepository, ILogger<UsersService> logger) : IUsersService
 {
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IUsersRepository _usersRepository = usersRepository;
+    private readonly ILogger<UsersService> _logger = logger;
     private const string resourceName = "user";
 
     public async Task<bool> ExistsByEmailAsync(string email)
@@ -102,5 +103,26 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
         }
 
         return (true, DeleteUserError.None);
+    }
+
+    public async Task CompensateOwnerCreationAsync(Guid ownerId)
+    {
+        try
+        {
+            var isFound = await _usersRepository.DeleteAsync(ownerId);
+            if (!isFound)
+            {
+                _logger.LogWarning("Attemtping to compensate owner creation has failed {Message}", "User was not found during attempt to compensate owner creation");
+                return;
+            }
+            await _unitOfWork.SaveChangesAsync();
+            
+            _logger.LogInformation("Successfully compensated owner creation by deleting user {OwnerId}", ownerId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occurred while compensating owner creation for user {OwnerId}", ownerId);
+            throw;
+        }
     }
 }

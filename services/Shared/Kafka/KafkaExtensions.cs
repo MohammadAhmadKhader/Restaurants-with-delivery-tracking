@@ -31,7 +31,7 @@ public static class KafkaExtensions
         this IServiceCollection services, Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
         Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
     {
-        if (EnvironmentUtils.IsTesting())
+        if (EnvironmentUtils.IsSeeding() || EnvironmentUtils.IsTesting())
         {
             return services;
         }
@@ -55,7 +55,7 @@ public static class KafkaExtensions
                 r.AddConsumers(typeof(TProgram).Assembly);
                 riderConfigurer?.Invoke(r);
 
-                r.AddProducer<AcceptedInvitationEvent>(KafkaEventsTopics.InvitationAccepted, (producerCtx, producerCfg) =>
+                r.AddProducer<InvitationAcceptedEvent>(KafkaEventsTopics.InvitationAccepted, (producerCtx, producerCfg) =>
                 {
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
@@ -70,12 +70,14 @@ public static class KafkaExtensions
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
                 });
-                r.AddProducer<OwnerCreateCommand>(KafkaCommandsTopics.CreateRestaurantOwner, (producerCtx, producerCfg) =>
+
+                r.AddProducer<RestaurantCreatingFailedEvent>(KafkaEventsTopics.RestaurantCreatingFailed, (producerCtx, producerCfg) =>
                 {
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
                 });
-                r.AddProducer<RestaurantCreateCommand>(KafkaCommandsTopics.CreateRestaurant, (producerCtx, producerCfg) =>
+
+                r.AddProducer<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, (producerCtx, producerCfg) =>
                 {
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);

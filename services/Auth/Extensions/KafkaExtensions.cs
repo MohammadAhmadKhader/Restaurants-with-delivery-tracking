@@ -10,10 +10,19 @@ public static class KafkaExtensions
         var serviceName = "auth-service";
         services.AddMassTransitWithKafka<Program>((ctx, k) =>
         {
-            k.TopicEndpoint<OwnerCreateCommand>(KafkaCommandsTopics.CreateRestaurantOwner, serviceName, cfg =>
+            k.TopicEndpoint<InvitationAcceptedEvent>(KafkaEventsTopics.InvitationAccepted, serviceName, cfg =>
             {
-                cfg.ConfigureConsumer<AuthCommandsConsumer>(ctx);
+                cfg.ConfigureConsumer<AuthEventsConsumer>(ctx);
+
             });
+
+            k.TopicEndpoint<RestaurantCreatingFailedEvent>(KafkaEventsTopics.RestaurantCreatingFailed, serviceName, cfg =>
+            {
+                cfg.ConfigureConsumer<AuthEventsConsumer>(ctx);
+            });
+        }, (rider) =>
+        {
+            rider.AddConsumeObserver<FailuresObserver>();
         });
 
         return services;

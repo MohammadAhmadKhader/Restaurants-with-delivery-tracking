@@ -10,7 +10,6 @@ public static class RestaurantInvitationsMappers
         return new RestaurantInvitationViewDto
         {
             Id = invitation.Id,
-            Token = invitation.Token,
             InvitedEmail = invitation.InvitedEmail,
             ExpiresAt = invitation.ExpiresAt,
             UsedAt = invitation.UsedAt,

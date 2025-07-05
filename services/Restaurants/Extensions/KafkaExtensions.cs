@@ -1,25 +1,47 @@
 using Shared.Kafka;
 using MassTransit;
 using Restaurants.Sagas;
-using StackExchange.Redis;
-using Shared.Config;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace Restaurants.Extensions;
+
 public static class KafkaExtensions
 {
     public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
     {
-        services.AddMassTransitWithKafka<Program>((ctx, k)=>
+        services.AddMassTransitWithKafka<Program>((ctx, k) =>
         {
             var serviceName = "restaurant-service";
-            k.TopicEndpoint<AcceptedInvitationEvent>(KafkaEventsTopics.InvitationAccepted, serviceName, cfg =>
+            k.TopicEndpoint<InvitationAcceptedEvent>(KafkaEventsTopics.InvitationAccepted, serviceName, cfg =>
             {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx);
+                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c => c.UseMessageRetry(r =>
+                {
+                    r.Immediate(3);
+                }));
             });
 
             k.TopicEndpoint<OwnerCreatedEvent>(KafkaEventsTopics.RestaurantOwnerCreated, serviceName, cfg =>
             {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx);
+                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c =>
+                {
+                    c.UseMessageRetry(r =>
+                    {
+                        r.Immediate(3);
+                    });
+
+                    c.UseScheduledRedelivery(redeliver =>
+                    {
+                        redeliver.Handle<DbException>();
+                        redeliver.Handle<DbUpdateException>();
+
+                        redeliver.Intervals(
+                            TimeSpan.FromSeconds(10),
+                            TimeSpan.FromSeconds(30),
+                            TimeSpan.FromMinutes(3)
+                        );
+                    });
+                });
             });
 
             k.TopicEndpoint<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, serviceName, cfg =>
@@ -27,37 +49,34 @@ public static class KafkaExtensions
                 cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx);
             });
 
-            k.TopicEndpoint<OwnerCreateCommand>(KafkaCommandsTopics.CreateRestaurantOwner, serviceName, cfg =>
+            k.TopicEndpoint<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, serviceName, cfg =>
             {
-                cfg.ConfigureConsumer<RestaurantCommandsConsumer>(ctx);
-            });
-
-            k.TopicEndpoint<RestaurantCreateCommand>(KafkaCommandsTopics.CreateRestaurant, serviceName, cfg =>
-            {
-                cfg.ConfigureConsumer<RestaurantCommandsConsumer>(ctx);
-            });
-
-            k.TopicEndpoint<SimpleTestEvent>(KafkaEventsTopics.TestTopic, serviceName, cfg =>
-            {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx);
-            });
-
-        }, (r) =>
-        {
-            // TODO: Redis Config must be an object with multiple key-values
-            r.AddSagaStateMachine<RestaurantSaga, RestaurantCreateSagaData>();
-            r.SetRedisSagaRepositoryProvider((r) =>
-            {
-                var redisConfig = config.GetRequiredSection("Redis").Get<string>()!;
-                r.ConnectionFactory(() =>
+                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c =>
                 {
-                    return ConnectionMultiplexer.Connect(new ConfigurationOptions
+                    c.UseMessageRetry(r =>
                     {
-                        EndPoints = { redisConfig },
+                        r.Interval(7, TimeSpan.FromSeconds(10));
+                    });
+
+                    c.UseScheduledRedelivery(redeliver =>
+                    {
+                        redeliver.Handle<DbException>();
+                        redeliver.Handle<DbUpdateException>();
+
+                        redeliver.Intervals(
+                            TimeSpan.FromSeconds(10),
+                            TimeSpan.FromSeconds(30),
+                            TimeSpan.FromMinutes(3)
+                        );
                     });
                 });
             });
+
+        }, (rider) =>
+        {
+            rider.AddConsumeObserver<FailuresObserver>();
         });
+
         return services;
     }
 }

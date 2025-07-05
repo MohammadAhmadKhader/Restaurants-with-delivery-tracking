@@ -4,6 +4,7 @@ using Auth.Repositories.IRepositories;
 using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Shared.Data.Patterns.UnitOfWork;
+using Shared.Utils;
 
 namespace Auth.Data.Seed;
 
@@ -37,8 +38,7 @@ public class DatabaseSeeder: IDatabaseSeeder
     }
     public async Task SeedAsync()
     {
-        var args = Environment.GetCommandLineArgs();
-        if (!args.Contains("--seed"))
+        if (!EnvironmentUtils.IsSeeding())
         {
             _logger.LogInformation("Skipping seeding");
             return;
@@ -170,11 +170,14 @@ public class DatabaseSeeder: IDatabaseSeeder
             }
 
             await _unitOfWork.CommitTransactionAsync(transaction);
+            _logger.LogInformation("Exiting successfully...");
+            Environment.Exit(0);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError("{Message}", ex.Message);
             await _unitOfWork.RollBackAsync(transaction);
+            Environment.Exit(1);
             throw;
         }
     }

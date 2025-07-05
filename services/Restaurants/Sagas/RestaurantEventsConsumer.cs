@@ -1,54 +1,57 @@
 using MassTransit;
+using Restaurants.Services.IServices;
 using Shared.Kafka;
 
 namespace Restaurants.Sagas;
 
-public class RestaurantEventsConsumer :
-    IConsumer<AcceptedInvitationEvent>,
+public class RestaurantEventsConsumer(
+    ILogger<RestaurantEventsConsumer> logger,
+    ITopicProducer<RestaurantCreatedEvent> restaurantCreatedEventProducer,
+    IRestaurantsService restaurantsService,
+    IRestaurantInvitationsService restaurantInvitationsService) :
     IConsumer<OwnerCreatedEvent>,
-    IConsumer<RestaurantCreatedEvent>
+    IConsumer<RestaurantCreatedEvent>,
+    IConsumer<OwnerCreatingFailedEvent>,
+    IConsumer<RestaurantCreatingFailedEvent>
 {
-    private readonly ILogger<RestaurantEventsConsumer> _logger;
-    private readonly ITopicProducer<OwnerCreateCommand> _ownerCreateProducer;
-    private readonly ITopicProducer<RestaurantCreateCommand> _restaurantCreateProducer;
-    public RestaurantEventsConsumer(
-        ILogger<RestaurantEventsConsumer> logger,
-        ITopicProducer<OwnerCreateCommand> ownerCreateProducer,
-        ITopicProducer<RestaurantCreateCommand> restaurantCreateProducer)
-    {
-        _logger = logger;
-        _ownerCreateProducer = ownerCreateProducer;
-        _restaurantCreateProducer = restaurantCreateProducer;
-    }
-
-    public async Task Consume(ConsumeContext<AcceptedInvitationEvent> ctx)
-    {
-        _logger.LogInformation("Invitation was accepted {@AcceptedInvitationEvent}", ctx.Message);
-
-        await _ownerCreateProducer.Produce(new OwnerCreateCommand(
-            ctx.Message.InvitationId,
-            ctx.Message.Register,
-            ctx.Message.Restaurant));
-    }
+    private readonly ILogger<RestaurantEventsConsumer> _logger = logger;
+    private readonly ITopicProducer<RestaurantCreatedEvent> _restaurantCreatedEventProducer = restaurantCreatedEventProducer;
+    private readonly IRestaurantsService _restaurantsService = restaurantsService;
+    private readonly IRestaurantInvitationsService _restaurantInvitationsService = restaurantInvitationsService;
 
     public async Task Consume(ConsumeContext<OwnerCreatedEvent> ctx)
     {
-        _logger.LogInformation("Owner was created {@OwnerCreatedEvent}", ctx);
-
+        _logger.LogInformation("Owner was created {@OwnerCreatedEvent} starting to create restaurant", ctx.Message);
         var restaurant = ctx.Message.Restaurant;
+        var newRestaurant = await _restaurantsService.CreateAsync(restaurant, ctx.Message.InvitationId, ctx.Message.OwnerId);
 
-        await _restaurantCreateProducer.Produce(new RestaurantCreateCommand(
-            ctx.Message.InvitationId,
-            ctx.Message.OwnerId,
-            restaurant.Name,
-            restaurant.Description,
-            restaurant.Phone
-        ));
+        await _restaurantCreatedEventProducer.Produce(
+            new RestaurantCreatedEvent(
+                ctx.Message.InvitationId,
+                ctx.Message.OwnerId,
+                newRestaurant.Id,
+                newRestaurant.Name));
     }
 
     public Task Consume(ConsumeContext<RestaurantCreatedEvent> ctx)
     {
         _logger.LogInformation("Restaurant was created {@RestaurantCreatedEvent}", ctx.Message);
         return Task.CompletedTask;
+    }
+
+    public async Task Consume(ConsumeContext<OwnerCreatingFailedEvent> ctx)
+    {
+        _logger.LogInformation("Owner creating was failed with event {@OwnerCreatingFailedEvent}", ctx.Message);
+        _logger.LogInformation("Compensating invitation marking, setting it as unused...");
+        await _restaurantInvitationsService.CompensateMarkingInvitationAsUsedAsync(ctx.Message.InvitationId);
+        _logger.LogInformation("Invitation marking was compensated successfully");
+    }
+
+    public async Task Consume(ConsumeContext<RestaurantCreatingFailedEvent> ctx)
+    {
+        _logger.LogInformation("Restauran creating was failed with event {@RestaurantCreatingFailedEvent}", ctx.Message);
+        _logger.LogInformation("Compensating invitation marking, setting it as unused...");
+        await _restaurantInvitationsService.CompensateMarkingInvitationAsUsedAsync(ctx.Message.InvitationId);
+        _logger.LogInformation("Invitation marking was compensated successfully");
     }
 }

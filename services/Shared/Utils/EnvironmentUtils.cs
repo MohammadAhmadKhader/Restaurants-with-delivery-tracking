@@ -14,9 +14,15 @@ public static class EnvironmentUtils
     {
         return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == developmentString;
     }
-    
+
     public static bool IsProduction()
     {
         return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == productionString;
+    }
+
+    public static bool IsSeeding()
+    {
+        var args = Environment.GetCommandLineArgs();
+        return args.Contains("--seed");
     }
 }

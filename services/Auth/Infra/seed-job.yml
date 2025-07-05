@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: auth-service-seed
+  namespace: kafka
+spec:
+  ttlSecondsAfterFinished: 30
+  template:
+    spec:
+      containers:
+        - name: auth-service-seeder
+          image: fooddelivery-auth-service:9f8737e-dirty
+          args: ["--seed"]
+          env:
+          - name: Kafka__BootstrapServers
+            value: "my-cluster-kafka-bootstrap:9092"
+          - name: "ASPNETCORE_ENVIRONMENT"
+            value: "Development"
+          - name: "ConnectionStrings__DefaultConnection"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "ConnectionStrings__DefaultConnection"
+          - name: "ConnectionStrings__REDIS"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "ConnectionStrings__REDIS"
+          - name: "JwtSettings__AccessTokenExpirationMinutes"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "JwtSettings__AccessTokenExpirationMinutes"
+          - name: "JwtSettings__Audience"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "JwtSettings__Audience"
+          - name: "JwtSettings__Issuer"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "JwtSettings__Issuer"
+          - name: "JwtSettings__SecretKey"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "JwtSettings__SecretKey"
+          - name: "JwtSettings__RefreshTokenExpirationDays"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-auth-secret"
+                key: "JwtSettings__RefreshTokenExpirationDays"
+                
+          - name: "ASPNETCORE_URLS"
+            value: "http://+:8080"
+          - name: "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"
+            value: "false"
+
+      restartPolicy: Never

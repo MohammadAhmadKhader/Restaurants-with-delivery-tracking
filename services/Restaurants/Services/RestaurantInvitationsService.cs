@@ -71,4 +71,17 @@ public class RestaurantInvitationsService(
         return await _restaurantInvitationsRepository
         .ExistsByMatchAsync((inv) => inv.Id == guid && inv.ExpiresAt > DateTime.UtcNow);
     }
+
+    public async Task CompensateMarkingInvitationAsUsedAsync(Guid id)
+    {
+        var invitiation = await _restaurantInvitationsRepository.FindByIdAsync(id);
+        if (invitiation == null)
+        {
+            throw new ResourceNotFoundException(_resourceName);
+        }
+
+        invitiation.UsedAt = null;
+
+        await _unitOfWork.SaveChangesAsync();
+    }
 }

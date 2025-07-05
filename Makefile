@@ -109,10 +109,9 @@ $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))
 # * ———————————————————————————— Kafka Commands ————————————————————————————
 NAMESPACE=kafka
 CLUSTER=my-cluster
-KAFKA_POD := ""
 KAFKA_POD := $(shell kubectl get pods -n kafka -l strimzi.io/name=$(CLUSTER)-kafka -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
-KAFKA_CMD=kubectl exec -n kafka $(KAFKA_POD) -- sh -c
-BOOTSTRAP=localhost:9094
+KAFKA_CMD=kubectl exec -n $(NAMESPACE) $(KAFKA_POD) -- sh -c
+BOOTSTRAP=localhost:9095
 TOPIC ?=test-topic
 SCRIPTS_PATH=/opt/kafka/bin
 
@@ -139,11 +138,12 @@ create-topic:
 	@echo "Creating topic: $(TOPIC)"
 	$(KAFKA_CMD) "$(SCRIPTS_PATH)/kafka-topics.sh --bootstrap-server $(BOOTSTRAP) --create --topic $(TOPIC) $(TOPIC_OPTIONS)"
 
-PAYLOAD ?= {"value":"hello world"}
+PAYLOAD ?={"value":"hello world"}
+BASE64_PAYLOAD=$(shell echo '$(PAYLOAD)' | base64)
 send-event:
 	@echo "Sending event to topic: $(TOPIC)" 
-	@echo "Payload: $(PAYLOAD)" \
-	$(KAFKA_CMD) "echo \"$(PAYLOAD)\" | $(SCRIPTS_PATH)/kafka-console-producer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC)"
+	@echo "Payload: $(PAYLOAD)"
+	@$(KAFKA_CMD) "echo $(BASE64_PAYLOAD) | base64 -d | $(SCRIPTS_PATH)/kafka-console-producer.sh --bootstrap-server $(BOOTSTRAP) --topic $(TOPIC)"
 
 READ_ARGS ?= --from-beginning --timeout-ms 1000
 read-topic:
@@ -202,7 +202,7 @@ $(foreach S,$(SERVICES),$(eval $(call K8S_SECRETS,$(S))))
 
 define PG_SECRETS
 gen-$($(1)_SHORT_KEY)-pgs:
-	kubectl create secret generic pg-$(shell echo $(1) | tr A-Z a-z)-credentials \
+	@kubectl create secret generic pg-$(shell echo $(1) | tr A-Z a-z)-credentials \
 		--namespace=$(SECRETS_NAMESPACE) \
 		--type=kubernetes.io/basic-auth \
 		--from-literal=username=$$(or $(PG_USERNAME),$(DEFAULT_PG_USERNAME)) \
@@ -212,3 +212,22 @@ gen-$($(1)_SHORT_KEY)-pgs:
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call PG_SECRETS,$(S))))
+
+DB_NUM =1
+# t => leader (read, write)
+# f => follower
+define DB_COMMANDS
+db-check-role-$($(1)_SHORT_KEY):
+	@kubectl exec -it $(shell echo $(1) | tr A-Z a-z)-db-$(DB_NUM) -n kafka -- psql -U postgres -c "SELECT pg_is_in_recovery();"
+
+db-con-$($(1)_SHORT_KEY):
+	@kubectl exec -it $(shell echo $(1) | tr A-Z a-z)-db-$(DB_NUM) -n $(NAMESPACE) -- psql -U postgres -d foodDelivery_$(shell echo $(1) | tr A-Z a-z)
+
+db-tables-$($(1)_SHORT_KEY):
+	@kubectl exec -it $(shell echo $(1) | tr A-Z a-z)-db-$(DB_NUM) -n $(NAMESPACE) -- psql -U postgres -d foodDelivery_$(shell echo $(1) | tr A-Z a-z) -c "\dt"
+
+db-seed-$($(1)_SHORT_KEY):
+	@kubectl apply -f ./services/$(1)/Infra/seed-job.yml
+endef
+
+$(foreach S,$(SERVICES),$(eval $(call DB_COMMANDS,$(S))))
