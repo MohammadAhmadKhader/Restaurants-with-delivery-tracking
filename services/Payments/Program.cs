@@ -1,7 +1,6 @@
 using DotNetEnv;
 using Payments.Data;
 using Payments.Endpoints;
-using Payments.Extensions;
 using Shared.Extensions;
 using Shared.Middlewares;
 
@@ -15,8 +14,7 @@ builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host);
 builder.Services.AddDatabase<AppDbContext>(config);
-builder.Services.AddRepositories();
-builder.Services.AddServices();
+builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Host.ValidateScopes();
 
 var app = builder.Build();

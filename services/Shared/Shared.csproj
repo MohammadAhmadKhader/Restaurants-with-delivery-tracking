@@ -11,15 +11,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="FluentValidation" />
     <PackageReference Include="xunit" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Meziantou.Extensions.Logging.Xunit" />
-    <PackageReference Include="Serilog.AspNetCore" />
-    <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Confluent.Kafka" />
 
@@ -38,7 +32,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\contracts\Auth.Contracts\Auth.Contracts.csproj" />
     <ProjectReference Include="..\..\contracts\Restaurants.Contracts\Restaurants.Contracts.csproj" />
-    <ProjectReference Include="..\..\contracts\Shared.Contracts\Shared.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

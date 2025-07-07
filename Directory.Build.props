@@ -1,0 +1,55 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Watch />
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- * Common packages -->
+        <PackageReference Include="DotNetEnv" />
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+        <PackageReference Include="StackExchange.Redis" />
+        <PackageReference Include="Serilog.AspNetCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+
+        <!-- * Testing Projects -->
+        <PackageReference Include="coverlet.collector"                  Condition=" '$(IsTestProject)' == 'true' "/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"              Condition=" '$(IsTestProject)' == 'true' "/>
+        <PackageReference Include="xunit"                               Condition=" '$(IsTestProject)' == 'true' "/>
+        <PackageReference Include="xunit.runner.visualstudio"           Condition=" '$(IsTestProject)' == 'true' "/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"    Condition=" '$(IsTestProject)' == 'true' "/>
+        <PackageReference Include="Meziantou.Extensions.Logging.Xunit"  Condition=" '$(IsTestProject)' == 'true' " />
+
+        <Using Include="Xunit"                                          Condition=" '$(IsTestProject)' == 'true' "/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- * Shared -->
+        <ProjectReference Include="..\..\services\Shared\Shared.csproj" 
+        Condition="'$(IsContractProject)' != 'true' and '$(MSBuildProjectName)' != 'Shared'" />
+
+        <!-- * Shared.Contracts -->
+        <ProjectReference Include="..\..\contracts\Shared.Contracts\Shared.Contracts.csproj" 
+        Condition="'$(IsContractProject)' == 'true' and '$(MSBuildProjectName)' != 'Shared.Contracts' " />
+
+        <!-- * Contracts projects -->
+        <PackageReference Condition="'$(IsContractProject)' == 'true'" Include="Refit.HttpClientFactory" />
+  
+        <!-- If contract project exists its referenced by default by the project name -->
+        <ProjectReference 
+        Include="..\..\contracts\$(MSBuildProjectName).Contracts\$(MSBuildProjectName).Contracts.csproj"
+        Condition="
+        Exists('..\..\contracts\$(MSBuildProjectName).Contracts\$(MSBuildProjectName).Contracts.csproj') 
+        and 
+        '$(IsContractProject)' != 'true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Watch Include="**/*.cs" />
+        <Watch Include="appsettings*.json" />
+    </ItemGroup>
+</Project>

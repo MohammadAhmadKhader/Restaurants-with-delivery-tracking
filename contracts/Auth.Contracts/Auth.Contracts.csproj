@@ -1,16 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+      <IsContractProject>true</IsContractProject>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Refit.HttpClientFactory" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\contracts\Shared.Contracts\Shared.Contracts.csproj" />
-  </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine
 WORKDIR /app
 
 COPY Directory.Packages.props ./
+COPY Directory.Build.props ./
 COPY contracts/Shared.Contracts/Shared.Contracts.csproj ./contracts/Shared.Contracts/
 COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
 COPY contracts/Auth.Contracts/Auth.Contracts.csproj ./contracts/Auth.Contracts/
