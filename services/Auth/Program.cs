@@ -4,6 +4,7 @@ using Auth.Extensions;
 using Shared.Middlewares;
 using Shared.Extensions;
 using DotNetEnv;
+using Auth.Middlewares;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -12,14 +13,11 @@ var host = builder.Host;
 
 builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
-builder.Services.AddServices();
-builder.Services.AddRepositories();
 builder.Services.AddAppAuthentication(config);
 builder.Services.AddKvStore(config, "Redis");
 builder.Services.AddDatabase<AppDbContext>(config, "DefaultConnection");
 builder.Services.AddServiceLogging(host);
-builder.Services.AddFluentValidation();
-builder.Services.AddSeeding();
+builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddHttpClientsDependenciesWithClientsServices();
 builder.Services.AddKafkaHandlers();
@@ -39,10 +37,12 @@ app.MapAddressesEndpoints();
 
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<TenantMiddleware>();
 app.UseAppLocalization();
-// others
 
+// others
 app.EnsureDatabaseCreated<AppDbContext>();
+
 await app.SeedDatabaseAsync();
 
 app.Run();

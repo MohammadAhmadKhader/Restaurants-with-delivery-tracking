@@ -1,16 +1,16 @@
-using Auth.Contracts.Dtos.Role;
+using Auth.Contracts.Dtos.RestaurantRole;
 using Auth.Models;
 
 namespace Auth.Mappers;
 
-public static class RoleMappers
+public static class RestaurantRoleMappers
 {
-    public static RoleWithPermissionViewDto ToViewWithPermissionsDto(this Role role)
+    public static RestaurantRoleWithPermissionViewDto ToViewWithPermissionsDto(this RestaurantRole role)
     {
-        var dto = new RoleWithPermissionViewDto
+        var dto = new RestaurantRoleWithPermissionViewDto
         {
             Id = role.Id,
-            Name = role.Name,
+            Name = role.NormalizedName,
             DisplayName = role.DisplayName,
             Permissions = role.Permissions.Select(p => p.ToViewDto()).ToList()
         };
@@ -18,23 +18,22 @@ public static class RoleMappers
         return dto;
     }
 
-    public static RoleViewDto ToViewDto(this Role role)
+    public static RestaurantRoleViewDto ToViewDto(this RestaurantRole role)
     {
-        var dto = new RoleViewDto
+        var dto = new RestaurantRoleViewDto
         {
             Id = role.Id,
-            Name = role.Name,
+            Name = role.NormalizedName,
             DisplayName = role.DisplayName,
         };
 
         return dto;
     }
 
-    public static void PatchModel(this RoleUpdateDto dto, Role role)
+    public static void PatchModel(this RestaurantRoleUpdateDto dto, RestaurantRole role)
     {
         if (dto.Name != null)
         {
-            role.Name = dto.Name;
             role.NormalizedName = dto.Name.ToUpper();
         }
 

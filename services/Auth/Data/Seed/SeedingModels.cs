@@ -14,6 +14,8 @@ public record SeedUser
     public string Email { get; set; } = default!;
     public bool EmailConfirmed { get; set; } = default!;
     public string Password { get; set; } = default!;
+    public Guid? RestaurantId { get; set; }
+    public bool IsGlobal { get; set; }
 }
 
 public record SeedRole

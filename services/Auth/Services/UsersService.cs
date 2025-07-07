@@ -125,4 +125,19 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
             throw;
         }
     }
+
+    public async Task<User?> FindByIdWithRestaurantRolesAsync(Guid id)
+    {
+        return await _usersRepository.FindByIdWithRestaurantRolesAsync(id);
+    }
+
+    public async Task<User?> FindByIdWithRestaurantRolesAndPermissionsAsync(Guid id)
+    {
+        return await _usersRepository.FindByIdWithRestaurantRolesAndPermissionsAsync(id);
+    }
+
+    public async Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync(string email)
+    {
+        return await _usersRepository.FindByEmailWithRestaurantRolesAndPermissionsAsync(email);
+    }
 }

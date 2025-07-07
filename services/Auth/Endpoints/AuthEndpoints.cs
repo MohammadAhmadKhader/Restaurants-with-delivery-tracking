@@ -7,7 +7,6 @@ using Shared.Utils;
 using Auth.Contracts.Dtos.Auth;
 using Restaurants.Contracts.Clients;
 using Auth.Contracts.Clients;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Endpoints;
 
@@ -15,9 +14,9 @@ public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth");
+        var appGroup = app.MapGroup("/api/auth");
 
-        group.MapPost("/login", async (LoginDto dto, IAuthService authService) =>
+        appGroup.MapPost("/login", async (LoginDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Login(dto);
             var resBody = new UserWithTokensDto(
@@ -28,7 +27,7 @@ public static class AuthEndpoints
             return Results.Ok(resBody);
         }).AddEndpointFilter<ValidationFilter<LoginDto>>();
 
-        group.MapPost("/register", async (RegisterDto dto, IAuthService authService) =>
+        appGroup.MapPost("/register", async (RegisterDto dto, IAuthService authService) =>
         {
             var (user, tokenData) = await authService.Register(dto);
             var resBody = new UserWithTokensDto(
@@ -39,7 +38,7 @@ public static class AuthEndpoints
             return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
         }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
 
-        group.MapPost("/refresh", async (RefreshRequest req, ITokenService tokenService) =>
+        appGroup.MapPost("/refresh", async (RefreshRequest req, ITokenService tokenService) =>
         {
             var refToken = req.RefreshToken;
             if (refToken == null || string.IsNullOrEmpty(refToken))
@@ -53,7 +52,7 @@ public static class AuthEndpoints
             return Results.Ok(resBody);
         });
 
-        group.MapGet("/user", async (HttpContext http, IUsersService usersService, ILogger<Program> logger) =>
+        appGroup.MapGet("/user", async (HttpContext http, IUsersService usersService, ILogger<Program> logger) =>
         {
             var userId = http.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
@@ -69,7 +68,7 @@ public static class AuthEndpoints
             return Results.Ok(new { user = user!.ToViewWithRolesAndPermissionsDto() });
         }).RequireAuthorization();
 
-        group.MapPost("/reset-password", async (IAuthService authService, ResetPasswordDto dto, ClaimsPrincipal principal) =>
+        appGroup.MapPost("/reset-password", async (IAuthService authService, ResetPasswordDto dto, ClaimsPrincipal principal) =>
         {
             var userId = SecurityUtils.ExtractUserId(principal);
             if (userId == Guid.Empty)
@@ -83,19 +82,46 @@ public static class AuthEndpoints
         }).RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
 
-        group.MapGet("/test", async ([FromServices] IRestaurantServiceClient restaurantServiceClient,[FromServices] IUsersServiceClient usersServiceClient) =>
+        appGroup.MapGet("/test", async (IRestaurantServiceClient restaurantServiceClient, IUsersServiceClient usersServiceClient, ILogger<Program> log) =>
         {
             var resp = await restaurantServiceClient.TestPostAsync(new { data = "some data" });
             var userId = Guid.Parse("0196ff3e-43ca-7f6c-8569-c5413f4dd5dd");
             var userResp = await usersServiceClient.GetUserByIdAsync(userId);
-      
+
             return Results.Ok(new { testResp = resp, user = userResp.User });
         });
-        
-        group.MapGet("/claims", (ClaimsPrincipal principal, ITokenService tokenService) =>
+
+        appGroup.MapGet("/claims", (ClaimsPrincipal principal, ITokenService tokenService) =>
         {
             var claims = tokenService.GetUserClaims(principal);
             return Results.Ok(claims);
         }).RequireAuthorization();
+
+        var restaurantGroup = app.MapGroup("/api/auth/restaurant");
+        restaurantGroup.MapPost("/login", async (LoginDto dto, IAuthService authService, ITenantProvider tenantProvider) =>
+        {
+            tenantProvider.GetTenantIdOrThrow();
+
+            var (user, tokenData) = await authService.LoginRestaurant(dto);
+            var resBody = new RestaurantUserWithTokensDto(
+                user.ToViewWithRestaurantRolesAndPermissionsDto(),
+                tokenData.AccessToken,
+                tokenData.RefreshToken);
+
+            return Results.Ok(resBody);
+        }).AddEndpointFilter<ValidationFilter<LoginDto>>();
+
+        restaurantGroup.MapPost("/register", async (RegisterDto dto, IAuthService authService, ITenantProvider tenantProvider) =>
+        {
+            var restId = tenantProvider.GetTenantIdOrThrow();
+
+            var (user, tokenData) = await authService.RegisterRestaurant(dto, restId);
+            var resBody = new RestaurantUserWithTokensDto(
+                user.ToViewWithRestaurantRolesAndPermissionsDto(),
+                tokenData.AccessToken,
+                tokenData.RefreshToken);
+
+            return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
+        }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
     }
 }

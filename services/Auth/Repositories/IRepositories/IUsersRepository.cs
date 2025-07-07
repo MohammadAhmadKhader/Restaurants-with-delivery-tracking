@@ -8,7 +8,10 @@ public interface IUsersRepository : IGenericRepository<User, Guid>
 {
     Task<bool> ExistsByEmailAsync(string email);
     Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email);
+    Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync(string email);
     Task<User?> FindByIdWithRolesAsync(Guid id);
+    Task<User?> FindByIdWithRestaurantRolesAsync(Guid id);
     Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id);
+    Task<User?> FindByIdWithRestaurantRolesAndPermissionsAsync(Guid id);
     Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams);
 }

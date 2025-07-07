@@ -8,7 +8,7 @@ public interface IRestaurantServiceClient
     [Get("/api/restaurants/{id}")]
     Task<RestaurantResponseWrappaer> GetRestaurantById(Guid id);
 
-    [Get("/api/restaurants/{id}")]
+    [Post("/api/restaurants")]
     Task<RestaurantResponseWrappaer> CreateRestaurant([Body] RestaurantCreateDto dto, [Query] string token);
 
     [Post("/api/restaurants/send-invitation")]

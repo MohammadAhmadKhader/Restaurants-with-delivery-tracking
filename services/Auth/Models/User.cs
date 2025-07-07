@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Auth.Models;
 
 public enum DefaultUserRoles { None, User, Admin, SuperAdmin }
+public enum DefaultRestaurantUserRoles { None, Customer, Admin, Owner }
 public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
 public class User : IdentityUser<Guid>
 {
@@ -24,9 +25,11 @@ public class User : IdentityUser<Guid>
 
     [Required]
     public bool IsDeleted { get; set; }
-    // public Guid TenantId { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public Guid? RestaurantId { get; set; }
+    public bool IsGlobal { get; set; }
     public ICollection<Role> Roles { get; set; } = new HashSet<Role>();
     public ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
+    public ICollection<RestaurantRole> RestaurantRoles { get; set; } = new HashSet<RestaurantRole>();
 }

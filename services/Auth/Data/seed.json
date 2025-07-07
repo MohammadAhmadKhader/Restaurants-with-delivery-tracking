@@ -5,70 +5,90 @@
           "lastName":"doe",
           "email":"superAdmin@gmail.com",
           "emailConfirmed":true,
-          "password":"123456aB@"
+          "password":"123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "alice",
           "lastName": "smith",
           "email": "alice.smith@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "bob",
           "lastName": "johnson",
           "email": "bob.johnson@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "carol",
           "lastName": "williams",
           "email": "carol.williams@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "david",
           "lastName": "brown",
           "email": "david.brown@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "emma",
           "lastName": "jones",
           "email": "emma.jones@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "frank",
           "lastName": "garcia",
           "email": "frank.garcia@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "grace",
           "lastName": "miller",
           "email": "grace.miller@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "henry",
           "lastName": "davis",
           "email": "henry.davis@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         },
         {
           "firstName": "irene",
           "lastName": "martinez",
           "email": "irene.martinez@gmail.com",
           "emailConfirmed": true,
-          "password": "123456aB@"
+          "password": "123456aB@",
+          "isGlobal": true,
+          "restaurantId": null
         }
     ],
     "roles":[

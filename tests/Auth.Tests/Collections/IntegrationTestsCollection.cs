@@ -31,6 +31,7 @@ public class IntegrationTestsFixture : IAsyncLifetime
         Env.Load();
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
+            
             builder.ApplyDefaultConfigurations<AppDbContext>(ConnectionEnvVar);
         });
 

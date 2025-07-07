@@ -602,7 +602,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
             [DefaultUserRoles.None, HttpMethod.Delete, mainEndPointWithGuidId, HttpStatusCode.Unauthorized],
 
             // create permission endpoint
-            [DefaultUserRoles.SuperAdmin, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.NotFound],
+            [DefaultUserRoles.SuperAdmin, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.BadRequest],
             [DefaultUserRoles.Admin, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Forbidden],
             [DefaultUserRoles.User, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Forbidden],
             [DefaultUserRoles.None, HttpMethod.Post, addPermissionEndPoint, HttpStatusCode.Unauthorized],

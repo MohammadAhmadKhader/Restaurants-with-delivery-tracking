@@ -5,6 +5,7 @@ using Shared.Utils;
 using Auth.Mappers;
 using Auth.Utils;
 using Shared.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auth.Endpoints;
 

@@ -1,13 +1,22 @@
 using Auth.Models;
+using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Data;
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, Role, Guid>(options)
+
+public class AppDbContext : IdentityDbContext<User, Role, Guid>
 {
+    private readonly ITenantProvider _tenantProvider;
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<Address> Addresses { get; set; }
+    public DbSet<RestaurantRole> RestaurantRoles { get; set; }
+    public DbSet<RestaurantPermission> RestaurantPermissions { get; set; }
+    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider) : base(options)
+    {
+        _tenantProvider = tenantProvider;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,16 +44,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             ));
         });
 
+        modelBuilder.Entity<User>(b =>
+        {
+            b.ToTable(t => t.HasCheckConstraint(
+                name: "CK_Users_IsGlobalOrRestaurantNull",
+                sql: @" 
+                    ""IsGlobal"" = TRUE OR (
+                        ""RestaurantId""  IS NULL
+                    )"
+            ));
+        });
+
         modelBuilder.Entity<User>().ToTable("Users");
         modelBuilder.Entity<User>()
-        .HasQueryFilter(u => !u.IsDeleted);
-        
+        .HasQueryFilter(u => !u.IsDeleted && u.RestaurantId == _tenantProvider.RestaurantId);
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasMany(u => u.Addresses)
             .WithOne(a => a.User);
 
-            entity.HasIndex(r => r.NormalizedEmail).IsUnique();
+            entity.HasIndex(u => new { u.RestaurantId, u.NormalizedEmail }).IsUnique();
 
             entity.HasMany(u => u.Roles)
             .WithMany(r => r.Users)
@@ -55,6 +75,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                 {
                     ur.HasKey(x => new { x.UserId, x.RoleId });
                     ur.ToTable("UserRoles");
+                }
+            );
+
+            entity.HasMany(u => u.RestaurantRoles)
+            .WithMany(rr => rr.Users)
+            .UsingEntity<UserRestaurantRole>(
+                l => l.HasOne<RestaurantRole>().WithMany().HasForeignKey(urr => urr.RestaurantId),
+                r => r.HasOne<User>().WithMany().HasForeignKey(urr => urr.UserId),
+                urr =>
+                {
+                    urr.HasKey(x => new { x.UserId, x.RestaurantId });
+                    urr.ToTable("UserRestaurantRoles");
                 }
             );
 
@@ -70,6 +102,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
             entity.Property(u => u.IsDeleted)
                 .HasDefaultValue(false);
+
+            entity.Property(u => u.IsGlobal)
+                .HasDefaultValue(false);
+
+            var defaultUserNameIndex = entity.Metadata
+                .GetIndexes()
+                .FirstOrDefault(i => i.GetDatabaseName() == "UserNameIndex");
+            if (defaultUserNameIndex != null)
+            {
+                entity.Metadata.RemoveIndex(defaultUserNameIndex);
+            }
+
+            entity.HasIndex(u => new { u.RestaurantId, u.NormalizedUserName })
+                .IsUnique()
+                .HasDatabaseName("IX_Users_RestaurantId_NormalizedUserName");
         });
 
         // * ----- Role Entity -----
@@ -86,6 +133,26 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         modelBuilder.Entity<Permission>(entity =>
         {
             entity.HasIndex(r => r.Name).IsUnique();
+        });
+
+        // * ----- Restaurant Role Entity -----
+        modelBuilder.Entity<RestaurantRole>().ToTable("RestaurantRoles");
+        modelBuilder.Entity<RestaurantRole>()
+        .HasQueryFilter(rr => rr.RestaurantId == _tenantProvider.RestaurantId);
+
+        modelBuilder.Entity<RestaurantRole>(entity =>
+        {
+            entity.HasMany(u => u.Permissions)
+                .WithMany(p => p.Roles);
+
+            entity.HasIndex(r => r.NormalizedName).IsUnique();
+        });
+
+        // * ----- Restaurant Permission Entity -----
+        modelBuilder.Entity<RestaurantPermission>().ToTable("RestaurantPermissions");
+        modelBuilder.Entity<RestaurantPermission>(entity =>
+        {
+            entity.HasIndex(r => r.NormalizedName).IsUnique();
         });
 
         // * ----- Other Entities -----

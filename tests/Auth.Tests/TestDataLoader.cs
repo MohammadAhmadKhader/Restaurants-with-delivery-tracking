@@ -102,7 +102,9 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
                 UserName = jsonUser.Email,
                 NormalizedUserName = jsonUser.Email.ToUpper(),
                 EmailConfirmed = jsonUser.EmailConfirmed,
-                PasswordHash = _hasher.HashPassword(null!, jsonUser.Password)
+                PasswordHash = _hasher.HashPassword(null!, jsonUser.Password),
+                IsGlobal = jsonUser.IsGlobal,
+                RestaurantId = jsonUser.RestaurantId,
             };
 
             if (user.Email == SuperAdminEmail)

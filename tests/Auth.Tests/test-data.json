@@ -5,245 +5,315 @@
         "lastName": "doe",
         "email": "superAdmin@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "alice",
         "lastName": "smith",
         "email": "alice.smith@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "bob",
         "lastName": "johnson",
         "email": "bob.johnson@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "carol",
         "lastName": "williams",
         "email": "carol.williams@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "david",
         "lastName": "brown",
         "email": "david.brown@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "emma",
         "lastName": "jones",
         "email": "emma.jones@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "frank",
         "lastName": "garcia",
         "email": "frank.garcia@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "grace",
         "lastName": "miller",
         "email": "grace.miller@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "henry",
         "lastName": "davis",
         "email": "henry.davis@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "irene",
         "lastName": "martinez",
         "email": "irene.martinez@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "jack",
         "lastName": "lee",
         "email": "jack.lee@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "karen",
         "lastName": "walker",
         "email": "karen.walker@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "larry",
         "lastName": "hall",
         "email": "larry.hall@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "mary",
         "lastName": "allen",
         "email": "mary.allen@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "nathan",
         "lastName": "young",
         "email": "nathan.young@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "olivia",
         "lastName": "hernandez",
         "email": "olivia.hernandez@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "peter",
         "lastName": "king",
         "email": "peter.king@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "quincy",
         "lastName": "wright",
         "email": "quincy.wright@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "rachel",
         "lastName": "lopez",
         "email": "rachel.lopez@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "samuel",
         "lastName": "hill",
         "email": "samuel.hill@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "tina",
         "lastName": "scott",
         "email": "tina.scott@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "ursula",
         "lastName": "green",
         "email": "ursula.green@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "victor",
         "lastName": "adams",
         "email": "victor.adams@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "wendy",
         "lastName": "baker",
         "email": "wendy.baker@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "xavier",
         "lastName": "nelson",
         "email": "xavier.nelson@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "yvonne",
         "lastName": "carter",
         "email": "yvonne.carter@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "zach",
         "lastName": "mitchell",
         "email": "zach.mitchell@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "amber",
         "lastName": "rivers",
         "email": "amber.rivers@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "brian",
         "lastName": "sanders",
         "email": "brian.sanders@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "claire",
         "lastName": "morales",
         "email": "claire.morales@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "dylan",
         "lastName": "price",
         "email": "dylan.price@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "elena",
         "lastName": "reed",
         "email": "elena.reed@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "elena",
         "lastName": "reed",
         "email": "superAdminToDelete@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "elena",
         "lastName": "reed",
         "email": "adminToDelete@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       },
       {
         "firstName": "elena",
         "lastName": "reed",
         "email": "userToDelete@gmail.com",
         "emailConfirmed": true,
-        "password": "123456"
+        "password": "123456",
+        "isGlobal": true,
+        "restaurantId": null
       }
     ],
     "roles":[

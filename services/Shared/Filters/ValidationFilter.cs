@@ -11,7 +11,7 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
         var validator = context.HttpContext.RequestServices.GetService<IValidator<T>>();
         if (validator is null)
         {
-            return await next(context);
+            throw new InternalServerException($"Validatior type {typeof(IValidator<T>)} was not found");
         }
 
         var entity = context.Arguments.OfType<T>().FirstOrDefault();

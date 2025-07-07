@@ -30,7 +30,23 @@ public static class UserMappers
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
-            Roles = user.Roles.Select(r => r.ToViewWithRolesAndPermissionsDto()).ToList()
+            Roles = user.Roles.Select(r => r.ToViewWithPermissionsDto()).ToList()
+        };
+
+        return dto;
+    }
+
+    public static UserWithRestaurantRolesAndPermissionsDto ToViewWithRestaurantRolesAndPermissionsDto(this User user)
+    {
+        var dto = new UserWithRestaurantRolesAndPermissionsDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+            Roles = user.RestaurantRoles.Select(r => r.ToViewWithPermissionsDto()).ToList()
         };
 
         return dto;

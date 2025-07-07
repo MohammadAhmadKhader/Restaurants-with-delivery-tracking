@@ -58,4 +58,11 @@ static class SecurityUtils
             !permission.IsDefaultAdmin &&
         permission.IsDefaultSuperAdmin;
     }
+
+    public static bool IsOwnerOnly(RestaurantPermission permission)
+    {
+        return !permission.IsDefaultUser &&
+            !permission.IsDefaultAdmin &&
+        permission.IsDefaultOwner;
+    }
 }

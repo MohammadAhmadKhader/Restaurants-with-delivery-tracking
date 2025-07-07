@@ -25,6 +25,15 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         .FirstOrDefaultAsync();
     }
 
+    public async Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync(string email)
+    {
+        return await _dbSet
+        .Where(u => u.NormalizedEmail == email.ToUpper())
+        .Include(u => u.RestaurantRoles)
+        .ThenInclude(r => r.Permissions)
+        .FirstOrDefaultAsync();
+    }
+
     public async Task<(List<User> users, int count)> FilterUsersAsync(UsersFilterParams filterParams)
     {
         var query = _dbSet.AsQueryable();
@@ -41,7 +50,17 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
         .Include(u => u.Roles)
         .Where(u => u.Id == id)
         .FirstOrDefaultAsync();
-        
+
+        return user;
+    }
+
+    public async Task<User?> FindByIdWithRestaurantRolesAsync(Guid id)
+    {
+        var user = await _dbSet
+        .Include(u => u.RestaurantRoles)
+        .Where(u => u.Id == id)
+        .FirstOrDefaultAsync();
+
         return user;
     }
 
@@ -49,6 +68,17 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(c
     {
         var user = await _dbSet
         .Include(u => u.Roles)
+        .ThenInclude(r => r.Permissions)
+        .Where(u => u.Id == id)
+        .FirstOrDefaultAsync();
+
+        return user;
+    }
+    
+    public async Task<User?> FindByIdWithRestaurantRolesAndPermissionsAsync(Guid id)
+    {
+        var user = await _dbSet
+        .Include(u => u.RestaurantRoles)
         .ThenInclude(r => r.Permissions)
         .Where(u => u.Id == id)
         .FirstOrDefaultAsync();
