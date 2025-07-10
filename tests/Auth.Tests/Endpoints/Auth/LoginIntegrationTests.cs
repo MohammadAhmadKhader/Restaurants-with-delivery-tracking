@@ -1,14 +1,9 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Auth.Contracts.Dtos.Auth;
 using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
-using Shared.Common;
-using Shared.Utils;
-using Xunit.Abstractions;
 
 namespace Auth.Tests.Endpoints.Auth;
 

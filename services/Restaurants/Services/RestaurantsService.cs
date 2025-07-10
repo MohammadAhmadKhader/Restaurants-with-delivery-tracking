@@ -17,14 +17,14 @@ public class RestaurantsService(
     IRestaurantInvitationsService restaurantInvitationsService,
     IRestaurantsRepository restaurantsRepository,
     ILogger<RestaurantsService> logger,
-    ITopicProducer<InvitationAcceptedEvent> invitationAcceptedProducer,
+    ITopicProducer<RestaurantCreatedEvent> restaurantCreatedProducer,
     HybridCache cache) : IRestaurantsService
 {
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IRestaurantInvitationsService _restaurantInvitationsService = restaurantInvitationsService;
     private readonly IRestaurantsRepository _restaurantsRepository = restaurantsRepository;
     private readonly ILogger<RestaurantsService> _logger = logger;
-    private readonly ITopicProducer<InvitationAcceptedEvent> _invitationAcceptedProducer = invitationAcceptedProducer;
+    private readonly ITopicProducer<RestaurantCreatedEvent> _restaurantCreatedProducer = restaurantCreatedProducer;
     private readonly HybridCache _cache = cache;
 
     public async Task<(List<Restaurant> restaurants, int count)> FindAllAsync(int page, int size)
@@ -42,7 +42,6 @@ public class RestaurantsService(
 
     public async Task<Restaurant> CreateAsync(RestaurantInvitationAcceptDto invDto)
     {
-        // TODO: Must be generated from the auth-service (must create an endpoint for generating users id')
         var ownerId = Guid.CreateVersion7();
 
         var restDto = invDto.Restaurant;
@@ -62,15 +61,15 @@ public class RestaurantsService(
 
         await _unitOfWork.SaveChangesAsync();
 
-        var ev = new InvitationAcceptedEvent(
+        var ev = new RestaurantCreatedEvent(
             invDto.InvitationId,
             newResturat.Id,
             ownerId,
             invDto.User
         );
 
-        _logger.LogInformation("Sending event {@InvitationAcceptedEvent}", ev);
-        await _invitationAcceptedProducer.Produce(ev);
+        _logger.LogInformation("Sending event {@RestaurantCreatedEvent}", ev);
+        await restaurantCreatedProducer.Produce(ev);
 
         await _unitOfWork.CommitTransactionAsync(tx);
 

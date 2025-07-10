@@ -1,13 +1,8 @@
-using System.Net;
-using System.Net.Http.Json;
 using Auth.Contracts.Dtos.Address;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
-using Shared.Common;
-using Shared.Utils;
-using Xunit.Abstractions;
 
 namespace Auth.Tests.Endpoints.Addresses;
 

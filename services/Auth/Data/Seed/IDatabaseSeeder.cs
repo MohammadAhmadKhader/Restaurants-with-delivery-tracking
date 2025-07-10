@@ -1,4 +1,3 @@
-
 using Auth.Models;
 
 namespace Auth.Data.Seed;

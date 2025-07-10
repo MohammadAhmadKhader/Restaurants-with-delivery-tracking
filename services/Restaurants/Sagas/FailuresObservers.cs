@@ -12,26 +12,10 @@ public class FailuresObserver : IConsumeObserver
         _logger = logger;
         _scopeFactory = scopeFactory;
     }
-    public async Task ConsumeFault<T>(ConsumeContext<T> context, Exception exception) where T : class
+    public Task ConsumeFault<T>(ConsumeContext<T> context, Exception exception) where T : class
     {
-        _logger.LogInformation("Fault typeof({EventType} was received at ConsumeObserver)", typeof(T));
-        
-        // if the the 'OwnerCreatedEvent' consumer of this service has failed then restaurant creating has failed
-        if (typeof(T) == typeof(OwnerCreatedEvent))
-        {
-            var msg = context.Message as OwnerCreatedEvent;
-
-            using var scope = _scopeFactory.CreateScope();
-            var producer = scope.ServiceProvider
-                        .GetRequiredService<ITopicProducer<RestaurantCreatingFailedEvent>>();
-
-            await producer.Produce(new(
-                msg!.InvitationId,
-                msg!.OwnerId
-            ));
-
-            return;
-        }
+        _logger.LogInformation("Unhandled fault typeof({EventType} was received at ConsumeObserver)", typeof(T));
+        return Task.CompletedTask;
     }
 
     public Task PreConsume<T>(ConsumeContext<T> context) where T : class => Task.CompletedTask;

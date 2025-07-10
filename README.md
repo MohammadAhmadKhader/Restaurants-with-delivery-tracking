@@ -18,12 +18,21 @@ Service/
 ├── Data/ # EF Core DbContext, migrations, seed data
 ├── Dtos/
 ├── Endpoints/ # Minimal API endpoints
+├── Extensions/ # Service Extensions
+├── Infra/ # yml files for kubernetes and docker files
 ├── Mappers/ # Manual Mappers using extensions
+├── Middlewares/ # Service middlewares
+├── Migrations/
 ├── Models/ # Service entities
-├── Mirgations/
 ├── Properties/
 ├── Repositories/
+    └── IRepositories/ # Interfaces
+├── Sagas/ # anything related to sagas (FailuresObservers / EventsConsumers / etc)
 ├── Services/
-├── Services/
+    └── IServices/ # Interfaces
+├── Specifications/ # Service specifications
 └── Utils/ # in case its needed we can have utilities here
 ```
+
+## Make Commands
+[See the documentation](./help.md).

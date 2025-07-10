@@ -25,16 +25,11 @@ public class KafkaTopicsInitializer : IHostedService
             var allTopics = new[]
             {
                 // events
-                KafkaEventsTopics.InvitationAccepted,
                 KafkaEventsTopics.RestaurantCreated,
                 KafkaEventsTopics.RestaurantCreatingFailed,
                 KafkaEventsTopics.RestaurantOwnerCreated,
                 KafkaEventsTopics.RestaurantOwnerCreatingFailed,
                 KafkaEventsTopics.TestTopic,
-    
-                // commands
-                KafkaCommandsTopics.CreateRestaurant,
-                KafkaCommandsTopics.CreateRestaurantOwner
             };
 
             var metadata = admin.GetMetadata(TimeSpan.FromSeconds(TimeoutFetchMetadataInSeconds));

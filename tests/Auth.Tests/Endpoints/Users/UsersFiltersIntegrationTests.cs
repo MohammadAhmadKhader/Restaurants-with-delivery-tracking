@@ -1,9 +1,6 @@
-using System.Net;
 using System.Text.Json;
 using Auth.Models;
 using Auth.Tests.Collections;
-using Shared.Utils;
-using Xunit.Abstractions;
 
 namespace Auth.Tests.Endpoints.Users;
 

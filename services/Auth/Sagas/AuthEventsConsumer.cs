@@ -1,4 +1,3 @@
-using Auth.Data.Seed;
 using Auth.Services.IServices;
 using MassTransit;
 using Shared.Kafka;
@@ -8,16 +7,16 @@ public class AuthEventsConsumer(
         ILogger<AuthEventsConsumer> logger,
         IAuthService authService,
         ITopicProducer<OwnerCreatedEvent> ownerCreatedEventProducer) :
-    IConsumer<InvitationAcceptedEvent>
+    IConsumer<RestaurantCreatedEvent>
 {
     private readonly ILogger<AuthEventsConsumer> _logger = logger;
     private readonly IAuthService _authService = authService;
     private readonly ITopicProducer<OwnerCreatedEvent> _ownerCreatedEventProducer = ownerCreatedEventProducer;
 
-    public async Task Consume(ConsumeContext<InvitationAcceptedEvent> ctx)
+    public async Task Consume(ConsumeContext<RestaurantCreatedEvent> ctx)
     {
         var invId = ctx.Message.InvitationId;
-        _logger.LogInformation("Invitation was accepted {@InvitationAcceptedEvent}", ctx.Message);
+        _logger.LogInformation("Restaurant was created with event {@RestaurantCreatedEvent}", ctx.Message);
 
         var registerDto = ctx.Message.Register;
         var restaurantId = ctx.Message.RestaurantId;

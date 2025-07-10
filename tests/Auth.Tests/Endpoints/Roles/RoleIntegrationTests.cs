@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using Auth.Data;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
@@ -7,10 +5,7 @@ using Auth.Repositories.IRepositories;
 using Auth.Tests.Collections;
 using Auth.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Common;
 using Shared.Data.Patterns.UnitOfWork;
-using Shared.Utils;
-using Xunit.Abstractions;
 
 namespace Auth.Tests.Endpoints.Roles;
 

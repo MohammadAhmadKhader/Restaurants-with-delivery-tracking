@@ -3,12 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Auth.Data;
 using Microsoft.Extensions.Logging;
 using DotNetEnv;
-using Xunit.Abstractions;
 using Auth.Models;
 using Microsoft.AspNetCore.Identity;
 using Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Shared.Utils;
 
 namespace Auth.Tests.Collections;
 
