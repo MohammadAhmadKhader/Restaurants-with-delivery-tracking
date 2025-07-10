@@ -1,3 +1,4 @@
+using Auth.Data.Seed;
 using Auth.Services.IServices;
 using MassTransit;
 using Shared.Kafka;
@@ -6,14 +7,11 @@ namespace Auth.Sagas;
 public class AuthEventsConsumer(
         ILogger<AuthEventsConsumer> logger,
         IAuthService authService,
-        IUsersService usersService,
         ITopicProducer<OwnerCreatedEvent> ownerCreatedEventProducer) :
-    IConsumer<InvitationAcceptedEvent>,
-    IConsumer<RestaurantCreatingFailedEvent>
+    IConsumer<InvitationAcceptedEvent>
 {
     private readonly ILogger<AuthEventsConsumer> _logger = logger;
     private readonly IAuthService _authService = authService;
-    private readonly IUsersService _usersService = usersService;
     private readonly ITopicProducer<OwnerCreatedEvent> _ownerCreatedEventProducer = ownerCreatedEventProducer;
 
     public async Task Consume(ConsumeContext<InvitationAcceptedEvent> ctx)
@@ -22,17 +20,11 @@ public class AuthEventsConsumer(
         _logger.LogInformation("Invitation was accepted {@InvitationAcceptedEvent}", ctx.Message);
 
         var registerDto = ctx.Message.Register;
-        var restaurantDto = ctx.Message.Restaurant;
+        var restaurantId = ctx.Message.RestaurantId;
+        var ownerId =  ctx.Message.OwnerId;
 
-        var (newUser, _) = await _authService.Register(registerDto);
+        var newUser = await _authService.CreateRestaurantOwnerAndRoles(registerDto, ownerId, restaurantId);
 
-        await _ownerCreatedEventProducer.Produce(new (invId, newUser.Id, restaurantDto));
-    }
-
-    public async Task Consume(ConsumeContext<RestaurantCreatingFailedEvent> ctx)
-    {
-        _logger.LogInformation("Restaurant creating was failed {@InvitationAcceptedEvent}", ctx.Message);
-        await _usersService.CompensateOwnerCreationAsync(ctx.Message.OwnerId);
-        _logger.LogInformation("Restaurant owner was compensated successfully");
+        await _ownerCreatedEventProducer.Produce(new(invId, newUser.Id, restaurantId));
     }
 }

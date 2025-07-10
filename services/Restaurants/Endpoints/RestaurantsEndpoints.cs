@@ -63,29 +63,15 @@ public static class RestaurantsEndpoints
 
         group.MapPost("/accept-invitation", async (
             RestaurantInvitationAcceptDto dto,
+            ILogger<Program> logger,
             IRestaurantInvitationsService restaurantInvitationsService,
-            IRestaurantsService restaurantsService,
-            IAuthServiceClient authServiceClient) =>
+            IRestaurantsService restaurantsService) =>
         {
-            var newUser = await authServiceClient.RegisterAsync(dto.User);
-            var restaurant = await restaurantsService.CreateAsync(dto.Restaurant, dto.InviteId, newUser.User.Id);
+            logger.LogInformation("Creating restaurant {@RestaurantInvitationAcceptDto}", dto);
+            var restaurant = await restaurantsService.CreateAsync(dto);
+            logger.LogInformation("Restaurant created successfully");
 
             return Results.Ok(new { restaurant = restaurant.ToViewDto() });
-        });
-
-        group.MapPost("/test", async ([FromServices] ITopicProducer<InvitationAcceptedEvent> producer, ILogger<Program> logger, HttpContext ctx, RestaurantInvitationAcceptDto dto) =>
-        {
-            logger.LogInformation("Creating event");
-            var ev = new InvitationAcceptedEvent(
-                dto.InviteId,
-                dto.Restaurant,
-                dto.User
-            );
-
-            logger.LogInformation("Sending event {@InvitationAcceptedEvent}", ev);
-            await producer.Produce(ev);
-
-            return Results.Ok(new { ev });
         });
 
         group.MapGet("/test", () =>

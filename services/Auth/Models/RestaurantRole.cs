@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Auth.Utils;
 using Restaurants.Contracts.Dtos;
 
@@ -20,6 +21,8 @@ public class RestaurantRole
     [Required]
     public Guid RestaurantId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [NotMapped]
     public RestaurantViewDto Restaurant { get; set; } = default!;
     public ICollection<RestaurantPermission> Permissions = new HashSet<RestaurantPermission>();
     public ICollection<User> Users { get; set; } = new HashSet<User>();

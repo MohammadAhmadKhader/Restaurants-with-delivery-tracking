@@ -54,7 +54,7 @@ public class RestaurantRolesService(
 
         var role = new RestaurantRole
         {
-            NormalizedName = dto.Name,
+            NormalizedName = dto.Name.ToUpper(),
             DisplayName = dto.DisplayName,
             RestaurantId = tenantProvider.GetTenantIdOrThrow()
         };

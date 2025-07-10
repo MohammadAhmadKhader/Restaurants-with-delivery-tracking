@@ -5,6 +5,7 @@ using Shared.Middlewares;
 using Shared.Extensions;
 using DotNetEnv;
 using Auth.Middlewares;
+using Shared.Redis;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,7 @@ var host = builder.Host;
 builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppAuthentication(config);
-builder.Services.AddKvStore(config, "Redis");
+builder.Services.AddRedis(config, "auth");
 builder.Services.AddDatabase<AppDbContext>(config, "DefaultConnection");
 builder.Services.AddServiceLogging(host);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();

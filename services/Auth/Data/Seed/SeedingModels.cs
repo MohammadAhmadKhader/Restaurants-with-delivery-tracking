@@ -1,10 +1,13 @@
 namespace Auth.Data.Seed;
+
 public record SeedDataModel
 {
     public List<SeedUser> Users { get; set; } = default!;
     public List<SeedAddress> Addresses { get; set; } = default!;
     public List<SeedRole> Roles { get; set; } = default!;
     public List<SeedPermission> Permissions { get; set; } = default!;
+    public List<SeedRestaurantPermission> RestaurantPermissions { get; set; } = default!;
+    public List<SeedRestaurantRole> RestaurantRoles { get; set; } = default!;
 }
 
 public record SeedUser
@@ -42,4 +45,19 @@ public record SeedAddress
     public string AddressLine { get; set; } = default!;
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }
+}
+
+public record SeedRestaurantRole
+{
+    public string Name { get; set; } = default!;
+    public string DisplayName { get; set; } = default!;
+}
+
+public record SeedRestaurantPermission
+{
+    public string Name { get; set; } = default!;
+    public string DisplayName { get; set; } = default!;
+    public bool IsDefaultUser { get; set; }
+    public bool IsDefaultAdmin { get; set; }
+    public bool IsDefaultOwner { get; set; }
 }

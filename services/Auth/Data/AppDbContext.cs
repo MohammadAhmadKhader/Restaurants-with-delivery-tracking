@@ -46,10 +46,14 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
 
         modelBuilder.Entity<User>(b =>
         {
+            // cases
+            // 1. user is global -> restaurant id must be null
+            // 2. user is not global & restaurant id is null -> when restaurant is deleted
+            // 3. user is not global & restaurant id is not null -> when user is a customer
             b.ToTable(t => t.HasCheckConstraint(
                 name: "CK_Users_IsGlobalOrRestaurantNull",
                 sql: @" 
-                    ""IsGlobal"" = TRUE OR (
+                    ""IsGlobal"" = FALSE OR (
                         ""RestaurantId""  IS NULL
                     )"
             ));
@@ -145,7 +149,7 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
             entity.HasMany(u => u.Permissions)
                 .WithMany(p => p.Roles);
 
-            entity.HasIndex(r => r.NormalizedName).IsUnique();
+            entity.HasIndex(r => new { r.RestaurantId, r.NormalizedName }).IsUnique();
         });
 
         // * ----- Restaurant Permission Entity -----

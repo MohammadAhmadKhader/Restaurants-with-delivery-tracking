@@ -1,45 +1,56 @@
-using System.Text.Json;
 using Auth.Contracts.Dtos.Auth;
 using Auth.Repositories.IRepositories;
-using StackExchange.Redis;
-using IDatabase = StackExchange.Redis.IDatabase;
+using Microsoft.Extensions.Caching.Hybrid;
+using Shared.Redis;
 
 namespace Auth.Repositories;
+
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly IDatabase _redisDb;
-    private const string Prefix = "food_delivery:refresh_tokens:";
+    private readonly HybridCache _cache;
+    private const string Prefix = "tokens:";
 
-    public RefreshTokenRepository(IConnectionMultiplexer redis)
+    public RefreshTokenRepository(HybridCache cache)
     {
-        _redisDb = redis.GetDatabase();
+        _cache = cache;
     }
 
     public async Task StoreRefreshTokenAsync(RefreshToken token)
     {
-        var redisKey = Prefix + token.Token;
-        var json = JsonSerializer.Serialize(token);
+        var cacheKey = getCacheKey(token.Token);
         var expiry = token.ExpiresAt - DateTime.UtcNow;
+        var options = new HybridCacheEntryOptions
+        {
+            Expiration = expiry
+        };
 
-        await _redisDb.StringSetAsync(redisKey, json, expiry);
+        await _cache.SetAsync(cacheKey, token, options);
     }
 
     public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
     {
-        var redisKey = Prefix + token;
-        var json = await _redisDb.StringGetAsync(redisKey);
-
-        if (json.IsNullOrEmpty)
-        {
-            return null;
-        }
-
-        return JsonSerializer.Deserialize<RefreshToken>(json!);
+        var cacheKey = getCacheKey(token);
+        var (_, val) = await _cache.TryGetAsync<RefreshToken?>(cacheKey, default);
+        return val;
     }
 
     public async Task<bool> RevokeRefreshTokenAsync(string token)
     {
-        var redisKey = Prefix + token;
-        return await _redisDb.KeyDeleteAsync(redisKey);
+        var cacheKey = getCacheKey(token);
+
+        try
+        {
+            await _cache.RemoveAsync(cacheKey);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static string getCacheKey(string token)
+    {
+        return Prefix + token;
     }
 }

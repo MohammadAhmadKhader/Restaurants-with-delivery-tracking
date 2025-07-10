@@ -6,6 +6,8 @@ using Auth.Contracts.Dtos.Auth;
 using Sprache;
 using Shared.Exceptions;
 using Auth.Data;
+using Auth.Data.Seed;
+using Restaurants.Contracts.Clients;
 
 namespace Auth.Services;
 
@@ -16,9 +18,12 @@ public class AuthService(
     IRestaurantRolesService restaurantRolesService,
     IUnitOfWork<AppDbContext> unitOfWork,
     ITokenService tokenService,
-    IPasswordHasher<User> bcrypt) : IAuthService
+    IPasswordHasher<User> bcrypt,
+    IRestaurantServiceClient restaurantServiceClient,
+    IDatabaseSeeder databaseSeeder) : IAuthService
 {
-    public async Task<(User, TokenResponse)> Login(LoginDto dto)
+    private const string restaurantResourceName = "restaurant";
+    public async Task<(User, TokensResponse)> Login(LoginDto dto)
     {
         var user = await usersService.FindByEmailWithRolesAndPermissionsAsync(dto.Email);
         if (user == null)
@@ -32,17 +37,17 @@ public class AuthService(
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(
+        var tokensResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email!,
-            [..user.Roles.Select(r => r.Name)!],
-            [..user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]
+            [.. user.Roles.Select(r => r.Name)!],
+            [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]
         );
 
-        return (user, tokenResponse);
+        return (user, tokensResponse);
     }
 
-    public async Task<(User, TokenResponse)> LoginRestaurant(LoginDto dto)
+    public async Task<(User, TokensResponse)> LoginRestaurant(LoginDto dto)
     { 
         var user = await usersService.FindByEmailWithRestaurantRolesAndPermissionsAsync(dto.Email);
         if (user == null)
@@ -56,17 +61,17 @@ public class AuthService(
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(
+        var tokensResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email!,
             [..user.RestaurantRoles.Select(r => r.NormalizedName)!],
             [..user.RestaurantRoles.SelectMany(r => r.Permissions).Select(r => r.NormalizedName)]
         );
 
-        return (user, tokenResponse);
+        return (user, tokensResponse);
     }
 
-    public async Task<(User, TokenResponse)> Register(RegisterDto dto)
+    public async Task<(User, TokensResponse)> Register(RegisterDto dto)
     {
         var exists = await usersService.ExistsByEmailAsync(dto.Email);
         if (exists)
@@ -103,16 +108,22 @@ public class AuthService(
         }
 
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(user.Id, user.Email, [defaultRoleName], []);
+        var tokenResponse = await tokenService.GenerateTokensAsync(user.Id, user.Email, [defaultRoleName], []);
         await unitOfWork.CommitTransactionAsync(tx);
 
         return (user, tokenResponse);
     }
 
-    public async Task<(User, TokenResponse)> RegisterRestaurant(RegisterDto dto, Guid restaurantId)
+    public async Task<(User, TokensResponse)> RegisterRestaurant(RegisterDto dto, Guid restaurantId)
     {
-        var exists = await usersService.ExistsByEmailAsync(dto.Email);
-        if (exists)
+        var rest = await restaurantServiceClient.GetRestaurantById(restaurantId);
+        if (rest == null)
+        {
+            throw new ResourceNotFoundException(restaurantResourceName, restaurantId);
+        }
+
+        var userExists = await usersService.ExistsByEmailAsync(dto.Email);
+        if (userExists)
         {
             throw new InvalidOperationException($"An account with email '{dto.Email}' already exists.");
         }
@@ -139,7 +150,7 @@ public class AuthService(
         const string defaultrestaurantRoleName = "CUSTOMER";
         var role = await restaurantRolesService.FindByNameWithPermissionsAsync(defaultrestaurantRoleName);
 
-        var tokenResponse = await tokenService.GenerateTokenAsync(
+        var tokenResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email,
             [role!.NormalizedName],
@@ -170,5 +181,41 @@ public class AuthService(
     private static string FormatIdentityErrors(IEnumerable<IdentityError> errors)
     {
         return string.Join(", ", errors.Select(e => e.Description));
+    }
+
+    public async Task<User> CreateRestaurantOwnerAndRoles(RegisterDto dto, Guid ownerId, Guid restaurantId)
+    {
+        var user = new User
+        {
+            Id = ownerId,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Email = dto.Email,
+            UserName = dto.Email,
+            RestaurantId = restaurantId,
+            IsGlobal = false
+        };
+
+        // the purpose is to apply user creation + roles creation in 1 transaction
+        // * SaveChangesAsync is called intenrally after this action is called
+        Func<(RestaurantRole, RestaurantRole, RestaurantRole), Task> actionBeforeCommit = async (roles) =>
+        {
+            var userResult = await userManager.CreateAsync(user, dto.Password);
+            if (!userResult.Succeeded)
+            {
+                var errors = FormatIdentityErrors(userResult.Errors);
+                throw new InvalidOperationException($"User creation failed: {errors}");
+            }
+
+            var (customerRole, adminRole, ownerRole) = roles;
+
+            user.RestaurantRoles.Add(customerRole);
+            user.RestaurantRoles.Add(adminRole);
+            user.RestaurantRoles.Add(ownerRole);
+        };
+
+        await databaseSeeder.SeedTenantRolesAsync(restaurantId, actionBeforeCommit);
+
+        return user;
     }
 }

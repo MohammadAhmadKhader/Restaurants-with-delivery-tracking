@@ -13,41 +13,6 @@ public static class KafkaExtensions
         services.AddMassTransitWithKafka<Program>((ctx, k) =>
         {
             var serviceName = "restaurant-service";
-            k.TopicEndpoint<InvitationAcceptedEvent>(KafkaEventsTopics.InvitationAccepted, serviceName, cfg =>
-            {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c => c.UseMessageRetry(r =>
-                {
-                    r.Immediate(3);
-                }));
-            });
-
-            k.TopicEndpoint<OwnerCreatedEvent>(KafkaEventsTopics.RestaurantOwnerCreated, serviceName, cfg =>
-            {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c =>
-                {
-                    c.UseMessageRetry(r =>
-                    {
-                        r.Immediate(3);
-                    });
-
-                    c.UseScheduledRedelivery(redeliver =>
-                    {
-                        redeliver.Handle<DbException>();
-                        redeliver.Handle<DbUpdateException>();
-
-                        redeliver.Intervals(
-                            TimeSpan.FromSeconds(10),
-                            TimeSpan.FromSeconds(30),
-                            TimeSpan.FromMinutes(3)
-                        );
-                    });
-                });
-            });
-
-            k.TopicEndpoint<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, serviceName, cfg =>
-            {
-                cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx);
-            });
 
             k.TopicEndpoint<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, serviceName, cfg =>
             {

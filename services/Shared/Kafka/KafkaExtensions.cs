@@ -31,7 +31,7 @@ public static class KafkaExtensions
         this IServiceCollection services, Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
         Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
     {
-        if (EnvironmentUtils.IsSeeding() || EnvironmentUtils.IsTesting())
+        if (EnvironmentUtils.IsSeeding() || EnvironmentUtils.IsTesting() || EnvironmentUtils.IsKafkaSetToIgnore())
         {
             return services;
         }
@@ -65,11 +65,11 @@ public static class KafkaExtensions
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
                 });
-                r.AddProducer<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
-                });
+                // r.AddProducer<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, (producerCtx, producerCfg) =>
+                // {
+                //     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
+                //     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
+                // });
 
                 r.AddProducer<RestaurantCreatingFailedEvent>(KafkaEventsTopics.RestaurantCreatingFailed, (producerCtx, producerCfg) =>
                 {

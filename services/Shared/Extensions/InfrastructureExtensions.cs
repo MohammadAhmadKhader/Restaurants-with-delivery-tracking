@@ -2,30 +2,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using Shared.Utils;
-using StackExchange.Redis;
 
 namespace Shared.Extensions;
 
 public static class InfrastructureExtensions
 {
-    public static IServiceCollection AddKvStore(this IServiceCollection services, IConfiguration config, string connectionString = "Redis")
-    {
-        services.AddSingleton<IConnectionMultiplexer>(sp =>
-        {
-            var url = config.GetConnectionString(connectionString);
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                throw new ArgumentException("Connection string 'Redis' is not configured");
-            }
-
-            return ConnectionMultiplexer.Connect(url);
-        });
-
-        return services;
-    }
-
     public static IServiceCollection AddDatabase<TContext>(this IServiceCollection services, IConfiguration config, string connectionString = "DefaultConnection")
         where TContext : DbContext
     {
@@ -53,11 +35,11 @@ public static class InfrastructureExtensions
         {
             return app;
         }
-        
+
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TContext>();
         db.Database.EnsureCreated();
-     
+
         return app;
     }
 }

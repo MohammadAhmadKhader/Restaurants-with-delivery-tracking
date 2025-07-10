@@ -5,6 +5,10 @@ namespace Shared.Data.Patterns.GenericRepository;
 
 public interface IGenericRepository<TModel, TPrimaryKey> where TModel : class
 {
+    /// <summary>
+    /// this meant only for seeding purposes or similar cases, not for using in normal situations
+    /// </summary>
+    Task<List<TModel>> FindAllAsync();
     Task<(List<TModel> roles, int count)> FindAllOrderedDescAtAsync(int page, int size, string orderByPropertyName = "CreatedAt");
     Task<(List<TModel> roles, int count)> FindAllOrderedAscAtAsync(int page, int size, string orderByPropertyName = "CreatedAt");
     Task<TModel?> FindByIdAsync(TPrimaryKey id);

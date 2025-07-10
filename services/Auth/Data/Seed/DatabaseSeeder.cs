@@ -8,34 +8,34 @@ using Shared.Utils;
 
 namespace Auth.Data.Seed;
 
-public class DatabaseSeeder: IDatabaseSeeder
+public class DatabaseSeeder(
+    UserManager<User> userManager,
+    RoleManager<Role> roleManager,
+    IUnitOfWork<AppDbContext> unitOfWork,
+    ILogger<DatabaseSeeder> logger,
+    IRolesRepository rolesRepository,
+    IPermissionsRepository permissionsRepository,
+    IRestaurantRolesRepository restaurantRolesRepository,
+    IRestaurantPermissionsRepository restaurantPermissionsRepository,
+    ITenantProvider tenantProvider) : IDatabaseSeeder
 {
-    private readonly AppDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly RoleManager<Role> _roleManager;
-    private readonly IUnitOfWork<AppDbContext> _unitOfWork;
-    private readonly ILogger<DatabaseSeeder> _logger;
-    private readonly IRolesRepository _rolesRepository;
-    private readonly IPermissionsRepository _permissionsRepository;
-
-    public DatabaseSeeder(
-        AppDbContext context,
-        UserManager<User> userManager,
-        RoleManager<Role> roleManager,
-        IUnitOfWork<AppDbContext> unitOfWork,
-        ILogger<DatabaseSeeder> logger,
-        IRolesRepository rolesRepository,
-        IPermissionsRepository permissionsRepository)
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly RoleManager<Role> _roleManager = roleManager;
+    private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
+    private readonly ILogger<DatabaseSeeder> _logger = logger;
+    private readonly IRolesRepository _rolesRepository = rolesRepository;
+    private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
+    private readonly IRestaurantRolesRepository _restaurantRolesRepository = restaurantRolesRepository;
+    private readonly IRestaurantPermissionsRepository _restaurantPermissionsRepository = restaurantPermissionsRepository;
+    private readonly ITenantProvider _tenantProvider = tenantProvider;
+    private static readonly JsonSerializerOptions jsonOptions = new()
     {
-        _context = context;
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _unitOfWork = unitOfWork;
-        _logger = logger;
-        _rolesRepository = rolesRepository;
-        _permissionsRepository = permissionsRepository;
-        
-    }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    /// <summary>
+    /// This method will seed users, roles and permissions then shutdown the application. 
+    /// </summary>
     public async Task SeedAsync()
     {
         if (!EnvironmentUtils.IsSeeding())
@@ -46,18 +46,12 @@ public class DatabaseSeeder: IDatabaseSeeder
 
         _logger.LogInformation("Starting to seed data...");
 
-        var options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        var json = await File.ReadAllTextAsync("./Data/seed.json");
-        var seedData = JsonSerializer.Deserialize<SeedDataModel>(json, options);
+        var seedData = await getSeedData();
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
-            foreach (var role in seedData!.Roles)
+            foreach (var role in seedData.Roles)
             {
                 var rolesExists = await _roleManager.RoleExistsAsync(role.Name);
                 if (rolesExists)
@@ -124,7 +118,7 @@ public class DatabaseSeeder: IDatabaseSeeder
 
                 var permission = new Permission
                 {
-                    Name = permissionSeed.Name,
+                    Name = permissionSeed.Name.ToUpper(),
                     DisplayName = permissionSeed.DisplayName,
                     IsDefaultUser = permissionSeed.IsDefaultUser,
                     IsDefaultAdmin = permissionSeed.IsDefaultAdmin,
@@ -137,9 +131,12 @@ public class DatabaseSeeder: IDatabaseSeeder
 
             // * Seeding Permissions to the Roles
 
-            var UserRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.User);
-            var AdminRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.Admin);
-            var SuperAdminRole = await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.SuperAdmin);
+            var userRole = (await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.User))!;
+            var adminRole = (await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.Admin))!;
+            var superAdminRole = (await _rolesRepository.FindByNameWithPermissionsAsync(RolePolicies.SuperAdmin))!;
+            GuardUtils.ThrowIfNull(userRole, nameof(userRole));
+            GuardUtils.ThrowIfNull(adminRole, nameof(adminRole));
+            GuardUtils.ThrowIfNull(superAdminRole, nameof(superAdminRole));
 
             var permissions = await _permissionsRepository.FindAllAsync();
 
@@ -147,27 +144,54 @@ public class DatabaseSeeder: IDatabaseSeeder
             // if it is and its not already added then they are added to the role permissions collection
             foreach (var perm in permissions)
             {
-                if (perm.IsDefaultUser && !UserRole!.Permissions.Contains(perm))
+                if (perm.IsDefaultUser && !userRole.Permissions.Contains(perm))
                 {
-                    UserRole.Permissions.Add(perm);
+                    userRole.Permissions.Add(perm);
                 }
             }
 
             foreach (var perm in permissions)
             {
-                if (perm.IsDefaultAdmin && !AdminRole!.Permissions.Contains(perm))
+                if (perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm))
                 {
-                    AdminRole.Permissions.Add(perm);
+                    adminRole.Permissions.Add(perm);
                 }
             }
 
             foreach (var perm in permissions)
             {
-                if (perm.IsDefaultSuperAdmin && !SuperAdminRole!.Permissions.Contains(perm))
+                if (perm.IsDefaultSuperAdmin && !superAdminRole.Permissions.Contains(perm))
                 {
-                    SuperAdminRole.Permissions.Add(perm);
+                    superAdminRole.Permissions.Add(perm);
                 }
             }
+
+            // * ------------------ Restaurants related seeding ------------------
+            // Permissions
+
+            var restaurantPermissions = await _restaurantPermissionsRepository.FindAllAsync();
+            foreach (var permissionSeed in seedData.RestaurantPermissions)
+            {
+                var permissionExists = await _restaurantPermissionsRepository
+                .ExistsByMatchAsync(p => p.NormalizedName == permissionSeed.Name.ToUpperInvariant());
+
+                if (permissionExists)
+                {
+                    continue;
+                }
+
+                var permission = new RestaurantPermission
+                {
+                    NormalizedName = permissionSeed.Name.ToUpperInvariant(),
+                    DisplayName = permissionSeed.DisplayName,
+                    IsDefaultUser = permissionSeed.IsDefaultUser,
+                    IsDefaultAdmin = permissionSeed.IsDefaultAdmin,
+                    IsDefaultOwner = permissionSeed.IsDefaultOwner,
+                };
+
+                await _restaurantPermissionsRepository.CreateAsync(permission);
+            }
+
 
             await _unitOfWork.CommitTransactionAsync(transaction);
             _logger.LogInformation("Exiting successfully...");
@@ -180,5 +204,99 @@ public class DatabaseSeeder: IDatabaseSeeder
             Environment.Exit(1);
             throw;
         }
+    }
+
+    public async Task SeedTenantRolesAsync(
+        Guid restaurantId,
+        Func<(
+        RestaurantRole customerRole,
+        RestaurantRole adminRole,
+        RestaurantRole ownerRole), Task>? actionBeforeCommit = null)
+    {
+        _logger.LogInformation("Starting to seed restaurant {RestaurantId} roles and permissions...", restaurantId);
+        var seeData = await getSeedData();
+
+        _tenantProvider.SetTenantId(restaurantId);
+
+        using var transaction = await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            List<RestaurantRole> createdRoles = [];
+            foreach (var seedRole in seeData.RestaurantRoles)
+            {
+                var role = new RestaurantRole()
+                {
+                    DisplayName = seedRole.DisplayName,
+                    NormalizedName = seedRole.Name.ToUpper(),
+                    RestaurantId = restaurantId,
+                };
+
+                var createdRole = await _restaurantRolesRepository.CreateAsync(role);
+                createdRoles.Add(createdRole);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var customerRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantCustomer).FirstOrDefault()!;
+            var adminRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantAdmin).FirstOrDefault()!;
+            var ownerRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantOwner).FirstOrDefault()!;
+            GuardUtils.ThrowIfNull(customerRole, nameof(customerRole));
+            GuardUtils.ThrowIfNull(adminRole, nameof(adminRole));
+            GuardUtils.ThrowIfNull(ownerRole, nameof(ownerRole));
+
+            var permissions = await _restaurantPermissionsRepository.FindAllAsync();
+
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultUser && !customerRole.Permissions.Contains(perm))
+                {
+                    customerRole.Permissions.Add(perm);
+                }
+            }
+
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm))
+                {
+                    adminRole.Permissions.Add(perm);
+                }
+            }
+
+            foreach (var perm in permissions)
+            {
+                if (perm.IsDefaultOwner && !ownerRole.Permissions.Contains(perm))
+                {
+                    ownerRole.Permissions.Add(perm);
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            if (actionBeforeCommit != null)
+            {
+                await actionBeforeCommit.Invoke((customerRole, adminRole, ownerRole));
+                await _unitOfWork.SaveChangesAsync();
+            }
+
+            await _unitOfWork.CommitTransactionAsync(transaction);
+            _logger.LogInformation("Restaurant roles and permissions were seeded successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("{Message}", ex.Message);
+            await _unitOfWork.RollBackAsync(transaction);
+        }
+    }
+
+    private static async Task<SeedDataModel> getSeedData()
+    {
+        var json = await File.ReadAllTextAsync("./Data/seed.json");
+        var seedData = JsonSerializer.Deserialize<SeedDataModel>(json, jsonOptions);
+        if (seedData == null)
+        {
+            throw new InvalidOperationException("Failed to deserialize seed.json into SeedDataModel.");
+        }
+
+        return seedData;
     }
 }

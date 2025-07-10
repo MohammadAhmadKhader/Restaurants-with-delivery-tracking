@@ -3,6 +3,7 @@ using System;
 using Auth.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Auth.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709082807_Fixing_IsGlobalOrRestaurant_Constraint")]
+    partial class Fixing_IsGlobalOrRestaurant_Constraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,8 +159,10 @@ namespace Auth.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RestaurantId", "NormalizedName")
+                    b.HasIndex("NormalizedName")
                         .IsUnique();
+
+                    b.HasIndex("RestaurantId");
 
                     b.ToTable("RestaurantRoles", (string)null);
                 });
@@ -452,6 +457,35 @@ namespace Auth.Migrations
                     b.ToTable("RestaurantPermissionRestaurantRole");
                 });
 
+            modelBuilder.Entity("Restaurants.Contracts.Dtos.RestaurantViewDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RestaurantViewDto");
+                });
+
             modelBuilder.Entity("Auth.Models.Address", b =>
                 {
                     b.HasOne("Auth.Models.User", "User")
@@ -461,6 +495,17 @@ namespace Auth.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Auth.Models.RestaurantRole", b =>
+                {
+                    b.HasOne("Restaurants.Contracts.Dtos.RestaurantViewDto", "Restaurant")
+                        .WithMany()
+                        .HasForeignKey("RestaurantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("Auth.Models.UserRestaurantRole", b =>

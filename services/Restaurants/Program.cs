@@ -4,6 +4,7 @@ using Restaurants.Endpoints;
 using Restaurants.Extensions;
 using Shared.Extensions;
 using Shared.Middlewares;
+using Shared.Redis;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host);
 builder.Services.AddDatabase<AppDbContext>(config);
+builder.Services.AddRedis(config, "restaurants");
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services
 .AddHttpClientsDependencies()

@@ -94,7 +94,7 @@
     "roles":[
         {
             "name":"User",
-            "displayName":"Customer"
+            "displayName":"User"
         },
         {
             "name":"Admin",
@@ -147,6 +147,64 @@
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultSuperAdmin": true
+        }
+    ],
+    "restaurantRoles":[
+        {
+            "name":"Customer",
+            "displayName":"Customer"
+        },
+        {
+            "name":"Admin",
+            "displayName":"Admin"
+        },
+        {
+            "name":"Owner",
+            "displayName":"Owner"
+        }
+    ],
+    "restaurantPermissions":[
+        {
+            "name":"dashboard.roles.view",
+            "displayName":"View Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"dashboard.roles.create",
+            "displayName":"Create Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"dashboard.roles.update",
+            "displayName":"Update Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"dashboard.roles.delete",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"dashboard.roles.assign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"dashboard.roles.unassign_permission",
+            "displayName":"Delete Roles",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
         }
     ]
 }

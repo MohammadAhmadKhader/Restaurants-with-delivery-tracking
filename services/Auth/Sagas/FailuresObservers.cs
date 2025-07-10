@@ -29,6 +29,10 @@ public class FailuresObserver : IConsumeObserver
 
             return;
         }
+        else
+        {
+            _logger.LogWarning("Unhandled Fault typeof({EventType} was received at ConsumeObserver)", typeof(T));
+        }
     }
 
     public Task PreConsume<T>(ConsumeContext<T> context) where T : class => Task.CompletedTask;

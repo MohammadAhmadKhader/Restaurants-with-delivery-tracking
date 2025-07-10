@@ -13,24 +13,7 @@ PHONY := $(foreach S,$(SERVICES),$(S)-ef-list $(S)-ef-add $(S)-ef-update $(S)-ef
 .PHONY: $(PHONY) list-topics describe-topic delete-topic create-topic
 
 help:
-	@echo "Usage:"
-	@echo "1- Migrations:"
-	@echo "   make <ServiceName>-ef-list        				# List migrations"
-	@echo "   make <ServiceName>-ef-add name=MyMigration  		# Add a migration"
-	@echo "   make <ServiceName>-ef-update      				# Apply migrations"
-	@echo "   make <ServiceName>-ef-remove      				# Remove last migration"
-	@echo "----------------------------------------------------------------------------------------"
-	@echo "2- Running Services:"
-	@echo "   make run-<ServiceName>      						# Run single service using its name"
-	@echo "   make run-all      								# Run all microservices"
-	@echo "----------------------------------------------------------------------------------------"
-	@echo "3- Testing Services:"
-	@echo "   make test-<ServiceName>      						# Test single service using its name"
-	@echo "----------------------------------------------------------------------------------------"
-	@echo "4- Testing Github Workflow:"
-	@echo "   make test-ci      								# Testing github workflow locally using act-cli"
-	@echo "----------------------------------------------------------------------------------------"
-	@echo "Note: <ServiceName> is case insensitive"
+	@bash -c "grep -v '^---' ./help.md | sed 's/^## *//'  | tr -d '\`' |  awk 'NF {print; blank=0} !NF && !blank {print; blank=1}'"
 
 # * ———————————————————————————— Migration commands ————————————————————————————
 define EF_RULES

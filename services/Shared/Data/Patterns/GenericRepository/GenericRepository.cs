@@ -115,9 +115,14 @@ public class GenericRepository<TModel, TPrimaryKey> : IGenericRepository<TModel,
     {
         return await _dbSet.FirstOrDefaultAsync(match);
     }
-    
+
     public async Task<bool> ExistsByMatchAsync(Expression<Func<TModel, bool>> match)
     {
         return await _dbSet.AnyAsync(match);
+    }
+
+    public async Task<List<TModel>> FindAllAsync()
+    {
+        return await _dbSet.ToListAsync();
     }
 }

@@ -37,7 +37,7 @@ public class TokenService : ITokenService
         _usersService = usersService;
     }
 
-    public async Task<TokenResponse> GenerateTokenAsync(Guid userId, string email, IEnumerable<string> roles, IEnumerable<string> permissions)
+    public async Task<TokensResponse> GenerateTokensAsync(Guid userId, string email, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
         try
         {
@@ -55,7 +55,7 @@ public class TokenService : ITokenService
 
             _logger.LogInformation("Token generated successfully for user {UserId}", userId);
 
-            return new TokenResponse
+            return new TokensResponse
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
@@ -69,7 +69,7 @@ public class TokenService : ITokenService
         }
     }
 
-    public async Task<TokenResponse> RefreshTokenAsync(string refreshToken)
+    public async Task<TokensResponse> RefreshTokenAsync(string refreshToken)
     {
         try
         {
@@ -82,7 +82,7 @@ public class TokenService : ITokenService
             await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
             var userClaims = await GetUserClaimsAsync(Guid.Parse(storedToken.UserId));
             
-            return await GenerateTokenAsync(
+            return await GenerateTokensAsync(
                 Guid.Parse(storedToken.UserId),
                 userClaims.Email,
                 userClaims.Roles,

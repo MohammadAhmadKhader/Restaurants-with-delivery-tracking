@@ -8,13 +8,32 @@
 
     <ItemGroup>
         <!-- * Common packages -->
-        <PackageReference Include="DotNetEnv" />
-        <PackageReference Include="FluentValidation" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
-        <PackageReference Include="StackExchange.Redis" />
-        <PackageReference Include="Serilog.AspNetCore" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+        <PackageReference Include="DotNetEnv"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="FluentValidation"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools"  
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="Serilog.AspNetCore"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="ZiggyCreatures.FusionCache"
+        Condition= " '$(IsContractProject)' != 'true' "/>
+
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis"
+        Condition= " '$(IsContractProject)' != 'true' " />
+
+        <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson"
+        Condition= " '$(IsContractProject)' != 'true' " />
 
         <!-- * Testing Projects -->
         <PackageReference Include="coverlet.collector"                  Condition=" '$(IsTestProject)' == 'true' "/>
