@@ -1,12 +1,8 @@
-using System.Security.Claims;
 using Auth.Contracts.Clients;
-using Auth.Contracts.Dtos.Auth;
-using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Restaurants.Contracts.Dtos;
 using Restaurants.Mappers;
 using Restaurants.Services.IServices;
-using Shared.Kafka;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;

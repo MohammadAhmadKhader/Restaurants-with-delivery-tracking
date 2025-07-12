@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace Shared.Exceptions;
 
 public class ConflictException : Exception
@@ -22,14 +20,15 @@ public class ConflictException : Exception
 
     private static string GenerateMessage(string field, string value, ConflictType conflictType)
     {
+        var name = field.ToLowerInvariant();
         return conflictType switch
         {
-            ConflictType.AlreadyExists => $"The {field.ToLower()} '{value}' is already in use.",
-            ConflictType.InUse => $"The {field.ToLower()} '{value}' cannot be deleted because it is currently in use.",
-            ConflictType.AlreadyAssigned => $"The {field.ToLower()} '{value}' is already assigned.",
-            ConflictType.NotAssigned => $"The {field.ToLower()} '{value}' is not assigned and cannot be removed.",
-            ConflictType.Duplicate => $"Duplicate {field.ToLower()} '{value}' detected.",
-            _ => $"Conflict with {field.ToLower()} '{value}'."
+            ConflictType.AlreadyExists      => $"The {name} '{value}' is already in use.",
+            ConflictType.InUse              => $"The {name} '{value}' cannot be deleted because it is currently in use.",
+            ConflictType.AlreadyAssigned    => $"The {name} '{value}' is already assigned.",
+            ConflictType.NotAssigned        => $"The {name} '{value}' is not assigned and cannot be removed.",
+            ConflictType.Duplicate          => $"Duplicate {name} '{value}' detected.",
+            _                               => $"Conflict with {name} '{value}'."
         };
     }
 }

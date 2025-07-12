@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Http;
+using Shared.Auth;
 using Shared.Contracts.Interfaces;
 using Restaurants.Contracts.Clients;
 using Auth.Contracts.Clients;
@@ -68,6 +68,8 @@ public static class HttpExtensions
                 client.BaseAddress = new Uri(urls.AuthService);
             })
             .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        services.AddScoped<IAuthProvider, AuthProvider>();
 
         return services;
     }

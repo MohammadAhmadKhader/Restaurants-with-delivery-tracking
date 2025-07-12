@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Http;
 using Shared.Contracts.Interfaces;
 
-namespace Shared.Http;
+namespace Shared.Auth;
 
 public class TokenProvider : ITokenProvider
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private string? _cachedToken;
     public TokenProvider(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -13,6 +14,11 @@ public class TokenProvider : ITokenProvider
 
     public string? GetToken()
     {
+        if (_cachedToken != null)
+        {
+            return _cachedToken;
+        }
+
         var ctx = _httpContextAccessor.HttpContext;
         if (ctx == null)
         {
@@ -27,17 +33,7 @@ public class TokenProvider : ITokenProvider
             token = authHeader.Substring("Bearer ".Length);
         }
 
-        return token;
-    }
-
-    public string? GetAuthorizationHeader()
-    {
-        var ctx = _httpContextAccessor.HttpContext;
-        if (ctx == null)
-        {
-            throw new ArgumentNullException("HttpContextAccessor is not activated");
-        }
-
-        return ctx.Request.Headers.Authorization.ToString();
+        _cachedToken = token;
+        return _cachedToken;
     }
 }

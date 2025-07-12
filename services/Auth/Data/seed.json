@@ -165,46 +165,137 @@
     ],
     "restaurantPermissions":[
         {
-            "name":"dashboard.roles.view",
+            "name":"restaurant.roles.view",
             "displayName":"View Roles",
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultOwner": true
         },
         {
-            "name":"dashboard.roles.create",
+            "name":"restaurant.roles.create",
             "displayName":"Create Roles",
             "isDefaultUser": false,
-            "isDefaultAdmin": true,
+            "isDefaultAdmin": false,
             "isDefaultOwner": true
         },
         {
-            "name":"dashboard.roles.update",
+            "name":"restaurant.roles.update",
             "displayName":"Update Roles",
             "isDefaultUser": false,
-            "isDefaultAdmin": true,
+            "isDefaultAdmin": false,
             "isDefaultOwner": true
         },
         {
-            "name":"dashboard.roles.delete",
+            "name":"restaurant.roles.delete",
             "displayName":"Delete Roles",
             "isDefaultUser": false,
             "isDefaultAdmin": false,
             "isDefaultOwner": true
         },
         {
-            "name":"dashboard.roles.assign_permission",
-            "displayName":"Delete Roles",
+            "name":"restaurant.roles.assign_permission",
+            "displayName":"Assign Permission",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultOwner": true
+        },
+        {
+            "name":"restaurant.roles.unassign_permission",
+            "displayName":"Unassign Permission",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menus.view",
+            "displayName": "View Menus",
+            "isDefaultUser": true,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menus.create",
+            "displayName": "Create Menus",
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultOwner": true
         },
         {
-            "name":"dashboard.roles.unassign_permission",
-            "displayName":"Delete Roles",
+            "name": "restaurant.menus.update",
+            "displayName": "Update Menus",
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultOwner": true
-        }
+        },
+        {
+            "name": "restaurant.menus.delete",
+            "displayName": "Delete Menus",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menu_items.view",
+            "displayName": "View Menu Items",
+            "isDefaultUser": true,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menu_items.create",
+            "displayName": "Create Menu Items",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menu_items.update",
+            "displayName": "Update Menu Items",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menu_items.delete",
+            "displayName": "Delete Menu Items",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.details.update",
+            "displayName": "Update Restaurant Details",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.invitations.send",
+            "displayName": "Send Invitation",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },          
+        {
+            "name": "restaurant.customers.view",
+            "displayName": "View Customers",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.orders.view",
+            "displayName": "View Orders",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.driver.update_own_location",
+            "displayName": "Update Own Location",
+            "isDefaultUser": true,
+            "isDefaultAdmin": false,
+            "isDefaultOwner": false
+        }    
     ]
 }

@@ -26,6 +26,11 @@ builder.Host.ValidateScopes();
 
 var app = builder.Build();
 
+// middlewares
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<TenantMiddleware>();
+app.UseAppLocalization();
+
 // auth
 app.UseAuthentication();
 app.UseAuthorization();
@@ -35,11 +40,6 @@ app.MapAuthEndpoints();
 app.MapUsersEndpoints();
 app.MapRolesEndpoints();
 app.MapAddressesEndpoints();
-
-// middlewares
-app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<TenantMiddleware>();
-app.UseAppLocalization();
 
 // others
 app.EnsureDatabaseCreated<AppDbContext>();

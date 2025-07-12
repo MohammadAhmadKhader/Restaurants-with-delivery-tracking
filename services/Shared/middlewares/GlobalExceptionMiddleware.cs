@@ -33,11 +33,16 @@ public class GlobalExceptionMiddleware
 
             var result = Results.ValidationProblem(
                 validationErrors,
-                title: ExceptionsTitles.ValidationError.ToString()
+                title: ExceptionsTitles.ValidationError.ToString(),
+                statusCode: StatusCodes.Status400BadRequest
             );
 
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
             await result.ExecuteAsync(context);
+        }
+        catch (HttpProblemDetailsException ex)
+        {
+            var problem = Results.Problem(ex.ProblemDetails);
+            await problem.ExecuteAsync(context);
         }
         catch (Exception ex)
         {
@@ -59,9 +64,6 @@ public class GlobalExceptionMiddleware
                     detail: string.Format("Invalid {0}.", paramName)
                 );
 
-                context.Response.ContentType = "application/problem+json";
-                context.Response.StatusCode = statusCode;
-
                 await problem.ExecuteAsync(context);
             }
             else
@@ -73,9 +75,6 @@ public class GlobalExceptionMiddleware
                     title: title,
                     detail: ex.Message
                 );
-
-                context.Response.ContentType = "application/problem+json";
-                context.Response.StatusCode = statusCode;
 
                 await problem.ExecuteAsync(context);
             }

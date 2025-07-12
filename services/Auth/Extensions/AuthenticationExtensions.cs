@@ -18,11 +18,30 @@ public static class AuthenticationExtensions
             {
                 throw new InvalidOperationException("JwtSettings are not configured");
             }
-        
+
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
             options.IncludeErrorDetails = true;
             options.TokenValidationParameters = SecurityUtils.CreateValidationTokenParams(jwtSettings);
+
+            options.Events = new JwtBearerEvents
+            {
+                OnChallenge = async context =>
+                {
+                    context.HandleResponse();
+                    var errorDetail = string.IsNullOrEmpty(context.Request.Headers.Authorization)
+                            ? "Authorization header is missing"
+                            : "Invalid or expired token";
+
+                    var problem = Results.Problem(
+                        statusCode: StatusCodes.Status401Unauthorized,
+                        title: "Unauthorized",
+                        detail: errorDetail
+                    );
+
+                    await problem.ExecuteAsync(context.HttpContext);
+                }
+            };
         });
 
 
@@ -43,6 +62,8 @@ public static class AuthenticationExtensions
         
         services.AddHttpContextAccessor();
         services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
+
+        
 
         return services;
     }

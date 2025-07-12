@@ -1,8 +1,7 @@
-
-using Shared.Contracts.Interfaces;
 using System.Net.Http.Headers;
+using Shared.Contracts.Interfaces;
 
-namespace Shared.Http;
+namespace Shared.Auth;
 
 public class AuthenticationClientHandler(ITokenProvider tokenProvider): DelegatingHandler
 {

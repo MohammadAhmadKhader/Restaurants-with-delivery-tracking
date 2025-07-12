@@ -1,0 +1,30 @@
+namespace Shared.Constants;
+
+/// <summary>
+/// Restaurant permissions as they expected to be inside the token (Uppercase)
+/// </summary>
+public static class RestaurantPermissions
+{
+    public const string RESTAURANT_ROLES_VIEW              = "RESTAURANT.ROLES.VIEW";
+    public const string RESTAURANT_ROLES_CREATE            = "RESTAURANT.ROLES.CREATE";
+    public const string RESTAURANT_ROLES_UPDATE            = "RESTAURANT.ROLES.UPDATE";
+    public const string RESTAURANT_ROLES_DELETE            = "RESTAURANT.ROLES.DELETE";
+    public const string RESTAURANT_ROLES_ASSIGN_PERMISSION = "RESTAURANT.ROLES.ASSIGN_PERMISSION";
+    public const string RESTAURANT_ROLES_UNASSIGN_PERMISSION = "RESTAURANT.ROLES.UNASSIGN_PERMISSION";
+
+    public const string RESTAURANT_MENUS_VIEW              = "RESTAURANT.MENUS.VIEW";
+    public const string RESTAURANT_MENUS_CREATE            = "RESTAURANT.MENUS.CREATE";
+    public const string RESTAURANT_MENUS_UPDATE            = "RESTAURANT.MENUS.UPDATE";
+    public const string RESTAURANT_MENUS_DELETE            = "RESTAURANT.MENUS.DELETE";
+
+    public const string RESTAURANT_MENU_ITEMS_VIEW         = "RESTAURANT.MENU_ITEMS.VIEW";
+    public const string RESTAURANT_MENU_ITEMS_CREATE       = "RESTAURANT.MENU_ITEMS.CREATE";
+    public const string RESTAURANT_MENU_ITEMS_UPDATE       = "RESTAURANT.MENU_ITEMS.UPDATE";
+    public const string RESTAURANT_MENU_ITEMS_DELETE       = "RESTAURANT.MENU_ITEMS.DELETE";
+
+    public const string RESTAURANT_DETAILS_UPDATE          = "RESTAURANT.DETAILS.UPDATE";
+    public const string RESTAURANT_INVITATIONS_SEND        = "RESTAURANT.INVITATIONS.SEND";
+    public const string RESTAURANT_CUSTOMERS_VIEW          = "RESTAURANT.CUSTOMERS.VIEW";
+    public const string RESTAURANT_ORDERS_VIEW             = "RESTAURANT.ORDERS.VIEW";
+    public const string RESTAURANT_DRIVER_UPDATE_OWN_LOCATION = "RESTAURANT.DRIVER.UPDATE_OWN_LOCATION";
+}

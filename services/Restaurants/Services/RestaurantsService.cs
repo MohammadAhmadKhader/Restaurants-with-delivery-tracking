@@ -69,7 +69,7 @@ public class RestaurantsService(
         );
 
         _logger.LogInformation("Sending event {@RestaurantCreatedEvent}", ev);
-        await restaurantCreatedProducer.Produce(ev);
+        await _restaurantCreatedProducer.Produce(ev);
 
         await _unitOfWork.CommitTransactionAsync(tx);
 
