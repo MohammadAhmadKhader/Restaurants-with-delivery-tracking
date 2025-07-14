@@ -5,43 +5,84 @@ metadata:
 build:  
   tagPolicy:
     gitCommit: {}
-  artifacts:
-    # - image: fooddelivery-restaurants-service
-    #   context: ./
-    #   docker:
-    #     noCache: false
-    #     dockerfile: ./services/Restaurants/Infra/Dockerfile.dev
-    #   sync:
-    #     infer:
-    #       - "services/**/*.cs"
-    #       - "**/*.json"
-    #       - "**/*.yml"
-
-    - image: fooddelivery-auth-service
-      context: ./
-      docker:
-        noCache: true
-        dockerfile: ./services/Auth/Infra/Dockerfile.dev
-      sync:
-        infer:
-          - "services/**/*.cs"
-          - "**/*.json"
-          - "**/*.yml"
-
   local:
-      push: false
-      useBuildkit: true
+    push: false
+    useBuildkit: true
 
 manifests:
-  rawYaml:
-    # # Restaurants service
-    # - ./services/Restaurants/Infra/backend-secrets.yml
-    # - ./services/Restaurants/Infra/backend.yml
+  rawYaml: []
 
-    # Auth service
-    - ./services/Auth/Infra/backend-secrets.yml
-    - ./services/Auth/Infra/backend.yml
-            
 deploy:
   kubectl: 
     defaultNamespace: kafka
+
+
+profiles:
+  # Auth
+  - name: auth
+    build:
+      artifacts:
+        - image: fooddelivery-auth-service
+          context: ./
+          docker:
+            noCache: true
+            dockerfile: ./services/Auth/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Auth/Infra/backend-secrets.yml
+        - ./services/Auth/Infra/backend.yml
+
+  # Restaurants
+  - name: rest
+    build:
+      artifacts:
+        - image: fooddelivery-restaurants-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Restaurants/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Restaurants/Infra/backend-secrets.yml
+        - ./services/Restaurants/Infra/backend.yml
+
+  # all
+  - name: all
+    build:
+      artifacts:
+        - image: fooddelivery-auth-service
+          context: ./
+          docker:
+            noCache: true
+            dockerfile: ./services/Auth/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+        - image: fooddelivery-restaurants-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Restaurants/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Auth/Infra/backend-secrets.yml
+        - ./services/Auth/Infra/backend.yml
+        - ./services/Restaurants/Infra/backend-secrets.yml
+        - ./services/Restaurants/Infra/backend.yml

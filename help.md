@@ -60,14 +60,20 @@ make read-topic                            # Read from a topic (can use READ_ARG
 ## 5. Kubernetes & Skaffold
 
 ```
-make up                                    # Start services (skaffold)
-make up-clusters                           # Start clusters only
-make up-dbs                                # Start DBs only
+make k8s-build-f                            # Run Skaffold build without artifact caching (using profiles)
 
-make down                                  # Tear down services
-make down-clusters                         # Tear down clusters only
-make down-dbs                              # Tear down DBs only
-make down-all                              # Tear down all (services + dbs + clusters)
+make up-dev-clusters                        # Start clusters in dev mode (using profiles)
+make up-dev-dbs                             # Start DBs in dev mode (using profiles)
+make up-dev                                 # Start all services in dev mode (using profiles)
+
+make up-clusters                            # Start clusters only (using profiles)
+make up-dbs                                 # Start DBs only (using profiles)
+make up                                     # Start services (using profiles)
+
+make down                                   # Tear down services (using profiles)
+make down-clusters                          # Tear down clusters only (using profiles)
+make down-dbs                               # Tear down DBs only (using profiles)
+make down-all                               # Tear down all (services + dbs + clusters, using profile 'all')
 ```
 
 ---
@@ -115,3 +121,9 @@ make db-seed-<short>                      # Run seed job (K8s job)
 | Payments    | pay       |
 | Locations   | loc       |
 | Gateway     | gat       |
+
+## 9. Kubernetes Helper Commands
+
+```
+make k-env POD=<pod-name>                   # Show environment variables inside a pod
+```

@@ -54,7 +54,7 @@ spec:
           - name: Kafka__BootstrapServers
             value: "my-cluster-kafka-bootstrap:9092"
           - name: Seq
-            value: "seq-service:5341"
+            value: "http://seq-service:5341"
           - name: "ASPNETCORE_ENVIRONMENT"
             value: "Development"
           - name: "ConnectionStrings__DefaultConnection"

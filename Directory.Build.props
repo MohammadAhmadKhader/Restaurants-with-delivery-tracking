@@ -68,7 +68,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Watch Include="**/*.cs" />
+        <Watch Include="**/*.cs" Exclude="bin\**\*;obj\**\*"  />
         <Watch Include="appsettings*.json" />
     </ItemGroup>
 </Project>

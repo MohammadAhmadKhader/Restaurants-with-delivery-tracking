@@ -4,12 +4,37 @@ metadata:
   name: clusters
 
 manifests:
-  rawYaml:
-    - ./infra/kafka.yml
-    - ./infra/ingress.yml
-    - ./infra/redis.yml
-    - ./infra/seq-secrets.yml
-    - ./infra/seq.yml
+  rawYaml: []
+
+profiles:
+  - name: kafka
+    manifests:
+      rawYaml:
+        - ./infra/kafka.yml
+  - name: ingress
+    manifests:
+      rawYaml:
+        - ./infra/ingress.yml
+  - name: redis
+    manifests:
+      rawYaml:
+        - ./infra/redis.yml
+  - name: seq-secrets
+    manifests:
+      rawYaml:
+        - ./infra/seq-secrets.yml
+  - name: seq
+    manifests:
+      rawYaml:
+        - ./infra/seq.yml
+  - name: all
+    manifests:
+      rawYaml:
+        - ./infra/kafka.yml
+        - ./infra/ingress.yml
+        - ./infra/redis.yml
+        - ./infra/seq-secrets.yml
+        - ./infra/seq.yml
      
 deploy:
   kubectl: {}

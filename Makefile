@@ -135,29 +135,38 @@ read-topic:
 
 # * ———————————————————————————— K8S & Skaffold Commands ————————————————————————————
 k8s-build-f:
-	@skaffold dev --cache-artifacts=false
+	@skaffold run --cache-artifacts=false $(ARGS)
+
+up-dev-clusters:
+	@skaffold dev --filename ./skaffold-clusters.yml $(ARGS)
+
+up-dev-dbs:
+	@skaffold dev --filename ./skaffold-dbs.yml $(ARGS)
+
+up-dev:
+	@skaffold dev --filename ./skaffold.yml $(ARGS)
 
 up-clusters:
-	@skaffold dev --filename ./skaffold-clusters.yml
+	@skaffold run --filename ./skaffold-clusters.yml $(ARGS)
 
 up-dbs:
-	@skaffold dev --filename ./skaffold-dbs.yml
+	@skaffold run --filename ./skaffold-dbs.yml $(ARGS)
 
 up:
-	@skaffold dev --filename ./skaffold.yml
+	@skaffold run --filename ./skaffold.yml $(ARGS)
 
 down:
-	@skaffold delete --filename ./skaffold.yml
+	@skaffold delete --filename ./skaffold.yml $(ARGS)
 
 down-clusters:
-	@skaffold delete --filename ./skaffold-clusters.yml
+	@skaffold delete --filename ./skaffold-clusters.yml $(ARGS)
 
 down-dbs:
-	@skaffold delete --filename ./skaffold-dbs.yml
+	@skaffold delete --filename ./skaffold-dbs.yml $(ARGS)
 
 down-all:
 	@skaffold delete --filename ./skaffold.yml
-	@skaffold delete --filename ./skaffold-clusters.yml
+	@skaffold delete --filename ./skaffold-clusters.yml -p all
 	@skaffold delete --filename ./skaffold-dbs.yml
 
 
@@ -214,3 +223,7 @@ db-seed-$($(1)_SHORT_KEY):
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call DB_COMMANDS,$(S))))
+
+POD=? ""
+k-env:
+	@kubectl exec -n $(NAMESPACE) $(POD) -- env
