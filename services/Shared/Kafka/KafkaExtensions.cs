@@ -9,19 +9,26 @@ namespace Shared.Kafka;
 
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddKafkaConfig(this IServiceCollection services)
+    public static IServiceCollection AddKafkaConfig(this IServiceCollection services, IConfigurationRoot config)
     {
-        var config = InternalUtils.GetSharedConfig();
+        var kafkaSection = config.GetSection("Kafka");
+        if (kafkaSection == null)
+        {
+            throw new ArgumentException("Kafka section was not found");
+        }
 
-        var kafkaConfig = config.GetRequiredSection("Kafka").Get<Dictionary<string, string>>()!;
-        var BootstrapServers = kafkaConfig["BootstrapServers"];
+        var kafkaConfig = kafkaSection.Get<Dictionary<string, string>>()!;
+        var bootstrapServers = kafkaConfig["BootstrapServers"];
+        ArgumentException.ThrowIfNullOrEmpty(bootstrapServers);
+
+        KafkaMetadata.BootstrapServers = bootstrapServers;
 
         var adminConfig = new AdminClientConfig
         {
-            BootstrapServers = BootstrapServers,
+            BootstrapServers = bootstrapServers,
         };
 
-        services.Configure<ProducerConfig>(config.GetSection("Kafka"));
+        services.Configure<ProducerConfig>(kafkaSection);
         services.AddSingleton(adminConfig);
 
         return services;
@@ -29,20 +36,23 @@ public static class KafkaExtensions
 
     public static IServiceCollection AddMassTransitWithKafka<TProgram>(
         this IServiceCollection services, Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
-        Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
+        Action<IRiderRegistrationConfigurator>? riderConfigurer = null,
+        IConfigurationRoot? serviceConfig = null)
     {
-        if (EnvironmentUtils.IsSeeding() || EnvironmentUtils.IsTesting() || EnvironmentUtils.IsKafkaSetToIgnore())
+        if (EnvironmentUtils.ShouldIgnoreKafka())
         {
             return services;
         }
 
         var logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("KafkaConfig");
 
-        var config = InternalUtils.GetSharedConfig();
-        var kafkaConfig = config.GetRequiredSection("Kafka").Get<ProducerConfig>()!;
+        var config = serviceConfig ?? InternalUtils.GetSharedConfig();
+        var kafkaConfig = config.GetRequiredSection("Kafka").Get<ProducerConfig>();
+        GuardUtils.ThrowIfNull(kafkaConfig);
+        
         var bootstrapServers = kafkaConfig.BootstrapServers;
 
-        services.AddKafkaConfig();
+        services.AddKafkaConfig(config);
         services.AddHostedService<KafkaTopicsInitializer>();
 
         services.AddMassTransit(busConfigurer =>

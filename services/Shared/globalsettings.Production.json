@@ -6,5 +6,6 @@
       "LocationsService": "http://locations:8080",
       "RestaurantsService": "http://restaurants:8080",
       "ReviewsService": "http://reviews:8080"
-    }
+    },
+    "Seq":"http://seq-service:5341"
 }

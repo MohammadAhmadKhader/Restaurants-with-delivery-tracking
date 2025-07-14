@@ -39,10 +39,22 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+        livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 35
+        readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 35
 
         env:
           - name: Kafka__BootstrapServers
             value: "my-cluster-kafka-bootstrap:9092"
+          - name: Seq
+            value: "seq-service:5341"
           - name: "ASPNETCORE_ENVIRONMENT"
             value: "Development"
           - name: "ConnectionStrings__DefaultConnection"

@@ -12,5 +12,6 @@
         "Acks": "all",
         "MessageTimeoutMs": 5000,
         "RequestTimeoutMs": 5000
-    }
+    },
+    "Seq":"http://localhost:5341"
 }

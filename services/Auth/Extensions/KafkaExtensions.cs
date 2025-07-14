@@ -35,6 +35,11 @@ public static class KafkaExtensions
                 });
             });
 
+            k.TopicEndpoint<SimpleTestEvent>(KafkaEventsTopics.TestTopic, serviceName, cfg =>
+            {
+                cfg.ConfigureConsumer<AuthEventsConsumer>(ctx);
+            });
+
         }, (rider) =>
         {
             rider.AddConsumeObserver<FailuresObserver>();

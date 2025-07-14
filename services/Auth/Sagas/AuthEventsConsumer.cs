@@ -7,7 +7,8 @@ public class AuthEventsConsumer(
         ILogger<AuthEventsConsumer> logger,
         IAuthService authService,
         ITopicProducer<OwnerCreatedEvent> ownerCreatedEventProducer) :
-    IConsumer<RestaurantCreatedEvent>
+    IConsumer<RestaurantCreatedEvent>,
+    IConsumer<SimpleTestEvent>
 {
     private readonly ILogger<AuthEventsConsumer> _logger = logger;
     private readonly IAuthService _authService = authService;
@@ -25,5 +26,11 @@ public class AuthEventsConsumer(
         var newUser = await _authService.CreateRestaurantOwnerAndRoles(registerDto, ownerId, restaurantId);
 
         await _ownerCreatedEventProducer.Produce(new(invId, newUser.Id, restaurantId));
+    }
+
+    public Task Consume(ConsumeContext<SimpleTestEvent> context)
+    {
+        _logger.LogInformation("Received event {@SimpleTestEvent}", context.Message);
+        return Task.CompletedTask;
     }
 }

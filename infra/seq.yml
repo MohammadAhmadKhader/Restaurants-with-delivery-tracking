@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: seq
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      app: seq
+  serviceName: "seq"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: seq
+    spec:
+      containers:
+        - name: seq
+          image: datalust/seq:latest
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 5341
+              name: ingestion
+          volumeMounts:
+            - name: seq-data
+              mountPath: /data
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SEQ_FIRSTRUN_ADMINPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seq-secrets
+                  key: adminpassword
+  volumeClaimTemplates:
+    - metadata:
+        name: seq-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seq-headless
+  namespace: kafka
+spec:
+  ports:
+    - port: 80
+      name: http
+  clusterIP: None
+  selector:
+    app: seq
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seq-service
+  namespace: kafka
+spec:
+  selector:
+    statefulset.kubernetes.io/pod-name: seq-0
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: ingestion
+      port: 5341
+      targetPort: 5341
+  type: ClusterIP

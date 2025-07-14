@@ -5,6 +5,9 @@ using System.Security.Claims;
 using Auth.Utils;
 using Shared.Utils;
 using Auth.Contracts.Dtos.Auth;
+using MassTransit;
+using Shared.Kafka;
+using Refit;
 namespace Auth.Endpoints;
 
 public static class AuthEndpoints
@@ -111,5 +114,13 @@ public static class AuthEndpoints
 
             return Results.Json(resBody, statusCode: StatusCodes.Status201Created);
         }).AddEndpointFilter<ValidationFilter<RegisterDto>>();
+
+
+        // appGroup.MapGet("/test-kafka", async ([Query] string? value, ITopicProducer<SimpleTestEvent> producer) =>
+        // {
+        //     var sentEvent = new SimpleTestEvent(value ?? "No value provided");
+        //     await producer.Produce(sentEvent);
+        //     return Results.Ok(new { sentEvent });
+        // });
     }
 }

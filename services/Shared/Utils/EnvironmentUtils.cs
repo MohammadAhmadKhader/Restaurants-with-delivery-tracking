@@ -30,10 +30,16 @@ public static class EnvironmentUtils
     public static bool IsKafkaSetToIgnore()
     {
         var args = Environment.GetCommandLineArgs();
-        if (args.Contains(ignoreKafkaFlags[0]) || args.Contains(ignoreKafkaFlags[1])) {
+        if (args.Contains(ignoreKafkaFlags[0]) || args.Contains(ignoreKafkaFlags[1]))
+        {
             return true;
         }
 
         return false;
+    }
+    
+    public static bool ShouldIgnoreKafka()
+    {
+        return IsKafkaSetToIgnore() || IsSeeding() || IsTesting();
     }
 }

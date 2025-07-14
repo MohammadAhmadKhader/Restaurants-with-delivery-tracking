@@ -1,14 +1,17 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
 namespace Shared.Utils;
 public static class GuardUtils
 {
-    public static void ThrowIfNull<T>(T arg, string? paramName = null)
+    public static void ThrowIfNull<T>([NotNull] T arg, [CallerArgumentExpression(nameof(arg))] string? paramName = null)
     {
         if (arg == null)
         {
-            throw new ArgumentNullException(paramName ?? nameof(arg), "This argument can't be null.");
+            throw new ArgumentNullException(paramName, "This argument can't be null.");
         }
     }
-    public static void ThrowIfNull(Guid? guid, string paramName = "id")
+    public static void ThrowIfNull([NotNull] Guid? guid, [CallerArgumentExpression(nameof(guid))] string? paramName = null)
     {
         if (guid == null)
         {
@@ -16,7 +19,7 @@ public static class GuardUtils
         }   
     }
 
-    public static void ThrowIfEmpty(Guid guid, string paramName = "id")
+    public static void ThrowIfEmpty(Guid guid, [CallerArgumentExpression(nameof(guid))] string? paramName = null)
     {
         if (guid == Guid.Empty)
         {
@@ -25,7 +28,7 @@ public static class GuardUtils
             
     }
 
-    public static void ThrowIfNullOrEmpty(Guid? guid, string paramName = "id")
+    public static void ThrowIfNullOrEmpty([NotNull] Guid? guid, [CallerArgumentExpression(nameof(guid))] string? paramName = null)
     {
         if (guid == null)
         {

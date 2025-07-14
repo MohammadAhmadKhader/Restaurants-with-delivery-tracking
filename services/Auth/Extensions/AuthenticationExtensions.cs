@@ -40,7 +40,17 @@ public static class AuthenticationExtensions
                     );
 
                     await problem.ExecuteAsync(context.HttpContext);
-                }
+                },
+                OnMessageReceived = context =>
+                {
+                    var path = context.HttpContext.Request.Path.Value?.ToLower();
+                    if (path != null && path.StartsWith("/health"))
+                    {
+                        context.NoResult();
+                    }
+                    
+                    return Task.CompletedTask;
+                },
             };
         });
 

@@ -17,6 +17,14 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis"  />
         <PackageReference Include="ZiggyCreatures.FusionCache" />
         <PackageReference Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson"  />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+        <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
+        <PackageReference Include="AspNetCore.HealthChecks.UI.Client"  />
+        <PackageReference Include="AspNetCore.HealthChecks.Kafka" />
+        <PackageReference Include="Serilog.Sinks.Seq" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
     </ItemGroup>
 
     <!-- * Testing Projects -->
