@@ -10,7 +10,7 @@ public static class KafkaExtensions
 {
     public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
     {
-        services.AddMassTransitWithKafka<Program>((ctx, k) =>
+        services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             var serviceName = "restaurant-service";
 

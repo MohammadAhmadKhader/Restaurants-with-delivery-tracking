@@ -6,11 +6,14 @@ public static class EnvironmentUtils
     private readonly static string developmentString = "Development";
     private readonly static string productionString = "Production";
     private readonly static List<string> ignoreKafkaFlags = ["--no-kafka", "-nk"];
+    public static string GetEnvName()
+    {
+        return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "No name provided";
+    }
     public static bool IsTesting()
     {
         return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == testingString;
     }
-
     public static bool IsDevelopment()
     {
         return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == developmentString;

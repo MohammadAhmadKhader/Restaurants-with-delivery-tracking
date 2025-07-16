@@ -13,20 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
+builder.Configuration.AddGlobalConfig();
 builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
-builder.Services.AddServiceLogging(host);
+builder.Services.AddServiceLogging(host, config);
 builder.Services.AddDatabase<AppDbContext>(config);
 builder.Services.AddRedis(config, "restaurants");
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services
 .AddHttpClientsDependencies()
-.AddAuthClients();
+.AddAuthClients(config);
 
 builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
-builder.Services.AddHealthChecks();
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);
 
 var app = builder.Build();

@@ -15,16 +15,17 @@ var config = builder.Configuration;
 var host = builder.Host;
 var serviceName = "auth";
 
+builder.Configuration.AddGlobalConfig();
 builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppAuthentication(config);
 builder.Services.AddRedis(config, serviceName);
 builder.Services.AddDatabase<AppDbContext>(config, "DefaultConnection");
-builder.Services.AddServiceLogging(host);
+builder.Services.AddServiceLogging(host, config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services.AddAppProblemDetails();
-builder.Services.AddHttpClientsDependenciesWithClientsServices();
-builder.Services.AddKafkaHandlers();
+builder.Services.AddHttpClientsDependenciesWithClientsServices(config);
+builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);
 

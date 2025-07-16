@@ -35,9 +35,10 @@ public static class KafkaExtensions
     }
 
     public static IServiceCollection AddMassTransitWithKafka<TProgram>(
-        this IServiceCollection services, Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
-        Action<IRiderRegistrationConfigurator>? riderConfigurer = null,
-        IConfigurationRoot? serviceConfig = null)
+        this IServiceCollection services,
+        IConfigurationRoot config,
+        Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
+        Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
     {
         if (EnvironmentUtils.ShouldIgnoreKafka())
         {
@@ -46,7 +47,6 @@ public static class KafkaExtensions
 
         var logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("KafkaConfig");
 
-        var config = serviceConfig ?? InternalUtils.GetSharedConfig();
         var kafkaConfig = config.GetRequiredSection("Kafka").Get<ProducerConfig>();
         GuardUtils.ThrowIfNull(kafkaConfig);
         

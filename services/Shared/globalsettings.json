@@ -13,5 +13,8 @@
         "MessageTimeoutMs": 5000,
         "RequestTimeoutMs": 5000
     },
-    "Seq":"http://localhost:5341"
+    "Seq":"http://localhost:5341",
+    "Serilog": {
+        "OutputTemplate":"[{Timestamp:HH:mm:ss} {Level:u3}] ({ServiceName}) {Message:lj}{NewLine}{Exception}"
+    }
 }

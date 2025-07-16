@@ -48,12 +48,11 @@ public static class AuthenticationExtensions
                     {
                         context.NoResult();
                     }
-                    
+
                     return Task.CompletedTask;
                 },
             };
         });
-
 
         services.AddIdentityCore<User>(options =>
         {

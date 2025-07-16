@@ -7,10 +7,10 @@ using Shared.Kafka;
 namespace Auth.Extensions;
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services)
+    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
     {
         var serviceName = "auth-service";
-        services.AddMassTransitWithKafka<Program>((ctx, k) =>
+        services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             k.TopicEndpoint<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, serviceName, cfg =>
             {

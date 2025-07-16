@@ -6,6 +6,7 @@ using Restaurants.Contracts.Clients;
 using Auth.Contracts.Clients;
 using Refit;
 using Shared.Config;
+using Microsoft.Extensions.Configuration;
 
 namespace Shared.Extensions;
 
@@ -37,10 +38,9 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddAuthClients(this IServiceCollection services)
+    public static IServiceCollection AddAuthClients(this IServiceCollection services, IConfigurationRoot config)
     {
-        var urls = MicroservicesUrlsProvider.Config;
-
+        var urls = MicroservicesUrlsProvider.GetUrls(config);
         services.AddRefitClient<IAuthServiceClient>()
             .ConfigureHttpClient(client =>
             {
@@ -74,9 +74,9 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddRestaurantsClients(this IServiceCollection services)
+    public static IServiceCollection AddRestaurantsClients(this IServiceCollection services, IConfigurationRoot config)
     {
-        var urls = MicroservicesUrlsProvider.Config;
+        var urls = MicroservicesUrlsProvider.GetUrls(config);
 
         services.AddRefitClient<IRestaurantServiceClient>()
             .ConfigureHttpClient(client =>
@@ -88,12 +88,12 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddHttpClientsDependenciesWithClientsServices(this IServiceCollection services)
+    public static IServiceCollection AddHttpClientsDependenciesWithClientsServices(this IServiceCollection services, IConfigurationRoot config)
     {
         services.AddHttpClientsDependencies();
 
-        services.AddAuthClients();
-        services.AddRestaurantsClients();
+        services.AddAuthClients(config);
+        services.AddRestaurantsClients(config);
 
         return services;
     }

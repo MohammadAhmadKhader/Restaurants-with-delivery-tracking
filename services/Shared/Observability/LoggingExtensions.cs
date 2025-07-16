@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Serilog.Events;
+using Serilog.Filters;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.SystemConsole.Themes;
 using Shared.Utils;
@@ -16,66 +16,41 @@ public static class LoggingExtensions
     public static IServiceCollection AddServiceLogging(
         this IServiceCollection services,
         ConfigureHostBuilder host,
-        IConfigurationRoot? serviceConfig = null,
-        string? customServiceName = null)
+        IConfigurationRoot config)
     {
-        var isTesting = EnvironmentUtils.IsTesting();
-        var isDevelopment = EnvironmentUtils.IsDevelopment();
-        var isProd = EnvironmentUtils.IsProduction();
+        var assemblyName = Assembly.GetEntryAssembly()?.GetName();
+        var serviceName = assemblyName?.Name ?? "UnknownService";
 
-        var config = serviceConfig ?? InternalUtils.GetSharedConfig();
         var seqUrl = config.GetSection("Seq").Get<string>();
         ArgumentException.ThrowIfNullOrEmpty(seqUrl);
 
-        var assemblyName = Assembly.GetEntryAssembly()?.GetName();
-        var serviceName = customServiceName ?? assemblyName?.Name ?? "UnknownService";
-
         host.UseSerilog((ctx, services, cfg) =>
         {
-            var outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] ({ServiceName}) {Message:lj}{NewLine}{Exception}";
-            if (isProd || isTesting)
-            {
-                cfg.MinimumLevel.Warning()
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Infrastructure", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Query", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning);
+            cfg.ReadFrom.Configuration(config)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext();
 
-                if (isTesting)
-                {
-                    cfg.WriteTo.Console(
-                        theme: AnsiConsoleTheme.Sixteen,
-                        applyThemeToRedirectedOutput: true,
-                        outputTemplate: outputTemplate
-                    );
-                }
-                else
-                {
-                    cfg.WriteTo.Console();
-                }
-            }
-            else if (isDevelopment)
+            var outputTemplate = config["Serilog:OutputTemplate"];
+            ArgumentException.ThrowIfNullOrEmpty(outputTemplate);
+
+            if (EnvironmentUtils.IsProduction())
             {
-                cfg.MinimumLevel.Debug()
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Information)
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Infrastructure", LogEventLevel.Information)
-                    // we set this to warning this to avoid Linq very long logging
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Query", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Information)
-                    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
-                    .WriteTo.Console(
-                        theme: AnsiConsoleTheme.Sixteen,
-                        applyThemeToRedirectedOutput: true,
-                        outputTemplate: outputTemplate
-                    );
+                cfg.WriteTo.Console(outputTemplate: outputTemplate);
+            }
+            else if (EnvironmentUtils.IsDevelopment() || EnvironmentUtils.IsTesting())
+            {
+                cfg.WriteTo.Console(
+                    theme: AnsiConsoleTheme.Sixteen,
+                    applyThemeToRedirectedOutput: true,
+                    outputTemplate: outputTemplate
+                );
             }
 
-            if (!isTesting)
+            if (!EnvironmentUtils.IsTesting())
             {
                 cfg.WriteTo.Seq(seqUrl);
-                cfg.Enrich.WithProperty("ServiceName", serviceName);
-                cfg.Enrich.With(new ActivityEnricher());
+                cfg.Enrich.With(new ActivityEnricher())
+                  .Enrich.WithProperty("ServiceName", serviceName);
 
                 // TODO: should be moved to a dedicated exporter
                 cfg.WriteTo.OpenTelemetry(x =>
@@ -88,6 +63,8 @@ public static class LoggingExtensions
                     };
                 });
             }
+
+            cfg.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", p => p.StartsWith("/health")));
         });
                 
         return services;

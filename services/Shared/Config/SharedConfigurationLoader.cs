@@ -5,11 +5,8 @@ namespace Shared.Config;
 
 public static class MicroservicesUrlsProvider
 {
-    public readonly static MicroservicesUrlsOptions Config = LoadConfiguration();
-    public static MicroservicesUrlsOptions LoadConfiguration()
+    public static MicroservicesUrlsOptions GetUrls(IConfigurationRoot config)
     {
-        var config = InternalUtils.GetSharedConfig();
-
         var microservicesUrls = config.GetSection("MicroservicesUrls").Get<MicroservicesUrlsOptions>();
         if (microservicesUrls == null)
         {

@@ -6,5 +6,18 @@
       "LocationsService": "http://locations:8080",
       "RestaurantsService": "http://restaurants:8080",
       "ReviewsService": "http://reviews:8080"
+    },
+    "Serilog": {
+      "MinimumLevel": {
+        "Default": "Warning",
+        "Override": {
+          "Microsoft.EntityFrameworkCore.Database.Command": "Warning",
+          "Microsoft.EntityFrameworkCore.Infrastructure": "Warning",
+          "Microsoft.Extensions.Http.DefaultHttpClientFactory": "Information",
+          "Microsoft.EntityFrameworkCore.Query": "Warning",
+          "Microsoft.EntityFrameworkCore": "Warning",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      }
     }
 }

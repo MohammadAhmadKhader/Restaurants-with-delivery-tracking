@@ -1,9 +1,11 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using Shared.Data.Patterns.GenericRepository;
 using Shared.Data.Patterns.UnitOfWork;
+using Shared.Utils;
 
 namespace Shared.Extensions;
 
@@ -20,7 +22,7 @@ public static class GeneralExtensions
         {
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
         }
-        
+
         services.AddScoped<IUnitOfWork<TDbContext>, UnitOfWork<TDbContext>>();
 
         services.Scan(scan => scan
@@ -54,7 +56,7 @@ public static class GeneralExtensions
 
         return services;
     }
-    
+
     public static IServiceCollection AddConventionalApplicationServices<TProgram>(
         this IServiceCollection services,
         bool applyDefaultValidatorOptions = true,
@@ -65,7 +67,7 @@ public static class GeneralExtensions
         {
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
         }
-        
+
         services.Scan(scan => scan
             .FromAssemblyOf<TProgram>()
             .AddClasses(classes => classes.Where(t =>
@@ -94,7 +96,21 @@ public static class GeneralExtensions
         {
             ValidatorOptions.Global.ApplyDefaultConfigurations();
         }
-        
+
         return services;
+    }
+    
+    public static IConfigurationManager AddGlobalConfig(this IConfigurationManager cfg, bool optional = true)
+    {
+        var basePath = AppContext.BaseDirectory;
+        var env = EnvironmentUtils.GetEnvName();
+
+        cfg.AddJsonFile(Path.Combine(basePath, "", "globalsettings.json"), optional: false, reloadOnChange: true)
+            .AddJsonFile(Path.Combine(basePath, "", $"globalsettings.{env}.json"), optional: false, reloadOnChange: true)
+            .AddJsonFile(Path.Combine(basePath, "", "appsettings.json"), optional: optional, reloadOnChange: true)
+            .AddJsonFile(Path.Combine(basePath, "", $"appsettings.{env}.json"), optional: optional, reloadOnChange: true)
+            .AddEnvironmentVariables();
+    
+        return cfg;
     }
 }
