@@ -172,4 +172,9 @@ public class RestaurantRolesService(
 
         return role;
     }
+
+    public async Task<RestaurantRole?> FindByIdWithPermissionsAsync(Guid id)
+    {
+        return await rolesRepository.FindByIdWithPermissionsAsync(id);
+    }
 }

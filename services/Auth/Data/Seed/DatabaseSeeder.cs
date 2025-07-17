@@ -46,7 +46,7 @@ public class DatabaseSeeder(
 
         _logger.LogInformation("Starting to seed data...");
 
-        var seedData = await getSeedData();
+        var seedData = await GetSeedData();
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
@@ -214,13 +214,14 @@ public class DatabaseSeeder(
         RestaurantRole ownerRole), Task>? actionBeforeCommit = null)
     {
         _logger.LogInformation("Starting to seed restaurant {RestaurantId} roles and permissions...", restaurantId);
-        var seeData = await getSeedData();
+        var seeData = await GetSeedData();
 
         _tenantProvider.SetTenantId(restaurantId);
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
+            // creating roles
             List<RestaurantRole> createdRoles = [];
             foreach (var seedRole in seeData.RestaurantRoles)
             {
@@ -240,10 +241,11 @@ public class DatabaseSeeder(
             var customerRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantCustomer).FirstOrDefault()!;
             var adminRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantAdmin).FirstOrDefault()!;
             var ownerRole = createdRoles.Where(x => x.NormalizedName == RolePolicies.RestaurantOwner).FirstOrDefault()!;
-            GuardUtils.ThrowIfNull(customerRole, nameof(customerRole));
-            GuardUtils.ThrowIfNull(adminRole, nameof(adminRole));
-            GuardUtils.ThrowIfNull(ownerRole, nameof(ownerRole));
+            GuardUtils.ThrowIfNull(customerRole);
+            GuardUtils.ThrowIfNull(adminRole);
+            GuardUtils.ThrowIfNull(ownerRole);
 
+            // adding permissions to roles
             var permissions = await _restaurantPermissionsRepository.FindAllAsync();
 
             foreach (var perm in permissions)
@@ -288,7 +290,7 @@ public class DatabaseSeeder(
         }
     }
 
-    private static async Task<SeedDataModel> getSeedData()
+    private static async Task<SeedDataModel> GetSeedData()
     {
         var json = await File.ReadAllTextAsync("./Data/seed.json");
         var seedData = JsonSerializer.Deserialize<SeedDataModel>(json, jsonOptions);

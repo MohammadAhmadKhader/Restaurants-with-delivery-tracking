@@ -5,7 +5,7 @@ public static class EnvironmentUtils
     private readonly static string testingString = "Testing";
     private readonly static string developmentString = "Development";
     private readonly static string productionString = "Production";
-    private readonly static List<string> ignoreKafkaFlags = ["--no-kafka", "-nk"];
+    private readonly static List<string> kafkaInMemoryFlags = ["--memory-kafka", "-mk"];
     public static string GetEnvName()
     {
         return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "No name provided";
@@ -30,10 +30,14 @@ public static class EnvironmentUtils
         return args.Contains("--seed");
     }
 
-    public static bool IsKafkaSetToIgnore()
+    /// <summary>
+    /// used for fast testing in development (when you dont want to run the kubernetes cluster 
+    /// and dont need it in development mode at a certain time)
+    /// </summary>
+    public static bool IsOnlyKafkaRunInMemory()
     {
         var args = Environment.GetCommandLineArgs();
-        if (args.Contains(ignoreKafkaFlags[0]) || args.Contains(ignoreKafkaFlags[1]))
+        if (args.Contains(kafkaInMemoryFlags[0]) || args.Contains(kafkaInMemoryFlags[1]))
         {
             return true;
         }
@@ -41,8 +45,11 @@ public static class EnvironmentUtils
         return false;
     }
     
+    /// <summary>
+    /// This checks whether kafka is ignored or not
+    /// </summary>
     public static bool ShouldIgnoreKafka()
     {
-        return IsKafkaSetToIgnore() || IsSeeding() || IsTesting();
+        return IsSeeding() || IsTesting();
     }
 }

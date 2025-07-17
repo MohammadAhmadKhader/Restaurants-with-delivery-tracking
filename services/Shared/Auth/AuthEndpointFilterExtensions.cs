@@ -11,9 +11,9 @@ public static class AuthEndpointFilterExtensions
         return builder.AddEndpointFilter(async (context, next) =>
         {
             var userProvider = context.HttpContext.RequestServices.GetRequiredService<IAuthProvider>();
-            var claims = await userProvider.GetUserClaimsAsync();
+            var userInfo = await userProvider.GetUserInfoAsync();
 
-            if (claims.Permissions == null || !claims.Permissions.Contains(permission))
+            if (userInfo.Permissions == null || !userInfo.Permissions.Contains(permission))
             {
                 return Results.Problem(
                     title: "Forbidden",

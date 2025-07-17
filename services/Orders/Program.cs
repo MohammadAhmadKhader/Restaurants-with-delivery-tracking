@@ -2,6 +2,7 @@ using DotNetEnv;
 using Orders.Data;
 using Shared.Extensions;
 using Shared.Middlewares;
+using Shared.Observability;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ var host = builder.Host;
 builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
-builder.Services.AddServiceLogging(host);
+builder.Services.AddServiceLogging(host, config);
 builder.Services.AddDatabase<AppDbContext>(config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Host.ValidateScopes();

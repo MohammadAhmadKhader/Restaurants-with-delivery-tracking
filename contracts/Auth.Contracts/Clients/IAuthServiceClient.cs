@@ -17,8 +17,8 @@ public interface IAuthServiceClient
     [Post("/api/auth/refresh")]
     Task<RefreshResponseDto> Refresh([Body] RefreshRequest dto);
 
-    [Get("/api/auth/claims")]
-    Task<UserClaims> Claims();
+    [Get("/api/auth/user-info")]
+    Task<UserInfo> GetUserInfoAsync();
 
     [Post("/api/auth/test")]
     Task<object> TestAsync([Body] object data);

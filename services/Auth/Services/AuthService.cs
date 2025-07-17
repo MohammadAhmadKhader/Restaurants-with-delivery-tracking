@@ -40,8 +40,7 @@ public class AuthService(
         var tokensResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email!,
-            [.. user.Roles.Select(r => r.Name)!],
-            [.. user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name)]
+            [.. user.Roles.Select(r => r.Name)!]
         );
 
         return (user, tokensResponse);
@@ -64,8 +63,7 @@ public class AuthService(
         var tokensResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email!,
-            [..user.RestaurantRoles.Select(r => r.NormalizedName)!],
-            [..user.RestaurantRoles.SelectMany(r => r.Permissions).Select(r => r.NormalizedName)]
+            [..user.RestaurantRoles.Select(r => r.NormalizedName)!]
         );
 
         return (user, tokensResponse);
@@ -108,7 +106,7 @@ public class AuthService(
         }
 
 
-        var tokenResponse = await tokenService.GenerateTokensAsync(user.Id, user.Email, [defaultRoleName], []);
+        var tokenResponse = await tokenService.GenerateTokensAsync(user.Id, user.Email, [defaultRoleName]);
         await unitOfWork.CommitTransactionAsync(tx);
 
         return (user, tokenResponse);
@@ -147,14 +145,13 @@ public class AuthService(
             throw new InvalidOperationException($"User creation failed: {errors}");
         }
 
-        const string defaultrestaurantRoleName = "CUSTOMER";
-        var role = await restaurantRolesService.FindByNameWithPermissionsAsync(defaultrestaurantRoleName);
+        const string defaultRestaurantRoleName = "CUSTOMER";
+        var role = await restaurantRolesService.FindByNameWithPermissionsAsync(defaultRestaurantRoleName);
 
         var tokenResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email,
-            [role!.NormalizedName],
-            [..role!.Permissions.Select(p => p.NormalizedName)]
+            [role!.NormalizedName]
         );
         await unitOfWork.CommitTransactionAsync(tx);
 

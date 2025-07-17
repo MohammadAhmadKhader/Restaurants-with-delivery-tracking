@@ -17,12 +17,12 @@ public class AuthProvider(
     ITokenProvider tokenProvider
 ) : IAuthProvider
 {
-    private IUserClaims? _cachedClaims;
-    public async Task<IUserClaims> GetUserClaimsAsync()
+    private IUserInfo? _cachedInfo;
+    public async Task<IUserInfo> GetUserInfoAsync()
     {
-        if (_cachedClaims != null)
+        if (_cachedInfo != null)
         {
-            return _cachedClaims;
+            return _cachedInfo;
         }
 
         var token = tokenProvider.GetToken();
@@ -31,9 +31,9 @@ public class AuthProvider(
             throw new UnauthorizedAccessException("No access token was provided.");
         }
 
-        var result = await RefitUtils.TryCall(authServiceClient.Claims);
-        _cachedClaims = result;
+        var result = await RefitUtils.TryCall(authServiceClient.GetUserInfoAsync);
+        _cachedInfo = result;
 
-        return _cachedClaims;
+        return _cachedInfo;
     }
 }

@@ -82,10 +82,11 @@ public static class AuthEndpoints
         }).RequireAuthorization()
         .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
 
-        appGroup.MapGet("/claims", (ClaimsPrincipal principal, ITokenService tokenService) =>
+        appGroup.MapGet("/user-info", async (ClaimsPrincipal principal, ITokenService tokenService) =>
         {
-            var claims = tokenService.GetUserClaims(principal);
-            return Results.Ok(claims);
+            var userInfo = await tokenService.GetUserInfoAsync(principal);
+            
+            return Results.Ok(userInfo);
         }).RequireAuthorization();
 
         var restaurantGroup = app.MapGroup("/api/auth/restaurants");

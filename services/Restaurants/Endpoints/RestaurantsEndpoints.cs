@@ -35,8 +35,8 @@ public static class RestaurantsEndpoints
             IRestaurantInvitationsService restaurantInvitationsService,
             IAuthServiceClient authServiceClient) =>
         {
-            var claims = await authServiceClient.Claims();
-            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, claims.UserId);
+            var userInfo = await authServiceClient.GetUserInfoAsync();
+            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, userInfo.UserId);
 
             return Results.Ok(new { invitation = invitation.ToViewDto() });
         });

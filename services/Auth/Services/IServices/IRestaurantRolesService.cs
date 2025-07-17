@@ -6,6 +6,7 @@ namespace Auth.Services.IServices;
 public interface IRestaurantRolesService
 {
     Task<RestaurantRole?> FindByIdAsync(Guid id);
+    Task<RestaurantRole?> FindByIdWithPermissionsAsync(Guid id);
     Task<RestaurantRole?> FindByNameAsync(string name);
     Task<RestaurantRole?> FindByNameWithPermissionsAsync(string name);
     Task<RestaurantRole> CreateAsync(RestaurantRoleCreateDto dto);
