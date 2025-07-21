@@ -68,10 +68,7 @@ public class RestaurantRolesService(
     public async Task<RestaurantRole> UpdateAsync(Guid id, RestaurantRoleUpdateDto dto)
     {
         var role = await rolesRepository.FindByIdAsync(id);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(roleResourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
         if (role.NormalizedName == RolePolicies.RestaurantOwner)
         {
@@ -88,10 +85,7 @@ public class RestaurantRolesService(
     public async Task DeleteAsync(Guid id)
     {
         var role = await rolesRepository.FindByIdAsync(id);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(roleResourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
         if (role.NormalizedName == RolePolicies.RestaurantOwner)
         {
@@ -105,10 +99,7 @@ public class RestaurantRolesService(
     public async Task<RestaurantRole> AddPermissions(Guid roleId, List<int> permissionsIds)
     {
         var role = await rolesRepository.FindByIdWithPermissionsAsync(roleId);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(roleResourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
         var permissionsToAdd = await permissionsRepository.FindManyByIdsAsync(permissionsIds);
         var fetchedIds = permissionsToAdd.Select(p => p.Id).ToHashSet();
@@ -146,10 +137,7 @@ public class RestaurantRolesService(
     public async Task<RestaurantRole> RemovePermission(Guid roleId, int permissionId)
     {
         var role = await rolesRepository.FindByIdWithPermissionsAsync(roleId);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(roleResourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
         if (role.NormalizedName == RolePolicies.RestaurantOwner)
         {
@@ -157,10 +145,7 @@ public class RestaurantRolesService(
         }
 
         var permission = await permissionsRepository.FindByIdAsync(permissionId);
-        if (permission == null)
-        {
-            throw new ResourceNotFoundException(permissionResourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(permission, permissionResourceName);
 
         if (!role.Permissions.Contains(permission))
         {

@@ -37,10 +37,6 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<TenantMiddleware>();
 app.UseAppLocalization();
 
-// auth
-app.UseAuthentication();
-app.UseAuthorization();
-
 // end points
 app.MapAuthEndpoints();
 app.MapUsersEndpoints();

@@ -115,10 +115,7 @@ public class AuthService(
     public async Task<(User, TokensResponse)> RegisterRestaurant(RegisterDto dto, Guid restaurantId)
     {
         var rest = await restaurantServiceClient.GetRestaurantById(restaurantId);
-        if (rest == null)
-        {
-            throw new ResourceNotFoundException(restaurantResourceName, restaurantId);
-        }
+        ResourceNotFoundException.ThrowIfNull(rest, restaurantResourceName, restaurantId);
 
         var userExists = await usersService.ExistsByEmailAsync(dto.Email);
         if (userExists)
@@ -161,10 +158,7 @@ public class AuthService(
     public async Task ChangePassword(Guid userId, ResetPasswordDto dto)
     {
         var user = await usersService.FindByIdAsync(userId);
-        if (user == null)
-        {
-            throw new ResourceNotFoundException("user");
-        }
+        ResourceNotFoundException.ThrowIfNull(user, "user");
 
         var result = bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword);
         if (result == PasswordVerificationResult.Failed)

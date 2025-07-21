@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Shared.Exceptions;
 
 public class ResourceNotFoundException : Exception
@@ -18,7 +20,7 @@ public class ResourceNotFoundException : Exception
         Id = id;
     }
     
-    public static void ThrowIfNull(object? resource, string resourceName, object? id = null)
+    public static void ThrowIfNull([NotNull] object? resource, string resourceName, object? id = null)
     {
         if (resource == null)
         {

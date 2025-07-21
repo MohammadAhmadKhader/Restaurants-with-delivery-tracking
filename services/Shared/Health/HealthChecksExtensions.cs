@@ -49,7 +49,7 @@ public static class HealthChecksExtensions
                 throw new InvalidOperationException(FormatErrorMessage(healthCheck));
             }
 
-            if (healthCheck == HealthChecksEnum.Kafka && EnvironmentUtils.ShouldIgnoreKafka())
+            if (healthCheck == HealthChecksEnum.Kafka && (EnvironmentUtils.ShouldIgnoreKafka() || EnvironmentUtils.IsOnlyKafkaRunInMemory()))
             {
                 continue;
             }
@@ -85,13 +85,13 @@ public static class HealthChecksExtensions
         {
             Predicate = check => check.Tags.Contains("live"),
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
-        });
+        }).ShortCircuit();
 
         app.MapHealthChecks("/health/ready", new()
         {
             Predicate = (check) => check.Tags.Contains("ready"),
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
-        });
+        }).ShortCircuit();
 
         return app;
     }

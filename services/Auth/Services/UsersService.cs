@@ -51,10 +51,7 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
     public async Task<User> UpdateProfileAsync(Guid id, UserUpdateProfile dto)
     {
         var user = await _usersRepository.FindByIdAsync(id);
-        if (user == null)
-        {
-            throw new ResourceNotFoundException(resourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(user, resourceName);
 
         dto.PatchModel(user);
 

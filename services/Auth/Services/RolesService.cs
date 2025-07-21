@@ -74,10 +74,7 @@ public class RolesService(
     public async Task DeleteAsync(Guid id)
     {
         var role = await roleManager.FindByIdAsync(id.ToString());
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(resourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
         if (role.Name == RolePolicies.SuperAdmin)
         {
@@ -94,10 +91,7 @@ public class RolesService(
     public async Task<Role> UpdateAsync(Guid id, RoleUpdateDto dto)
     {
         var role = await roleManager.FindByIdAsync(id.ToString());
-        if (role == null)
-        {
-            throw new ResourceNotFoundException("role");
-        }
+        ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
         if (role.Name == RolePolicies.SuperAdmin)
         {
@@ -114,11 +108,8 @@ public class RolesService(
     public async Task<Role> AddPermissions(Guid roleId, List<int> permissionsIds)
     {
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(resourceName);
-        }
-
+        ResourceNotFoundException.ThrowIfNull(role, resourceName);
+        
         if (role.Name == RolePolicies.SuperAdmin)
         {
             throw new InvalidOperationException("this role can not be modified");
@@ -159,10 +150,7 @@ public class RolesService(
     public async Task<Role> RemovePermission(Guid roleId, int permissionId)
     {
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
-        if (role == null)
-        {
-            throw new ResourceNotFoundException(resourceName, roleId.ToString());
-        }
+        ResourceNotFoundException.ThrowIfNull(role, resourceName, roleId.ToString());
 
         if (role.Name == RolePolicies.SuperAdmin)
         {
@@ -170,10 +158,7 @@ public class RolesService(
         }
 
         var permission = await _permissionsRepository.FindByIdAsync(permissionId);
-        if (permission == null)
-        {
-            throw new ResourceNotFoundException("permission", permissionId);
-        }
+        ResourceNotFoundException.ThrowIfNull(permission, "permission", permissionId);
 
         if (!role.Permissions.Contains(permission))
         {

@@ -24,10 +24,7 @@ public class RestaurantInvitationsService(
     public async Task<RestaurantInvitation> MarkInvitationAsUsedAsync(Guid id)
     {
         var invitiation = await _restaurantInvitationsRepository.FindByIdAsync(id);
-        if (invitiation == null)
-        {
-            throw new ResourceNotFoundException(_resourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(invitiation, _resourceName);
 
         if (invitiation.ExpiresAt <= DateTime.UtcNow)
         {
@@ -75,10 +72,7 @@ public class RestaurantInvitationsService(
     public async Task CompensateMarkingInvitationAsUsedAsync(Guid id)
     {
         var invitiation = await _restaurantInvitationsRepository.FindByIdAsync(id);
-        if (invitiation == null)
-        {
-            throw new ResourceNotFoundException(_resourceName);
-        }
+        ResourceNotFoundException.ThrowIfNull(invitiation, _resourceName);
 
         invitiation.UsedAt = null;
 

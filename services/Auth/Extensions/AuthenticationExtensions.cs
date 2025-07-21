@@ -3,6 +3,7 @@ using Auth.Data;
 using Auth.Models;
 using Auth.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Extensions;
@@ -43,8 +44,9 @@ public static class AuthenticationExtensions
                 },
                 OnMessageReceived = context =>
                 {
-                    var path = context.HttpContext.Request.Path.Value?.ToLower();
-                    if (path != null && path.StartsWith("/health"))
+                    var endpoint = context.HttpContext.GetEndpoint();
+                    var requiresAuth = endpoint?.Metadata?.GetMetadata<IAuthorizeData>() != null;
+                    if (!requiresAuth)
                     {
                         context.NoResult();
                     }
@@ -71,8 +73,6 @@ public static class AuthenticationExtensions
         
         services.AddHttpContextAccessor();
         services.AddScoped<IPasswordHasher<User>, BCryptPasswordHasher<User>>();
-
-        
 
         return services;
     }
