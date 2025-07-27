@@ -3,6 +3,7 @@ using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Shared.Data.Patterns.AuditTimestamp;
 
 namespace Auth.Data;
 
@@ -21,9 +22,6 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // * ----- Shared -----
-        var currDateSqlStatement = "NOW() AT TIME ZONE 'UTC'";
 
         // * ----- User Entity -----
         modelBuilder.Entity<User>(b =>
@@ -99,11 +97,6 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
             entity.Property(u => u.EmailConfirmed)
                 .HasDefaultValue(true);
 
-            entity.Property(u => u.CreatedAt).HasDefaultValueSql(currDateSqlStatement);
-            entity.Property(u => u.UpdatedAt).HasDefaultValueSql(currDateSqlStatement);
-            entity.Property(u => u.UpdatedAt)
-            .ValueGeneratedOnAddOrUpdate();
-
             entity.Property(u => u.IsDeleted)
                 .HasDefaultValue(false);
 
@@ -164,5 +157,11 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
         modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdatedAtHandler.HandleUpdatedAt(ChangeTracker);
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

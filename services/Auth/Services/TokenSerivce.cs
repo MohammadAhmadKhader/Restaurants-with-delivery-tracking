@@ -9,6 +9,7 @@ using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
 using Auth.Utils;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Exceptions;
 
@@ -27,18 +28,18 @@ public class TokenService : ITokenService
     private readonly ITenantProvider _tenantProvider;
 
     public TokenService(
-        IConfiguration configuration,
+        IOptions<JwtSettings> jwtSettings,
         ILogger<TokenService> logger,
         IRefreshTokenRepository refreshTokenRepository,
         IUsersService usersService,
         ITenantProvider tenantProvider)
     {
-        _jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+        _jwtSettings = jwtSettings.Value;
         _logger = logger;
         _refreshTokenRepository = refreshTokenRepository;
 
         _securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
-        _signingCredentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha256);
+        _signingCredentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha256Signature);
         _tokenHandler = new JwtSecurityTokenHandler();
 
         ValidateConfiguration();

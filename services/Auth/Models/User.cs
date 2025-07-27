@@ -2,13 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
+using Shared.Data.Patterns.AuditTimestamp;
 
 namespace Auth.Models;
 
 public enum DefaultUserRoles { None, User, Admin, SuperAdmin }
 public enum DefaultRestaurantUserRoles { None, Customer, Admin, Owner }
 public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
-public class User : IdentityUser<Guid>
+public class User : IdentityUser<Guid>, IUpdatedAt
 {
     [MaxLength(Constants.MaxFirstNameLength)]
     public string? FirstName { get; set; } = default!;
@@ -25,7 +26,7 @@ public class User : IdentityUser<Guid>
 
     [Required]
     public bool IsDeleted { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid? RestaurantId { get; set; }
     public bool IsGlobal { get; set; }

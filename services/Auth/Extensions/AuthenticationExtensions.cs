@@ -5,20 +5,22 @@ using Auth.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Shared.Utils;
 
 namespace Auth.Extensions;
 public static class AuthenticationExtensions
 {
     public static IServiceCollection AddAppAuthentication(this IServiceCollection services, IConfiguration config)
     {
+        var jwtSettingsSection = config.GetSection("JwtSettings");
+
+        services.Configure<JwtSettings>(jwtSettingsSection);
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            var jwtSettings = config.GetSection("JwtSettings").Get<JwtSettings>();
-            if (jwtSettings == null)
-            {
-                throw new InvalidOperationException("JwtSettings are not configured");
-            }
+            var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
+            GuardUtils.ThrowIfNull(jwtSettings);
 
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;

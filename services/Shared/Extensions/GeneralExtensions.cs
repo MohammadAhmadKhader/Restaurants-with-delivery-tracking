@@ -100,17 +100,17 @@ public static class GeneralExtensions
         return services;
     }
     
-    public static IConfigurationManager AddGlobalConfig(this IConfigurationManager cfg, bool optional = true)
+    public static IConfigurationBuilder AddGlobalConfig(this IConfigurationBuilder cfg, bool optional = true)
     {
         var basePath = AppContext.BaseDirectory;
         var env = EnvironmentUtils.GetEnvName();
 
-        cfg.AddJsonFile(Path.Combine(basePath, "", "globalsettings.json"), optional: false, reloadOnChange: true)
-            .AddJsonFile(Path.Combine(basePath, "", $"globalsettings.{env}.json"), optional: false, reloadOnChange: true)
-            .AddJsonFile(Path.Combine(basePath, "", "appsettings.json"), optional: optional, reloadOnChange: true)
-            .AddJsonFile(Path.Combine(basePath, "", $"appsettings.{env}.json"), optional: optional, reloadOnChange: true)
-            .AddEnvironmentVariables();
-    
+        cfg.AddJsonFile(Path.Combine(basePath, "globalsettings.json"), optional: false, reloadOnChange: true)
+           .AddJsonFile(Path.Combine(basePath, $"globalsettings.{env}.json"), optional: false, reloadOnChange: true)
+           .AddJsonFile(Path.Combine(basePath, "appsettings.json"), optional: optional, reloadOnChange: true)
+           .AddJsonFile(Path.Combine(basePath, $"appsettings.{env}.json"), optional: optional, reloadOnChange: true)
+           .AddEnvironmentVariables();
+
         return cfg;
     }
 }
