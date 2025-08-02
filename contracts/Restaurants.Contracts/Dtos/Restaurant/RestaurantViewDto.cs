@@ -1,4 +1,4 @@
-namespace Restaurants.Contracts.Dtos;
+namespace Restaurants.Contracts.Dtos.Restaurant;
 
 public class RestaurantViewDto
 {
@@ -6,6 +6,5 @@ public class RestaurantViewDto
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
     public string Phone { get; set; } = default!;
-    public bool IsOpen { get; set; }
     public DateTime CreatedAt { get; set; }
 }

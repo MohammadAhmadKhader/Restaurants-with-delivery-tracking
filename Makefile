@@ -59,6 +59,9 @@ define RUN_SERVICE
 run-$(1):
 	dotnet run --project services/$(1)/$(1).csproj $(ARGS)
 
+run-b-$(1):
+	dotnet build services/$(1)/$(1).csproj $(ARGS)
+
 run-w-$(1):
 	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
 
@@ -67,6 +70,9 @@ r-$($(1)_SHORT_KEY):
 
 rw-$($(1)_SHORT_KEY):
 	dotnet watch run --project services/$(1)/$(1).csproj -- $(ARGS)
+
+rb-$($(1)_SHORT_KEY):
+	dotnet build services/$(1)/$(1).csproj $(ARGS)
 endef
 
 $(foreach S,$(SERVICES),$(eval $(call RUN_SERVICE,$(S))))

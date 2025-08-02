@@ -1,4 +1,4 @@
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 using Restaurants.Models;
 
 namespace Restaurants.Mappers;
@@ -23,8 +23,25 @@ public static class RestaurantMappers
             Name = restaurant.Name,
             Description = restaurant.Description,
             Phone = restaurant.Phone,
-            IsOpen = restaurant.IsOpen,
             CreatedAt = restaurant.CreatedAt,
         };
+    }
+
+    public static void PatchModel(this RestaurantUpdateDto dto, Restaurant model)
+    {
+        if (!string.IsNullOrWhiteSpace(dto.Name))
+        {
+            model.Name = dto.Name;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dto.Phone))
+        {
+            model.Phone = dto.Phone;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dto.Description))
+        {
+            model.Description = dto.Description;
+        }
     }
 }

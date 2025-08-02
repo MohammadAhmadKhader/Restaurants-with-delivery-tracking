@@ -1,4 +1,4 @@
-namespace Restaurants.Contracts.Dtos;
+namespace Restaurants.Contracts.Dtos.Restaurant;
 
 public class RestaurantInvitationCreateDto(string Email)
 {

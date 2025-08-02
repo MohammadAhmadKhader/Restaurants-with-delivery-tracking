@@ -1,5 +1,5 @@
 using Refit;
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 
 namespace Restaurants.Contracts.Clients;
 

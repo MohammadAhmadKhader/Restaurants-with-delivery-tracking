@@ -136,14 +136,14 @@
         },
         {
             "name":"dashboard.roles.assign_permission",
-            "displayName":"Delete Roles",
+            "displayName":"Assign Permissions",
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultSuperAdmin": true
         },
         {
             "name":"dashboard.roles.unassign_permission",
-            "displayName":"Delete Roles",
+            "displayName":"Unassign Permissions",
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultSuperAdmin": true
@@ -275,7 +275,7 @@
             "isDefaultUser": false,
             "isDefaultAdmin": true,
             "isDefaultOwner": true
-        },          
+        },
         {
             "name": "restaurant.customers.view",
             "displayName": "View Customers",
@@ -296,6 +296,6 @@
             "isDefaultUser": true,
             "isDefaultAdmin": false,
             "isDefaultOwner": false
-        }    
+        }
     ]
 }

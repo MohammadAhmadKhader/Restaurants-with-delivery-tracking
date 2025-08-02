@@ -1,4 +1,4 @@
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 using Restaurants.Models;
 
 namespace Restaurants.Mappers;

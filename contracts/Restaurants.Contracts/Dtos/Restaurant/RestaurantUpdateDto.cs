@@ -1,4 +1,4 @@
-namespace Restaurants.Contracts.Dtos;
+namespace Restaurants.Contracts.Dtos.Restaurant;
 
 public class RestaurantUpdateDto(string Name, string Description, string Phone)
 {

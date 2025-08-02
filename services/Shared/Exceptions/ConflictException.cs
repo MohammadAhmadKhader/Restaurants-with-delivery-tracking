@@ -23,7 +23,6 @@ public class ConflictException : Exception
         var name = field.ToLowerInvariant();
         return conflictType switch
         {
-            ConflictType.AlreadyExists      => $"The {name} '{value}' is already in use.",
             ConflictType.InUse              => $"The {name} '{value}' cannot be deleted because it is currently in use.",
             ConflictType.AlreadyAssigned    => $"The {name} '{value}' is already assigned.",
             ConflictType.NotAssigned        => $"The {name} '{value}' is not assigned and cannot be removed.",
@@ -33,4 +32,4 @@ public class ConflictException : Exception
     }
 }
 
-public enum ConflictType { General, AlreadyExists, InUse, NotAssigned, AlreadyAssigned, Duplicate }
+public enum ConflictType { General, InUse, NotAssigned, AlreadyAssigned, Duplicate }

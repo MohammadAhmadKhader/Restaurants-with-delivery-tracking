@@ -7,6 +7,7 @@ using Shared.Health;
 using Shared.Middlewares;
 using Shared.Redis;
 using Shared.Observability;
+using Restaurants.Middlewares;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -34,11 +35,16 @@ var app = builder.Build();
 app.UseSerilogRequestLoggingWithTraceId();
 // middlewares
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<TenantMiddleware>();
 app.UseAppLocalization();
 
-app.MapRestaurantsEndpoints();
 app.EnsureDatabaseCreated<AppDbContext>();
 app.AddHealthChecksEndpoints();
+
+// endpoints
+app.MapRestaurantsEndpoints();
+app.MapMenuItemsEndpoints();
+app.MapMenusEndpoints();
 
 app.Run();
 

@@ -23,7 +23,8 @@ public static class HealthChecksExtensions
         var healthCheckBuilder = services.AddHealthChecks();
         var dbUrl = config.GetConnectionString(dbConnectionString);
         var redisUrl = config.GetConnectionString(redisConnString);
-        var bootstrapServers = KafkaMetadata.BootstrapServers;
+        var kafkaSettings = config.GetSection("Kafka").Get<KafkaSettings>();
+        GuardUtils.ThrowIfNull(kafkaSettings);
 
         foreach (var healthCheck in healthChecks ?? defaultHealthChecks)
         {
@@ -56,10 +57,10 @@ public static class HealthChecksExtensions
 
             if (IsCheckNotAdded(addedChecks, healthCheck, HealthChecksEnum.Kafka))
             {
-                ArgumentException.ThrowIfNullOrEmpty(bootstrapServers);
+                ArgumentException.ThrowIfNullOrEmpty(kafkaSettings.BootstrapServers);
                 healthCheckBuilder.AddKafka((setup) =>
                 {
-                    setup.BootstrapServers = bootstrapServers;
+                    setup.BootstrapServers = kafkaSettings.BootstrapServers;
                 }, tags: ["ready"]);
                 addedChecks.Add(HealthChecksEnum.Kafka);
             }

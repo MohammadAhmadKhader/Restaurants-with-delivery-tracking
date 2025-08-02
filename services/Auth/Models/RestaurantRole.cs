@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Auth.Utils;
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 
 namespace Auth.Models;
 

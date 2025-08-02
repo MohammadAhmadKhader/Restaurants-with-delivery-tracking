@@ -1,11 +1,12 @@
 using MassTransit;
 using Microsoft.Extensions.Caching.Hybrid;
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 using Restaurants.Data;
 using Restaurants.Mappers;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;
 using Restaurants.Services.IServices;
+using Restaurants.Utils;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
 using Shared.Kafka;
@@ -18,7 +19,8 @@ public class RestaurantsService(
     IRestaurantsRepository restaurantsRepository,
     ILogger<RestaurantsService> logger,
     ITopicProducer<RestaurantCreatedEvent> restaurantCreatedProducer,
-    HybridCache cache) : IRestaurantsService
+    HybridCache cache,
+    ITenantProvider tenantProvider) : IRestaurantsService
 {
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IRestaurantInvitationsService _restaurantInvitationsService = restaurantInvitationsService;
@@ -26,6 +28,8 @@ public class RestaurantsService(
     private readonly ILogger<RestaurantsService> _logger = logger;
     private readonly ITopicProducer<RestaurantCreatedEvent> _restaurantCreatedProducer = restaurantCreatedProducer;
     private readonly HybridCache _cache = cache;
+    private readonly ITenantProvider _tenantProvider = tenantProvider;
+    private const string _resourceName = "restaurant";
 
     public async Task<(List<Restaurant> restaurants, int count)> FindAllAsync(int page, int size)
     {
@@ -74,5 +78,17 @@ public class RestaurantsService(
         await _unitOfWork.CommitTransactionAsync(tx);
 
         return newResturat;
+    }
+
+    public async Task<Restaurant> UpdateAsync(RestaurantUpdateDto dto)
+    {
+        var restaurantId = _tenantProvider.GetTenantIdOrThrow();
+        var restaurant = await _restaurantsRepository.FindByIdAsync(restaurantId);
+        ResourceNotFoundException.ThrowIfNull(restaurant, _resourceName);
+
+        dto.PatchModel(restaurant);
+        await _unitOfWork.SaveChangesAsync();
+
+        return restaurant;
     }
 }

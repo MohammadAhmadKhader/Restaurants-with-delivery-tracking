@@ -1,8 +1,10 @@
 using Auth.Contracts.Clients;
 using Microsoft.AspNetCore.Mvc;
-using Restaurants.Contracts.Dtos;
+using Restaurants.Contracts.Dtos.Restaurant;
 using Restaurants.Mappers;
 using Restaurants.Services.IServices;
+using Shared.Auth;
+using Shared.Constants;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;
@@ -23,14 +25,14 @@ public static class RestaurantsEndpoints
             return Results.Ok(new { restaurant = rest.ToViewDto() });
         });
 
-        // group.MapPost("/", async (RestaurantCreateDto dto, [FromQuery] string? token, IRestaurantsService restaurantsService) =>
-        // {
-        //     var newResturat = await restaurantsService.CreateAsync(dto, token);
+        group.MapPut("/", async (RestaurantUpdateDto dto, IRestaurantsService restaurantsService) =>
+        {
+            var invitation = await restaurantsService.UpdateAsync(dto);
 
-        //     return Results.Ok(new { restaurant = newResturat.ToViewDto() });
-        // });
+            return Results.NoContent();
+        }).RequirePermission(RestaurantPermissions.RESTAURANT_UPDATE);
 
-        group.MapPost("/send-invitation", async (
+        group.MapPost("/invitations/send", async (
             RestaurantInvitationCreateDto dto,
             IRestaurantInvitationsService restaurantInvitationsService,
             IAuthServiceClient authServiceClient) =>
@@ -57,7 +59,7 @@ public static class RestaurantsEndpoints
             return Results.Ok();
         });
 
-        group.MapPost("/accept-invitation", async (
+        group.MapPost("/invitations/accept", async (
             RestaurantInvitationAcceptDto dto,
             ILogger<Program> logger,
             IRestaurantInvitationsService restaurantInvitationsService,

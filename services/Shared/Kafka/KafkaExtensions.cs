@@ -30,15 +30,20 @@ public static class KafkaExtensions
         var kafkaSection = config.GetRequiredSection("Kafka");
         var producerConfig = kafkaSection.Get<ProducerConfig>();
         GuardUtils.ThrowIfNull(producerConfig);
-        
+
         var bootstrapServers = producerConfig.BootstrapServers;
 
         var adminConfig = new AdminClientConfig
         {
             BootstrapServers = bootstrapServers,
         };
-    
+
+        // this is needed internally or will throw an error
         services.Configure<ProducerConfig>(kafkaSection);
+
+        // this is for the use inside the application
+        services.Configure<KafkaSettings>(kafkaSection);
+
         if (!EnvironmentUtils.IsOnlyKafkaRunInMemory())
         {
             // AdminClientConfig is required for KafkaTopicsInitializer
@@ -48,8 +53,14 @@ public static class KafkaExtensions
 
         services.AddMassTransit(busConfigurer =>
         {
-            busConfigurer.SetKebabCaseEndpointNameFormatter();
             busConfigurer.UsingInMemory();
+
+            if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
+            {
+                services.AddSingleton(typeof(ITopicProducer<>), typeof(MockTopicProducer<>));
+                logger.LogWarning("Kafka Running in memory mode");
+                return;
+            }
 
             busConfigurer.AddRider((r) =>
             {
@@ -83,12 +94,6 @@ public static class KafkaExtensions
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
                 });
-
-                if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
-                {
-                    logger.LogWarning("Kafka Running in memory mode");
-                    return;
-                }
 
                 r.UsingKafka((ctx, cfg) =>
                 {

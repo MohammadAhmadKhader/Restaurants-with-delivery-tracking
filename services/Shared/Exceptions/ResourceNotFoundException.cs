@@ -19,10 +19,23 @@ public class ResourceNotFoundException : Exception
         ResourceName = resourceName;
         Id = id;
     }
-    
+
     public static void ThrowIfNull([NotNull] object? resource, string resourceName, object? id = null)
     {
         if (resource == null)
+        {
+            if (id != null)
+            {
+                throw new ResourceNotFoundException(resourceName, id);
+            }
+
+            throw new ResourceNotFoundException(resourceName);
+        }
+    }
+    
+    public static void ThrowIfTrue(bool shouldThrow, string resourceName, object? id = null)
+    {
+        if (shouldThrow)
         {
             if (id != null)
             {

@@ -1,6 +1,6 @@
 using Auth.Contracts.Dtos.Auth;
 
-namespace Restaurants.Contracts.Dtos;
+namespace Restaurants.Contracts.Dtos.Restaurant;
 
 public class RestaurantInvitationAcceptDto
 {
