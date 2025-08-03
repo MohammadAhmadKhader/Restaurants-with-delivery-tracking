@@ -8,6 +8,7 @@ using Shared.Middlewares;
 using Shared.Redis;
 using Shared.Observability;
 using Restaurants.Middlewares;
+using Shared.Storage.Cloudinary;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +16,11 @@ var config = builder.Configuration;
 var host = builder.Host;
 
 builder.Configuration.AddGlobalConfig();
-builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host, config);
 builder.Services.AddDatabase<AppDbContext>(config);
-builder.Services.AddRedis(config, "restaurants");
+builder.Services.AddRedis(config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services
 .AddHttpClientsDependencies()
@@ -29,6 +29,7 @@ builder.Services
 builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);
+builder.Services.AddCloudinaryStorage(config);
 
 var app = builder.Build();
 

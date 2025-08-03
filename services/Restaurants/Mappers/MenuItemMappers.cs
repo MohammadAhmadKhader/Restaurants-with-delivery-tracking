@@ -14,7 +14,8 @@ public static class MenuItemMappers
             Description = item.Description,
             Price = item.Price,
             IsAvailable = item.IsAvailable,
-            ImageUrl = item.ImageUrl
+            ImageUrl = item.ImageUrl,
+            ImagePublicId = item.ImagePublicId
         };
     }
 

@@ -18,7 +18,7 @@ public interface IGenericRepository<TModel, TPrimaryKey> where TModel : class
     Task<bool> ExistsByMatchAsync(Expression<Func<TModel, bool>> match);
     Task<TModel> CreateAsync(TModel model);
     Task<TModel?> UpdateAsync(TPrimaryKey PK, Action<TModel> UpdateResource);
-    Task<bool> DeleteAsync(TPrimaryKey id);
+    Task<bool> FindThenDeleteAsync(TPrimaryKey id);
     Task<int> DeleteManyAsync(IEnumerable<TPrimaryKey> ids, string pkName = "Id");
     EntityEntry<TModel> Delete(TModel model);
 }

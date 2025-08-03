@@ -18,8 +18,7 @@ public static class LoggingExtensions
         ConfigureHostBuilder host,
         IConfigurationRoot config)
     {
-        var assemblyName = Assembly.GetEntryAssembly()?.GetName();
-        var serviceName = assemblyName?.Name ?? "UnknownService";
+        var serviceName = GeneralUtils.GetServiceName();
 
         var seqUrl = config.GetSection("Seq").Get<string>();
         ArgumentException.ThrowIfNullOrEmpty(seqUrl);

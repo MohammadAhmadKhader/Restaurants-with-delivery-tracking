@@ -1,7 +1,6 @@
-using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
 
-namespace Auth.Extensions;
+namespace Auth.Utils;
 public class BCryptPasswordHasher<TUser> : IPasswordHasher<TUser> where TUser : class
 {
     public string HashPassword(TUser user, string password)

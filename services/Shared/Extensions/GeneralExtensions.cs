@@ -99,7 +99,7 @@ public static class GeneralExtensions
 
         return services;
     }
-    
+
     public static IConfigurationBuilder AddGlobalConfig(this IConfigurationBuilder cfg, bool optional = true)
     {
         var basePath = AppContext.BaseDirectory;
@@ -112,5 +112,39 @@ public static class GeneralExtensions
            .AddEnvironmentVariables();
 
         return cfg;
+    }
+
+    /// <summary>
+    /// Custom AddRange
+    /// </summary>
+    public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> items)
+    {
+        foreach (var item in items)
+        {
+            target.Add(item);
+        }
+    }
+
+    public static void AddRangeIf<T>(this ICollection<T> target, IEnumerable<T> items, Func<T, bool> conditionFunc)
+    {
+
+        foreach (var item in items)
+        {
+            if (conditionFunc(item))
+            {
+                target.Add(item);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Custom AddRange
+    /// </summary>
+    public static void AddRange<T>(this List<T> target, IEnumerable<T> items)
+    {
+        foreach (var item in items)
+        {
+            target.Add(item);
+        }
     }
 }

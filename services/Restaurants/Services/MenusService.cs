@@ -5,20 +5,26 @@ using Restaurants.Mappers;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;
 using Restaurants.Services.IServices;
+using Restaurants.Utils;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
+using Shared.Extensions;
+using Shared.Storage;
+using Shared.Utils;
 
 namespace Restaurants.Services;
 
 public class MenusService(
     IUnitOfWork<AppDbContext> unitOfWork,
     IMenusRepository menusRepository,
-    IMenuItemsRepository menuItemsRepository
+    IMenuItemsRepository menuItemsRepository,
+    IFileStorageService fileStorageService
     ) : IMenusService
 {
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IMenusRepository _menusRepository = menusRepository;
     private readonly IMenuItemsRepository _menuItemsRepository = menuItemsRepository;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
     private const string _menuResourceName = "menu";
     private const string _itemResourceName = "item";
 
@@ -30,6 +36,11 @@ public class MenusService(
     public async Task<Menu?> FindByIdWithItemsAsync(int menuId)
     {
         return await _menusRepository.FindByIdWithItemsAsync(menuId);
+    }
+
+    public async Task<MenuItem?> FindItemByIdAsync(int itemId)
+    {
+        return await _menuItemsRepository.FindByIdAsync(itemId);
     }
 
     public async Task<Menu> AddItemsToMenuAsync(int menuId, MenuAddItemsDto dto)
@@ -55,10 +66,7 @@ public class MenusService(
             throw new ResourceNotFoundException("menu", notFoundItemIds.FirstOrDefault());
         }
 
-        foreach (var item in items)
-        {
-            menu.Items.Add(item);
-        }
+        menu.Items.AddRange(items);
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -108,7 +116,7 @@ public class MenusService(
 
     public async Task DeleteAsync(int id)
     {
-        var isFound = await _menusRepository.DeleteAsync(id);
+        var isFound = await _menusRepository.FindThenDeleteAsync(id);
         ResourceNotFoundException.ThrowIfTrue(!isFound, _menuResourceName);
 
         await _unitOfWork.SaveChangesAsync();
@@ -116,8 +124,25 @@ public class MenusService(
 
     public async Task<MenuItem> CreateItemAsync(MenuItemCreateDto dto)
     {
-        var item = await _menuItemsRepository.CreateAsync(dto.ToModel());
-        await _unitOfWork.SaveChangesAsync();
+        var result = await _fileStorageService.UploadFileAsync(dto.Image, CloudinaryFoldersDir.MenuItems);
+        if (result.Error != null)
+        {
+            throw new InvalidOperationException(result.Error.Message);
+        }
+
+        MenuItem item = null!;
+        await GeneralUtils.ActionOnThrowAsync(async () =>
+        {
+            var model = dto.ToModel();
+            model.ImageUrl = result.Url.ToString();
+            model.ImagePublicId = result.PublicId;
+
+            item = await _menuItemsRepository.CreateAsync(model);
+            await _unitOfWork.SaveChangesAsync();
+        }, async () =>
+        {
+            await _fileStorageService.DeleteFileAsync(result.PublicId);
+        }, false);
 
         return item;
     }
@@ -128,6 +153,13 @@ public class MenusService(
         ResourceNotFoundException.ThrowIfNull(menuItem, _itemResourceName);
         
         dto.PatchModel(menuItem);
+
+        if (menuItem.ImagePublicId != "" && dto.Image != null)
+        {
+            var res = await _fileStorageService.UpdateFileAsync(dto.Image, CloudinaryFoldersDir.MenuItems, menuItem.ImagePublicId);
+            menuItem.ImageUrl = res.Url.ToString();
+        }
+
         await _unitOfWork.SaveChangesAsync();
     
         return menuItem;
@@ -135,7 +167,15 @@ public class MenusService(
 
     public async Task DeleteItemAsync(int itemId)
     {
-        await _menuItemsRepository.DeleteAsync(itemId);
+        var item = await _menuItemsRepository.FindByIdAsync(itemId);
+        ResourceNotFoundException.ThrowIfNull(item, _itemResourceName);
+
+        if (item.ImagePublicId != "")
+        {
+           await _fileStorageService.DeleteFileAsync(item.ImagePublicId);
+        }
+
+        _menuItemsRepository.Delete(item);
         await _unitOfWork.SaveChangesAsync();
     }
 }

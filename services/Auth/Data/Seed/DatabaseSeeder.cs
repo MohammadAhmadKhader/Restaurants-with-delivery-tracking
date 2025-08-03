@@ -1,9 +1,11 @@
 using System.Text.Json;
+using Auth.Data.Seed.Converters;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Shared.Data.Patterns.UnitOfWork;
+using Shared.Extensions;
 using Shared.Utils;
 
 namespace Auth.Data.Seed;
@@ -28,10 +30,6 @@ public class DatabaseSeeder(
     private readonly IRestaurantRolesRepository _restaurantRolesRepository = restaurantRolesRepository;
     private readonly IRestaurantPermissionsRepository _restaurantPermissionsRepository = restaurantPermissionsRepository;
     private readonly ITenantProvider _tenantProvider = tenantProvider;
-    private static readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
 
     /// <summary>
     /// This method will seed users, roles and permissions then shutdown the application. 
@@ -46,7 +44,7 @@ public class DatabaseSeeder(
 
         _logger.LogInformation("Starting to seed data...");
 
-        var seedData = await GetSeedData();
+        var seedData = await DataLoader.GetSeedData();
 
         using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
@@ -59,11 +57,7 @@ public class DatabaseSeeder(
                     continue;
                 }
 
-                var roleResult = await _roleManager.CreateAsync(new Role
-                {
-                    Name = role.Name,
-                    DisplayName = role.DisplayName
-                });
+                var roleResult = await _roleManager.CreateAsync(RoleConverter.FromSeedRole(role));
 
                 if (!roleResult.Succeeded)
                 {
@@ -79,14 +73,7 @@ public class DatabaseSeeder(
                     continue;
                 }
 
-                var user = new User
-                {
-                    FirstName = userSeed.FirstName,
-                    LastName = userSeed.LastName,
-                    Email = userSeed.Email,
-                    UserName = userSeed.Email,
-                    EmailConfirmed = userSeed.EmailConfirmed
-                };
+                var user = UserConverter.FromSeedUser(userSeed);
 
                 var createResult = await _userManager.CreateAsync(user, userSeed.Password);
                 if (!createResult.Succeeded)
@@ -116,15 +103,8 @@ public class DatabaseSeeder(
                     continue;
                 }
 
-                var permission = new Permission
-                {
-                    Name = permissionSeed.Name.ToUpper(),
-                    DisplayName = permissionSeed.DisplayName,
-                    IsDefaultUser = permissionSeed.IsDefaultUser,
-                    IsDefaultAdmin = permissionSeed.IsDefaultAdmin,
-                    IsDefaultSuperAdmin = permissionSeed.IsDefaultSuperAdmin,
-                };
-
+                var permission = PermissionConverter.FromSeedPermission(permissionSeed);
+ 
                 await _permissionsRepository.CreateAsync(permission);
             }
             await _unitOfWork.SaveChangesAsync();
@@ -142,29 +122,12 @@ public class DatabaseSeeder(
 
             // checking for each permission if its default is set to a user/admin/superAdmin
             // if it is and its not already added then they are added to the role permissions collection
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultUser && !userRole.Permissions.Contains(perm))
-                {
-                    userRole.Permissions.Add(perm);
-                }
-            }
-
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm))
-                {
-                    adminRole.Permissions.Add(perm);
-                }
-            }
-
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultSuperAdmin && !superAdminRole.Permissions.Contains(perm))
-                {
-                    superAdminRole.Permissions.Add(perm);
-                }
-            }
+            userRole.Permissions
+                .AddRangeIf(permissions, (perm) => perm.IsDefaultUser && !userRole.Permissions.Contains(perm));
+            adminRole.Permissions
+                .AddRangeIf(permissions, (perm) => perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm));
+            superAdminRole.Permissions
+                .AddRangeIf(permissions, (perm) => perm.IsDefaultSuperAdmin && !superAdminRole.Permissions.Contains(perm));
 
             // * ------------------ Restaurants related seeding ------------------
             // Permissions
@@ -180,14 +143,7 @@ public class DatabaseSeeder(
                     continue;
                 }
 
-                var permission = new RestaurantPermission
-                {
-                    NormalizedName = permissionSeed.Name.ToUpperInvariant(),
-                    DisplayName = permissionSeed.DisplayName,
-                    IsDefaultUser = permissionSeed.IsDefaultUser,
-                    IsDefaultAdmin = permissionSeed.IsDefaultAdmin,
-                    IsDefaultOwner = permissionSeed.IsDefaultOwner,
-                };
+                var permission = RestaurantPermissionConverter.FromSeedPermission(permissionSeed);
 
                 await _restaurantPermissionsRepository.CreateAsync(permission);
             }
@@ -214,7 +170,7 @@ public class DatabaseSeeder(
         RestaurantRole ownerRole), Task>? actionBeforeCommit = null)
     {
         _logger.LogInformation("Starting to seed restaurant {RestaurantId} roles and permissions...", restaurantId);
-        var seeData = await GetSeedData();
+        var seeData = await DataLoader.GetSeedData();
 
         _tenantProvider.SetTenantId(restaurantId);
 
@@ -225,12 +181,7 @@ public class DatabaseSeeder(
             List<RestaurantRole> createdRoles = [];
             foreach (var seedRole in seeData.RestaurantRoles)
             {
-                var role = new RestaurantRole()
-                {
-                    DisplayName = seedRole.DisplayName,
-                    NormalizedName = seedRole.Name.ToUpper(),
-                    RestaurantId = restaurantId,
-                };
+                var role = RestaurantRoleConverter.FromSeedRole(seedRole, restaurantId);
 
                 var createdRole = await _restaurantRolesRepository.CreateAsync(role);
                 createdRoles.Add(createdRole);
@@ -248,29 +199,9 @@ public class DatabaseSeeder(
             // adding permissions to roles
             var permissions = await _restaurantPermissionsRepository.FindAllAsync();
 
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultUser && !customerRole.Permissions.Contains(perm))
-                {
-                    customerRole.Permissions.Add(perm);
-                }
-            }
-
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm))
-                {
-                    adminRole.Permissions.Add(perm);
-                }
-            }
-
-            foreach (var perm in permissions)
-            {
-                if (perm.IsDefaultOwner && !ownerRole.Permissions.Contains(perm))
-                {
-                    ownerRole.Permissions.Add(perm);
-                }
-            }
+            customerRole.Permissions.AddRangeIf(permissions, (perm) => perm.IsDefaultUser && !customerRole.Permissions.Contains(perm));
+            adminRole.Permissions.AddRangeIf(permissions, (perm) => perm.IsDefaultAdmin && !adminRole.Permissions.Contains(perm));
+            ownerRole.Permissions.AddRangeIf(permissions, (perm) => perm.IsDefaultOwner && !ownerRole.Permissions.Contains(perm));
 
             await _unitOfWork.SaveChangesAsync();
 
@@ -288,17 +219,5 @@ public class DatabaseSeeder(
             _logger.LogError("{Message}", ex.Message);
             await _unitOfWork.RollBackAsync(transaction);
         }
-    }
-
-    private static async Task<SeedDataModel> GetSeedData()
-    {
-        var json = await File.ReadAllTextAsync("./Data/seed.json");
-        var seedData = JsonSerializer.Deserialize<SeedDataModel>(json, jsonOptions);
-        if (seedData == null)
-        {
-            throw new InvalidOperationException("Failed to deserialize seed.json into SeedDataModel.");
-        }
-
-        return seedData;
     }
 }

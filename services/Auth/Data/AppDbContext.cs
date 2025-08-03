@@ -83,11 +83,11 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
             entity.HasMany(u => u.RestaurantRoles)
             .WithMany(rr => rr.Users)
             .UsingEntity<UserRestaurantRole>(
-                l => l.HasOne<RestaurantRole>().WithMany().HasForeignKey(urr => urr.RestaurantId),
+                l => l.HasOne<RestaurantRole>().WithMany().HasForeignKey(urr => urr.RoleId),
                 r => r.HasOne<User>().WithMany().HasForeignKey(urr => urr.UserId),
                 urr =>
                 {
-                    urr.HasKey(x => new { x.UserId, x.RestaurantId });
+                    urr.HasKey(x => new { x.UserId, x.RoleId });
                     urr.ToTable("UserRestaurantRoles");
                 }
             );

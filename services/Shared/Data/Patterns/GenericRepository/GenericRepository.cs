@@ -80,7 +80,7 @@ public class GenericRepository<TModel, TPrimaryKey> : IGenericRepository<TModel,
         return null;
     }
 
-    public async Task<bool> DeleteAsync(TPrimaryKey id)
+    public async Task<bool> FindThenDeleteAsync(TPrimaryKey id)
     {
         var model = await _dbSet.FindAsync(id);
         if (model == null)

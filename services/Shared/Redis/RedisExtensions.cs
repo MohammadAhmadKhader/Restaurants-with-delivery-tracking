@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Utils;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
@@ -11,7 +12,7 @@ public static class RedisExtensions
     public static IServiceCollection AddRedis(
         this IServiceCollection services,
         IConfiguration config,
-        string serviceName,
+        string? serviceName = null,
         string connectionString = "Redis")
     {
         var url = config.GetConnectionString(connectionString);
@@ -21,7 +22,7 @@ public static class RedisExtensions
         var serializer = new FusionCacheSystemTextJsonSerializer();
         var defaultFusionEntryOptions = applyDefaultEntryOptions(new FusionCacheEntryOptions());
 
-        services.AddFusionCache(serviceName)
+        services.AddFusionCache(serviceName ?? GeneralUtils.GetServiceName())
             .WithSerializer(serializer)
             .WithDistributedCache(redisCache)
             .WithOptions(opts =>

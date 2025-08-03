@@ -25,6 +25,7 @@
         <PackageReference Include="Serilog.Sinks.Seq" />
         <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="CloudinaryDotNet" />
     </ItemGroup>
 
     <!-- * Testing Projects -->

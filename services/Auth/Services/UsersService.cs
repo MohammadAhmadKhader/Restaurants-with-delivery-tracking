@@ -106,7 +106,7 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
     {
         try
         {
-            var isFound = await _usersRepository.DeleteAsync(ownerId);
+            var isFound = await _usersRepository.FindThenDeleteAsync(ownerId);
             if (!isFound)
             {
                 _logger.LogWarning("Attemtping to compensate owner creation has failed {Message}", "User was not found during attempt to compensate owner creation");

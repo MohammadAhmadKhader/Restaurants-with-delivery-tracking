@@ -296,6 +296,27 @@
             "isDefaultUser": true,
             "isDefaultAdmin": false,
             "isDefaultOwner": false
+        },
+        {
+            "name": "restaurant.menus.add_item",
+            "displayName": "Add Menu Item",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.menus.remove_item",
+            "displayName": "Remove Menu Item",
+            "isDefaultUser": false,
+            "isDefaultAdmin": true,
+            "isDefaultOwner": true
+        },
+        {
+            "name": "restaurant.update",
+            "displayName": "Update Restaurant",
+            "isDefaultUser": false,
+            "isDefaultAdmin": false,
+            "isDefaultOwner": true
         }
     ]
 }
