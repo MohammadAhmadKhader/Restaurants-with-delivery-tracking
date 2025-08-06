@@ -6,7 +6,7 @@ using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Repositories;
 
-public class AddressesRepository(AppDbContext ctx) : GenericRepository<Address, Guid>(ctx), IAddressesRepository
+public class AddressesRepository(AppDbContext ctx) : GenericRepository<Address, Guid, AppDbContext>(ctx), IAddressesRepository
 {
     public async Task<(List<Address> addresses, int count)> FindAllByUserIdAsync(Guid Id, int page, int size)
     {

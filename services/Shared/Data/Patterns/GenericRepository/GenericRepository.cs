@@ -4,13 +4,15 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Shared.Data.Patterns.GenericRepository;
 
-public class GenericRepository<TModel, TPrimaryKey> : IGenericRepository<TModel, TPrimaryKey> where TModel : class
+public class GenericRepository<TModel, TPrimaryKey, TDbContext> : IGenericRepository<TModel, TPrimaryKey> 
+    where TModel : class
+    where TDbContext : DbContext
 {
-    protected readonly DbContext _ctx;
+    protected readonly TDbContext _ctx;
     protected readonly DbSet<TModel> _dbSet;
-    public GenericRepository(DbContext ctx)
+    public GenericRepository(TDbContext ctx)
     {
-        _ctx = ctx;
+        _ctx   = ctx;
         _dbSet = _ctx.Set<TModel>();
     }
     public async Task<(List<TModel> roles, int count)> FindAllOrderedDescAtAsync(

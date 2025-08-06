@@ -6,10 +6,10 @@ using Restaurants.Mappers;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;
 using Restaurants.Services.IServices;
-using Restaurants.Utils;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
 using Shared.Kafka;
+using Shared.Tenant;
 
 namespace Restaurants.Services;
 

@@ -1,4 +1,5 @@
 using Auth.Contracts.Dtos.Address;
+using Auth.Contracts.Enums;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
 using Auth.Tests.Collections;

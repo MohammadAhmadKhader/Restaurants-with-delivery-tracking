@@ -20,5 +20,13 @@ public class FluentCustomLanguageManager : LanguageManager
         AddTranslation("en", "EmailValidator", ValidationMessageTemplates.EMAIL_VALIDATOR);
 
         AddTranslation("en", "NotEmptyValidator_String", ValidationMessageTemplates.REQUIRED_FIELD);
+
+        AddTranslation("en", "GreaterThanValidator", ValidationMessageTemplates.GREATER_THAN_VALIDATOR);
+
+        AddTranslation("en", "GreaterThanOrEqualValidator", ValidationMessageTemplates.GREATER_THAN_OR_EQUAL_VALIDATOR);
+
+        AddTranslation("en", "LessThanValidator", ValidationMessageTemplates.LESS_THAN_VALIDATOR);
+        
+        AddTranslation("en", "LessThanOrEqualValidator", ValidationMessageTemplates.LESS_THAN_OR_EQUAL_VALIDATOR);
     }
 }

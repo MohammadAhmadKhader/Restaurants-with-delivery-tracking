@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host, config);
-builder.Services.AddDatabase<AppDbContext>(config);
+builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Host.ValidateScopes();
 

@@ -44,7 +44,7 @@ public class AddressesService(IUnitOfWork<AppDbContext> unitOfWork, IAddressesRe
 
     public async Task<Address> UpdateAsync(Guid id, Guid userId, AddressUpdateDto dto)
     {
-        var address = await this.FindByIdAsync(id);
+        var address = await _addressesRepository.FindByIdAsync(id);
         if (address == null || address.UserId != userId)
         {
             throw new ResourceNotFoundException(resourceName);
@@ -58,7 +58,7 @@ public class AddressesService(IUnitOfWork<AppDbContext> unitOfWork, IAddressesRe
 
     public async Task DeleteByIdAsync(Guid id, Guid userId)
     {
-        var address = await this.FindByIdAsync(id);
+        var address = await _addressesRepository.FindByIdAsync(id);
         if (address == null || address.UserId != userId)
         {
             throw new ResourceNotFoundException(resourceName);

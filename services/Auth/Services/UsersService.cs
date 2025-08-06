@@ -72,12 +72,12 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
             return (false, DeleteUserError.NotFound);
         }
 
-        if (user.Roles.Any(r => r.Name == RolePolicies.Admin))
+        if (user.Roles.Any(r => r.NormalizedName == RolePolicies.Admin))
         {
             return (false, DeleteUserError.ForbiddenAdmin);
         }
 
-        if (user.Roles.Any(r => r.Name == RolePolicies.SuperAdmin))
+        if (user.Roles.Any(r => r.NormalizedName == RolePolicies.SuperAdmin))
         {
             return (false, DeleteUserError.ForbiddenOwner);
         }

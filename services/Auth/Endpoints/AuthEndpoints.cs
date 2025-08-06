@@ -5,9 +5,7 @@ using System.Security.Claims;
 using Auth.Utils;
 using Shared.Utils;
 using Auth.Contracts.Dtos.Auth;
-using MassTransit;
-using Shared.Kafka;
-using Refit;
+using Shared.Tenant;
 namespace Auth.Endpoints;
 
 public static class AuthEndpoints
@@ -85,7 +83,7 @@ public static class AuthEndpoints
         appGroup.MapGet("/user-info", async (ClaimsPrincipal principal, ITokenService tokenService) =>
         {
             var userInfo = await tokenService.GetUserInfoAsync(principal);
-            
+
             return Results.Ok(userInfo);
         }).RequireAuthorization();
 

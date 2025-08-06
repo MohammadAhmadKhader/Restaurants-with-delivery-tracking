@@ -18,7 +18,7 @@ public static class UsersEndpoints
 
         group.MapGet("/", async (IUsersService usersService, [AsParameters] UsersFilterParams filterParams) =>
         {
-            PaginationUtils.Normalize(filterParams);
+            PaginationUtils.NormalizeAndModify(filterParams);
             sortUils.Normalize(filterParams);
 
             var (users, count) = await usersService.FilterUsersAsync(filterParams);

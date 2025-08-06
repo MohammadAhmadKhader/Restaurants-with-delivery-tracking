@@ -1,7 +1,8 @@
-using Auth.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Constants;
 
-namespace Auth.Middlewares;
+namespace Shared.Tenant;
 public class TenantMiddleware
 {
     private readonly RequestDelegate _next;

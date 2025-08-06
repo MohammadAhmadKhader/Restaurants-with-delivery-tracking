@@ -6,7 +6,7 @@ using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Repositories;
 
-public class RolesRepository(AppDbContext ctx) : GenericRepository<Role, Guid>(ctx), IRolesRepository
+public class RolesRepository(AppDbContext ctx) : GenericRepository<Role, Guid, AppDbContext>(ctx), IRolesRepository
 {
     public async Task<Role?> FindByNameAsync(string name)
     {

@@ -38,6 +38,11 @@ public class MenusService(
         return await _menusRepository.FindByIdWithItemsAsync(menuId);
     }
 
+    public async Task<List<MenuItem>> FindItemsByIdsAsync(List<int> itemsIds)
+    {
+        return await _menuItemsRepository.FindManyByIdsAsync(itemsIds);
+    }
+
     public async Task<MenuItem?> FindItemByIdAsync(int itemId)
     {
         return await _menuItemsRepository.FindByIdAsync(itemId);

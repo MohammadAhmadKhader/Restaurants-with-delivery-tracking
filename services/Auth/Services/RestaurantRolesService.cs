@@ -8,6 +8,7 @@ using Auth.Utils;
 
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
+using Shared.Tenant;
 
 namespace Auth.Services;
 

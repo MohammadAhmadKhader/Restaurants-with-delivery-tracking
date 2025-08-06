@@ -1,9 +1,9 @@
 using Auth.Models;
-using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Shared.Data.Patterns.AuditTimestamp;
+using Shared.Tenant;
 
 namespace Auth.Data;
 

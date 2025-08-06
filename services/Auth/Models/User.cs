@@ -6,8 +6,6 @@ using Shared.Data.Patterns.AuditTimestamp;
 
 namespace Auth.Models;
 
-public enum DefaultUserRoles { None, User, Admin, SuperAdmin }
-public enum DefaultRestaurantUserRoles { None, Customer, Admin, Owner }
 public enum DeleteUserError { None, NotFound, ForbiddenAdmin, ForbiddenOwner, Unexpected }
 public class User : IdentityUser<Guid>, IUpdatedAt
 {

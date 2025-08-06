@@ -7,6 +7,7 @@ using Auth.Contracts.Clients;
 using Refit;
 using Shared.Config;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Shared.Extensions;
 
@@ -69,7 +70,7 @@ public static class HttpExtensions
             })
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
-        services.AddScoped<IAuthProvider, AuthProvider>();
+        services.AddAuthProvider();
 
         return services;
     }
@@ -79,6 +80,13 @@ public static class HttpExtensions
         var urls = MicroservicesUrlsProvider.GetUrls(config);
 
         services.AddRefitClient<IRestaurantServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.RestaurantsService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        services.AddRefitClient<IMenusServiceClient>()
             .ConfigureHttpClient(client =>
             {
                 client.BaseAddress = new Uri(urls.RestaurantsService);
@@ -95,6 +103,12 @@ public static class HttpExtensions
         services.AddAuthClients(config);
         services.AddRestaurantsClients(config);
 
+        return services;
+    }
+
+    public static IServiceCollection AddAuthProvider(this IServiceCollection services)
+    {
+        services.TryAddScoped<IAuthProvider, AuthProvider>();
         return services;
     }
 }

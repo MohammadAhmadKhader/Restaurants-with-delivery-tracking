@@ -1,8 +1,8 @@
-using Auth.Utils;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Shared.Extensions;
+using Shared.Tenant;
 
 namespace Auth.Data;
 
@@ -20,13 +20,5 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
         optionsBuilder.UseNpgsql(config.GetConnectionString("DefaultConnection"));
 
         return new AppDbContext(optionsBuilder.Options, new MockTenantProvider());
-    }
-    
-    public class MockTenantProvider : ITenantProvider
-    {
-        public Guid? RestaurantId => Guid.Parse(GetTenantId());
-        public string GetTenantId() => "default-tenant-id";
-        public Guid GetTenantIdOrThrow() => Guid.NewGuid();
-        public void SetTenantId(Guid? tenantId) { }
     }
 }

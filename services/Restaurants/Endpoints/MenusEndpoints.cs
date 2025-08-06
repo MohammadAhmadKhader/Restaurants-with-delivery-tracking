@@ -16,9 +16,7 @@ public static class MenusEndpoints
 
         group.MapGet("", async ([AsParameters] PagedRequest pagedReq, IMenusService menusService) =>
         {
-            PaginationUtils.Normalize(pagedReq);
-            var page = pagedReq.Page!.Value;
-            var size = pagedReq.Size!.Value;
+            var (page, size) = PaginationUtils.NormalizeAndReturn(pagedReq);
 
             var (menus, count) = await menusService.FindAllAsync(page, size);
             var menusViews = menus.Select(r => r.ToViewDto()).ToList();

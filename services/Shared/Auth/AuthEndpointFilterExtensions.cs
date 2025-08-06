@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shared.Contracts.Interfaces;
 
 namespace Shared.Auth;
+
 public static class AuthEndpointFilterExtensions
 {
     public static RouteHandlerBuilder RequirePermission(this RouteHandlerBuilder builder, string permission)
@@ -21,6 +22,17 @@ public static class AuthEndpointFilterExtensions
                     statusCode: 403
                 );
             }
+
+            return await next(context);
+        });
+    }
+    
+    public static RouteHandlerBuilder RequireAuthenticatedUser(this RouteHandlerBuilder builder)
+    {
+        return builder.AddEndpointFilter(async (context, next) =>
+        {
+            var userProvider = context.HttpContext.RequestServices.GetRequiredService<IAuthProvider>();
+            var userInfo = await userProvider.GetUserInfoAsync();
 
             return await next(context);
         });

@@ -8,6 +8,8 @@ using Shared.Exceptions;
 using Auth.Data;
 using Auth.Data.Seed;
 using Restaurants.Contracts.Clients;
+using Shared.Contracts.Interfaces;
+using Shared.Tenant;
 
 namespace Auth.Services;
 
@@ -25,6 +27,7 @@ public class AuthService(
     private const string restaurantResourceName = "restaurant";
     public async Task<(User, TokensResponse)> Login(LoginDto dto)
     {
+
         var user = await usersService.FindByEmailWithRolesAndPermissionsAsync(dto.Email);
         if (user == null)
         {
@@ -40,7 +43,7 @@ public class AuthService(
         var tokensResponse = await tokenService.GenerateTokensAsync(
             user.Id,
             user.Email!,
-            [.. user.Roles.Select(r => r.Name)!]
+            [.. user.Roles.Select(r => r.NormalizedName)!]
         );
 
         return (user, tokensResponse);
@@ -114,7 +117,7 @@ public class AuthService(
 
     public async Task<(User, TokensResponse)> RegisterRestaurant(RegisterDto dto, Guid restaurantId)
     {
-        var rest = await restaurantServiceClient.GetRestaurantById(restaurantId);
+        var rest = await restaurantServiceClient.GetRestaurantByIdAsync(restaurantId);
         ResourceNotFoundException.ThrowIfNull(rest, restaurantResourceName, restaurantId);
 
         var userExists = await usersService.ExistsByEmailAsync(dto.Email);

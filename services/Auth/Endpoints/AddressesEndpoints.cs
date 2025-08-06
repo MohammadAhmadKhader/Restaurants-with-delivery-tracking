@@ -18,9 +18,7 @@ public static class AddressesEndpoints
 
         group.MapGet("", async ([AsParameters] PagedRequest pagedReq, IAddressesService addressesService, ClaimsPrincipal principal) =>
         {
-            PaginationUtils.Normalize(pagedReq);
-            var page = pagedReq.Page!.Value;
-            var size = pagedReq.Size!.Value;
+            var (page, size) = PaginationUtils.NormalizeAndReturn(pagedReq);
 
             var userId = SecurityUtils.ExtractUserId(principal);
             

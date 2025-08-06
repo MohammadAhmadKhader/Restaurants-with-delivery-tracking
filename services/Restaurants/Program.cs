@@ -7,8 +7,8 @@ using Shared.Health;
 using Shared.Middlewares;
 using Shared.Redis;
 using Shared.Observability;
-using Restaurants.Middlewares;
 using Shared.Storage.Cloudinary;
+using Shared.Tenant;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +19,7 @@ builder.Configuration.AddGlobalConfig();
 builder.Services.AddNamingPolicy();
 builder.Services.AddAppProblemDetails();
 builder.Services.AddServiceLogging(host, config);
-builder.Services.AddDatabase<AppDbContext>(config);
+builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
 builder.Services.AddRedis(config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services
@@ -30,6 +30,7 @@ builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);
 builder.Services.AddCloudinaryStorage(config);
+builder.Services.AddTenantProvider();
 
 var app = builder.Build();
 

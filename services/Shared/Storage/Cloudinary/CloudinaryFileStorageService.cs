@@ -18,11 +18,6 @@ public class CloudinaryFileStorageService : IFileStorageService
         _serviceName = serviceName;
         _logger = logger;
 
-Console.WriteLine($"-----------------------------------------------------");
-
-        Console.WriteLine(_settings.CloudName);
-        Console.WriteLine(_settings.ApiKey);
-Console.WriteLine(_settings.ApiSecret);
         var account = new Account(_settings.CloudName, _settings.ApiKey, _settings.ApiSecret);
         _cloudinary = new CloudinaryDotNet.Cloudinary(account);
         _cloudinary.Api.Secure = true;

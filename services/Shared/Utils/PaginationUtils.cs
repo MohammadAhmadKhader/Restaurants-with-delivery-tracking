@@ -13,7 +13,7 @@ public class PaginationUtils
     public const int MinPageAllowed = 1;
     public const int MaxPageAllowed = int.MaxValue;
 
-    public static void Normalize(IPagination pagination)
+    public static void NormalizeAndModify(IPagination pagination)
     {
         int? page = pagination.Page;
         int? size = pagination.Size;
@@ -22,6 +22,16 @@ public class PaginationUtils
 
         pagination.Page = page;
         pagination.Size = size;
+    }
+
+    public static (int page, int size) NormalizeAndReturn(IPagination pagination)
+    {
+        int? page = pagination.Page;
+        int? size = pagination.Size;
+
+        HandleNormalization(ref page, ref size);
+
+        return (page!.Value, size!.Value);
     }
 
     public static void Normalize(ref int? page, ref int? size)

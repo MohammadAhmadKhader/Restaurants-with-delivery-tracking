@@ -1,5 +1,6 @@
 using Auth.Contracts.Clients;
 using Shared.Contracts.Interfaces;
+using Shared.Exceptions;
 using Shared.Utils;
 
 namespace Shared.Auth;
@@ -18,6 +19,7 @@ public class AuthProvider(
 ) : IAuthProvider
 {
     private IUserInfo? _cachedInfo;
+    public IUserInfo UserInfo { get => _cachedInfo ?? throw new InternalServerException("UserInfo is null, must call Auth Api.") ; }
     public async Task<IUserInfo> GetUserInfoAsync()
     {
         if (_cachedInfo != null)

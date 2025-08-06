@@ -76,7 +76,7 @@ public class RolesService(
         var role = await roleManager.FindByIdAsync(id.ToString());
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
-        if (role.Name == RolePolicies.SuperAdmin)
+        if (role.NormalizedName == RolePolicies.SuperAdmin)
         {
             throw new InvalidOperationException("this role can not be deleted");
         }
@@ -93,7 +93,7 @@ public class RolesService(
         var role = await roleManager.FindByIdAsync(id.ToString());
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
-        if (role.Name == RolePolicies.SuperAdmin)
+        if (role.NormalizedName == RolePolicies.SuperAdmin)
         {
             throw new InvalidOperationException("this role can not be modified");
         }
@@ -110,7 +110,7 @@ public class RolesService(
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
         
-        if (role.Name == RolePolicies.SuperAdmin)
+        if (role.NormalizedName == RolePolicies.SuperAdmin)
         {
             throw new InvalidOperationException("this role can not be modified");
         }
@@ -152,7 +152,7 @@ public class RolesService(
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         ResourceNotFoundException.ThrowIfNull(role, resourceName, roleId.ToString());
 
-        if (role.Name == RolePolicies.SuperAdmin)
+        if (role.NormalizedName == RolePolicies.SuperAdmin)
         {
             throw new InvalidOperationException("this role can not be modified");
         }

@@ -15,6 +15,7 @@ public interface IMenusService
     Task RemoveItemFromMenuAsync(int menuId, int menuItemId);
 
     Task<MenuItem?> FindItemByIdAsync(int itemId);
+    Task<List<MenuItem>> FindItemsByIdsAsync(List<int> menuItemsIds);
     Task<MenuItem> CreateItemAsync(MenuItemCreateDto dto);
     Task<MenuItem> UpdateItemAsync(int itemId, MenuItemUpdateDto dto);
     Task DeleteItemAsync(int menuId);

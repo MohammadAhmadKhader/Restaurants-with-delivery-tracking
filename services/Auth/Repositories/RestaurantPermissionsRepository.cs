@@ -5,7 +5,7 @@ using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Repositories;
 
-public class RestaurantPermissionsRepository(AppDbContext ctx) : GenericRepository<RestaurantPermission, int>(ctx), IRestaurantPermissionsRepository
+public class RestaurantPermissionsRepository(AppDbContext ctx) : GenericRepository<RestaurantPermission, int, AppDbContext>(ctx), IRestaurantPermissionsRepository
 {
     
 }

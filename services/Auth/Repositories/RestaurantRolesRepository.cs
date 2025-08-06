@@ -6,7 +6,7 @@ using Shared.Data.Patterns.GenericRepository;
 
 namespace Auth.Repositories;
 
-public class RestaurantRolesRepository(AppDbContext ctx) : GenericRepository<RestaurantRole, Guid>(ctx), IRestaurantRolesRepository
+public class RestaurantRolesRepository(AppDbContext ctx) : GenericRepository<RestaurantRole, Guid, AppDbContext>(ctx), IRestaurantRolesRepository
 {
     public async Task<RestaurantRole?> FindByIdWithPermissionsAsync(Guid id)
     {

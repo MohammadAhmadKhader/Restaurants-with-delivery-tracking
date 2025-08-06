@@ -4,7 +4,7 @@ using Restaurants.Repositories.IRepositories;
 using Shared.Data.Patterns.GenericRepository;
 
 namespace Restaurants.Repositories;
-public class RestaurantInvitationsRepository(AppDbContext ctx): GenericRepository<RestaurantInvitation, Guid>(ctx), IRestaurantInvitationsRepository
+public class RestaurantInvitationsRepository(AppDbContext ctx): GenericRepository<RestaurantInvitation, Guid, AppDbContext>(ctx), IRestaurantInvitationsRepository
 {
     
 }

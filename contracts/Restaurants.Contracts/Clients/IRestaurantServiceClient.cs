@@ -6,19 +6,19 @@ namespace Restaurants.Contracts.Clients;
 public interface IRestaurantServiceClient
 {
     [Get("/api/restaurants/{id}")]
-    Task<RestaurantResponseWrappaer> GetRestaurantById(Guid id);
+    Task<RestaurantResponseWrappaer> GetRestaurantByIdAsync(Guid id);
 
     [Post("/api/restaurants")]
-    Task<RestaurantResponseWrappaer> CreateRestaurant([Body] RestaurantCreateDto dto, [Query] string token);
+    Task<RestaurantResponseWrappaer> CreateRestaurantAsync([Body] RestaurantCreateDto dto, [Query] string token);
 
-    [Post("/api/restaurants/send-invitation")]
-    Task<RestaurantInvitationResponseWrappaer> SendInvitation([Body] RestaurantInvitationCreateDto dto);
+    [Post("/api/restaurants/invitations/send")]
+    Task<RestaurantInvitationResponseWrappaer> SendInvitationAsync([Body] RestaurantInvitationCreateDto dto);
 
     [Get("/api/restaurants/invitations")]
-    Task<ApiResponse<object>> CheckInvitationExistence([Query] string token);
+    Task<ApiResponse<object>> CheckInvitationExistenceAsync([Query] string token);
 
-    [Post("/api/restaurants/accept-invitation")]
-    Task<RestaurantResponseWrappaer> AcceptInvitation([Body] RestaurantInvitationAcceptDto dto, [Query] string token);
+    [Post("/api/restaurants/invitations/accept")]
+    Task<RestaurantResponseWrappaer> AcceptInvitationAsync([Body] RestaurantInvitationAcceptDto dto, [Query] string token);
 
     [Post("/api/restaurants/test")]
     Task<TestBody> TestPostAsync([Body] object data);

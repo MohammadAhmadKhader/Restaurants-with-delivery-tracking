@@ -35,4 +35,26 @@ public static class ValidationMessagesBuilder
         .Replace("{PropertyName}", propertyName)
         .Replace("{From}", from.ToString())
         .Replace("{To}", to.ToString());
+
+    public static string GreaterThan(string propertyName, object comparisonValue) =>
+        ValidationMessageTemplates.GREATER_THAN_VALIDATOR
+            .Replace("{PropertyName}", propertyName)
+            .Replace("{ComparisonValue}", comparisonValue.ToString());
+
+    public static string GreaterThanOrEqual(string propertyName, object comparisonValue) =>
+        ValidationMessageTemplates.GREATER_THAN_OR_EQUAL_VALIDATOR
+            .Replace("{PropertyName}", propertyName)
+            .Replace("{ComparisonValue}", comparisonValue.ToString());
+
+    public static string LessThan(string propertyName, object comparisonValue) =>
+        ValidationMessageTemplates.LESS_THAN_VALIDATOR
+            .Replace("{PropertyName}", propertyName)
+            .Replace("{ComparisonValue}", comparisonValue.ToString());
+
+    public static string LessThanOrEqual(string propertyName, object comparisonValue) =>
+        ValidationMessageTemplates.LESS_THAN_OR_EQUAL_VALIDATOR
+            .Replace("{PropertyName}", propertyName)
+            .Replace("{ComparisonValue}", comparisonValue.ToString());
+
+    public static string InvalidId() => ValidationMessageTemplates.INVALID_ID;
 }

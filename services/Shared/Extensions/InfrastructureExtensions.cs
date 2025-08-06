@@ -2,13 +2,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Shared.Utils;
 
 namespace Shared.Extensions;
 
 public static class InfrastructureExtensions
 {
-    public static IServiceCollection AddDatabase<TContext>(this IServiceCollection services, IConfiguration config, string connectionString = "DefaultConnection")
+    public static IServiceCollection AddNpgsqlDatabase<TContext>(
+        this IServiceCollection services, IConfiguration config,
+        string connectionString = "DefaultConnection",
+        Action<NpgsqlDbContextOptionsBuilder>? ctxOptionsBuilder = null)
         where TContext : DbContext
     {
         var connStr = config.GetConnectionString(connectionString);
@@ -19,7 +23,7 @@ public static class InfrastructureExtensions
 
         services.AddDbContext<TContext>(options =>
         {
-            options.UseNpgsql(connStr);
+            options.UseNpgsql(connStr, ctxOptionsBuilder);
         });
 
         return services;

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Auth.Contracts.Dtos.User;
+using Auth.Contracts.Enums;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;

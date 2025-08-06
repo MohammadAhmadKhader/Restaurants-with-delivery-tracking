@@ -24,6 +24,14 @@ public static class MenuItemsEndpoints
             return Results.Ok(new { item = item.ToViewDto() });
         });
 
+        group.MapGet("/batch", async ([FromQuery] int[] ids, IMenusService menusService) =>
+        {
+            var items = await menusService.FindItemsByIdsAsync(new(ids));
+            var itemsViews = items.Select(i => i.ToViewDto()).ToList();
+
+            return Results.Ok(new { items = itemsViews });
+        });
+
         group.MapPost("", async ([FromForm] MenuItemCreateDto dto, IMenusService menusService) =>
         {
             var newItem = await menusService.CreateItemAsync(dto);

@@ -16,9 +16,7 @@ public static class RolesEndpoints
 
         group.MapGet("", async ([AsParameters] PagedRequest pagedReq, IRolesService rolesService) =>
         {
-            PaginationUtils.Normalize(pagedReq);
-            var page = pagedReq.Page!.Value;
-            var size = pagedReq.Size!.Value;
+            var (page, size) = PaginationUtils.NormalizeAndReturn(pagedReq);
             
             var (roles, count) = await rolesService.FindAllAsync(page, size);
             var rolesViews = roles.Select(r => r.ToViewDto()).ToList();

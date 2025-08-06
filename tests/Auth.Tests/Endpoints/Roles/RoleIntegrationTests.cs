@@ -1,3 +1,4 @@
+using Auth.Contracts.Enums;
 using Auth.Data;
 using Auth.Extensions.FluentValidationValidators;
 using Auth.Models;
@@ -307,7 +308,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
                 break;
 
             case "BadRequest":
-                var superAdmin = _fixture.Loader.Roles.First(r => r.Name == RolePolicies.SuperAdmin);
+                var superAdmin = _fixture.Loader.Roles.First(r => r.NormalizedName == RolePolicies.SuperAdmin);
                 roleId = superAdmin.Id;
                 expectedStatus = HttpStatusCode.BadRequest;
                 break;

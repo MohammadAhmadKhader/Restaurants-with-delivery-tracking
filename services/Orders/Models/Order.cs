@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Orders.Contracts.Enums;
+using Orders.Utils;
 namespace Orders.Models;
-public enum OrderStatus { PLACED, ACCEPTED, PREPARING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED }
-public class Order
+
+public class Order: ITenantModel, ICustomerModel
 {
     [Key]
     public Guid Id { get; set; }
@@ -13,6 +16,10 @@ public class Order
     public decimal TotalAmount { get; set; }
     public DateTime PlacedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DeliveredAt { get; set; }
-    public bool DeliveryTrackingEnabled { get; set; } = true;
+    public DateTime? CancelledAt { get; set; }
+    public bool DeliveryTrackingEnabled { get; set; }
+
+    [NotMapped]
+    public int ItemsCount { get; set; }
     public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>();
 }

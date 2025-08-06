@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Auth.Data.Seed.Converters;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
@@ -6,6 +5,7 @@ using Auth.Utils;
 using Microsoft.AspNetCore.Identity;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Extensions;
+using Shared.Tenant;
 using Shared.Utils;
 
 namespace Auth.Data.Seed;

@@ -6,4 +6,12 @@ public interface IUserInfo
     public HashSet<string> Roles { get; set; }
     public HashSet<string> Permissions { get; set; }
     public Guid? RestaurantId { get; set; }
+
+    public bool IsSuperAdmin();
+    public bool IsAdmin();
+    public bool HasAdminsRoles();
+    
+    public bool IsRestaurantOwner();
+    public bool IsRestaurantAdmin();
+    public bool HasRestaurantAdminsRoles();  
 }

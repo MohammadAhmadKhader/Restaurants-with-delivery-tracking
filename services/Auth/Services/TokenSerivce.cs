@@ -8,10 +8,10 @@ using Auth.Contracts.Dtos.Auth;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
-using Auth.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Exceptions;
+using Shared.Tenant;
 
 namespace Auth.Services;
 
@@ -91,10 +91,11 @@ public class TokenService : ITokenService
             }
 
             await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
-            var userClaims = await GetUserClaimsAsync(Guid.Parse(storedToken.UserId));
+            var parsedUserId = Guid.Parse(storedToken.UserId);
+            var userClaims = await GetUserClaimsAsync(parsedUserId);
 
             return await GenerateTokensAsync(
-                Guid.Parse(storedToken.UserId),
+                parsedUserId,
                 userClaims.Email,
                 userClaims.Roles
             );
@@ -186,7 +187,7 @@ public class TokenService : ITokenService
         {
             UserId = user.Id,
             Email = user.Email!,
-            Roles = user.Roles.Select(r => r.Name).ToHashSet()!
+            Roles = user.Roles.Select(r => r.NormalizedName).ToHashSet()!
         };
     }
 
@@ -251,14 +252,14 @@ public class TokenService : ITokenService
         if (restaurantId == null)
         {
             return (
-                user.Roles.Select(r => r.Id.ToString()).ToHashSet(),
-                user.Roles.SelectMany(r => r.Permissions).Select(r => r.Name).ToHashSet()
+                user.Roles.Select(r => r.NormalizedName!).ToHashSet(),
+                user.Roles.SelectMany(r => r.Permissions).Select(p => p.Name).ToHashSet()
             );
         }
 
         return (
-            user.RestaurantRoles.Select(r => r.Id.ToString()).ToHashSet(),
-            user.RestaurantRoles.SelectMany(r => r.Permissions).Select(r => r.NormalizedName).ToHashSet()
+            user.RestaurantRoles.Select(r => r.NormalizedName).ToHashSet(),
+            user.RestaurantRoles.SelectMany(r => r.Permissions).Select(p => p.NormalizedName).ToHashSet()
         );
     }
 }

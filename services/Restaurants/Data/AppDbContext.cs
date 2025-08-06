@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Restaurants.Models;
 using Restaurants.Utils;
+using Shared.Tenant;
 
 namespace Restaurants.Data;
 

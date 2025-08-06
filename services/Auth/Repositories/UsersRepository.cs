@@ -9,7 +9,7 @@ using Shared.Specifications;
 
 namespace Auth.Repositories;
 
-public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid>(ctx), IUsersRepository
+public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid, AppDbContext>(ctx), IUsersRepository
 {
     public async Task<bool> ExistsByEmailAsync(string email)
     {

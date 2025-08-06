@@ -163,9 +163,12 @@ public class TestDataLoader(AppDbContext ctx, IPasswordHasher<User> hasher)
         await _ctx.Roles.AddRangeAsync(roles);
         await _ctx.SaveChangesAsync();
 
-        UserRole = (await _ctx.Roles.Where(x => x.Name == RolePolicies.User).FirstOrDefaultAsync())!;
-        AdminRole = (await _ctx.Roles.Where(x => x.Name == RolePolicies.Admin).FirstOrDefaultAsync())!;
-        SuperAdminRole = (await _ctx.Roles.Where(x => x.Name == RolePolicies.SuperAdmin).FirstOrDefaultAsync())!;
+        UserRole = (await _ctx.Roles.Where(x => x.NormalizedName == RolePolicies.User).FirstOrDefaultAsync())!;
+        AdminRole = (await _ctx.Roles.Where(x => x.NormalizedName == RolePolicies.Admin).FirstOrDefaultAsync())!;
+        SuperAdminRole = (await _ctx.Roles.Where(x => x.NormalizedName == RolePolicies.SuperAdmin).FirstOrDefaultAsync())!;
+        GuardUtils.ThrowIfNull(UserRole);
+        GuardUtils.ThrowIfNull(AdminRole);
+        GuardUtils.ThrowIfNull(SuperAdminRole);
 
         foreach (var perm in permissions)
         {

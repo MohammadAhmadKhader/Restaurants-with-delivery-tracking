@@ -1,6 +1,7 @@
 using Shared.Constants;
 
-namespace Auth.Utils;
+namespace Shared.Tenant;
+
 public class TenantProvider : ITenantProvider
 {
     public Guid? RestaurantId { get; private set; }
@@ -14,11 +15,6 @@ public class TenantProvider : ITenantProvider
 
         return RestaurantId.Value;
     }
-}
-
-public interface ITenantProvider
-{
-    Guid? RestaurantId { get; }
-    Guid GetTenantIdOrThrow();
-    void SetTenantId(Guid? tenantId);
+    
+    public bool SkipTenantEnforcementOnCreate { get; set; } = false;
 }

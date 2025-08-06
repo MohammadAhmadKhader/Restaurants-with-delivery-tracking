@@ -93,43 +93,57 @@ public class IntegrationTestsFixture : IAsyncLifetime
 
     public User GetSuperAdmin()
     {
-        return Loader.Users.First(u => u.Email == TestDataLoader.SuperAdminEmail);
+        var user = Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.SuperAdminEmail);
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
 
     public User GetAdmin()
     {
-        return Loader.Users.First(u => u.Email == TestDataLoader.AdminEmail);
+        var user = Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.AdminEmail);
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
 
     public User GetUser()
     {
-        return Loader.Users.First(u => u.Email == TestDataLoader.UserEmail);
+        var user = Loader.Users.FirstOrDefault(u => u.Email == TestDataLoader.UserEmail);
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
     public User GetUserToTryDelete()
     {
-        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.UserEmailToTryDelete.ToUpper());
+        var user = Loader.Users.FirstOrDefault(u => u.NormalizedEmail == TestDataLoader.UserEmailToTryDelete.ToUpper());
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
 
 
     public User GetAdminToTryDelete()
     {
-        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.AdminEmailToTryDelete.ToUpper());
+        var user = Loader.Users.FirstOrDefault(u => u.NormalizedEmail == TestDataLoader.AdminEmailToTryDelete.ToUpper());
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
 
     public User GetSuperAdminToTryDelete()
     {
-        return Loader.Users.First(u => u.NormalizedEmail == TestDataLoader.SuperAdminEmailToTryDelete.ToUpper());
+        var user = Loader.Users.FirstOrDefault(u => u.NormalizedEmail == TestDataLoader.SuperAdminEmailToTryDelete.ToUpper());
+        GuardUtils.ThrowIfNull(user);
+        return user;
     }
 
     public User GetRandomUser()
     {
-        var user = Loader.Users.First(
+        var user = Loader.Users.FirstOrDefault(
         u => u.Email != TestDataLoader.UserEmail &&
              u.Email != TestDataLoader.AdminEmail &&
              u.Email != TestDataLoader.AdminEmailToTryDelete &&
              u.Email != TestDataLoader.SuperAdminEmail &&
              u.Email != TestDataLoader.SuperAdminEmailToTryDelete &&
              !_usedRandomUsersEmails.Contains(u.Email!));
+
+        GuardUtils.ThrowIfNull(user);
 
         _usedRandomUsersEmails.Add(user.Email!);
         return user;

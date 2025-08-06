@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 
+using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
+
 namespace Shared.Middlewares;
 
 public class GlobalExceptionMiddleware
@@ -45,7 +47,7 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[GlobalExceptionMiddleware] Exception occurred");
+            _logger.LogError(ex, "[GlobalExceptionMiddleware] Exception occurred, type '{Type}'.", ex.GetType().Name);
 
             if (ex is BadHttpRequestException badReq && badReq.Message.StartsWith(BindingErrorMessageStart))
             {
@@ -91,6 +93,19 @@ public class GlobalExceptionMiddleware
             ConflictException => (StatusCodes.Status409Conflict, nameof(ExceptionsTitles.ConflictError)),
             _ => (StatusCodes.Status500InternalServerError, nameof(ExceptionsTitles.InternalServerError))
         };
+    }
+    private static IResult GetInternalServerErrorProblem()
+    {
+        var statusCode = StatusCodes.Status500InternalServerError;
+        var title = nameof(ExceptionsTitles.InternalServerError);
+
+        var problem = Results.Problem(
+            statusCode: statusCode,
+            title: title,
+            detail: "Internal Server Error."
+        );
+
+        return problem;
     }
     public enum ExceptionsTitles
     {
