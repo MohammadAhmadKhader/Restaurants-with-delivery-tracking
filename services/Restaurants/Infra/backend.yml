@@ -71,6 +71,23 @@ spec:
             value: "http://+:8080"
           - name: "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"
             value: "false"
+          - name: "Cloudinary__ApiSecret"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-restaurants-secret"
+                key: "Cloudinary__ApiSecret"
+
+          - name: "Cloudinary__ApiKey"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-restaurants-secret"
+                key: "Cloudinary__ApiKey"
+
+          - name: "Cloudinary__CloudName"
+            valueFrom:
+              secretKeyRef:
+                name: "backend-restaurants-secret"
+                key: "Cloudinary__CloudName"
 
         ports:
         - containerPort: 8080

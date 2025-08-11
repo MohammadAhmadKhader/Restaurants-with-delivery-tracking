@@ -10,7 +10,7 @@ public interface IOrdersServiceClient
     Task<CollectionResponse<OrderWithItemsCountViewDto>> GetOrdersAsync([Query] PagedRequest pagedRequest);
 
     [Get("/api/orders/{id}")]
-    Task<OrderWithItemsResponseWrappaer> GetOrderByIdAsync(Guid id);
+    Task<OrderWithItemsResponseWrappaer> GetOrderByIdWihtItemsAsync(Guid id);
 
     [Post("/api/orders/place")]
     Task<OrderResponseWrappaer> PlaceOrderAsync([Body] OrderPlaceDto dto);

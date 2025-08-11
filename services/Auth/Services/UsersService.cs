@@ -15,7 +15,7 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IUsersRepository _usersRepository = usersRepository;
     private readonly ILogger<UsersService> _logger = logger;
-    private const string resourceName = "user";
+    public const string resourceName = "user";
 
     public async Task<bool> ExistsByEmailAsync(string email)
     {
@@ -72,12 +72,12 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
             return (false, DeleteUserError.NotFound);
         }
 
-        if (user.Roles.Any(r => r.NormalizedName == RolePolicies.Admin))
+        if (user.Roles.Any(r => SecurityUtils.IsAdminRole(r)))
         {
             return (false, DeleteUserError.ForbiddenAdmin);
         }
 
-        if (user.Roles.Any(r => r.NormalizedName == RolePolicies.SuperAdmin))
+        if (user.Roles.Any(r => SecurityUtils.IsSuperAdminRole(r)))
         {
             return (false, DeleteUserError.ForbiddenOwner);
         }

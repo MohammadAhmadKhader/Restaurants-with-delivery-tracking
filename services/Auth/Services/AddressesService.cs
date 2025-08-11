@@ -13,7 +13,7 @@ public class AddressesService(IUnitOfWork<AppDbContext> unitOfWork, IAddressesRe
 {
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IAddressesRepository _addressesRepository = addressesRepository;
-    private const string resourceName = "address";
+    public const string resourceName = "address";
     public async Task<(List<Address> addresses, int count)> FindAllByUserIdAsync(Guid userId, int page, int limit)
     {
         return await _addressesRepository.FindAllByUserIdAsync(userId, page, limit);

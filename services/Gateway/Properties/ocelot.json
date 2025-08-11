@@ -99,6 +99,18 @@
             "UpstreamPathTemplate": "/api/payments/{everything}",
             "DownstreamPathTemplate": "/api/payments/{everything}",
             "DownstreamScheme": "http"
+        },
+        {
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5206
+                }
+            ],
+            "UpstreamHttpMethod": ["POST"],
+            "UpstreamPathTemplate": "/payments/webhook",
+            "DownstreamPathTemplate": "/webhook",
+            "DownstreamScheme": "http"
         }
     ]
 }

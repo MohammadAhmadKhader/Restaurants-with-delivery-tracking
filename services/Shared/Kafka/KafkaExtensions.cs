@@ -12,7 +12,7 @@ public static class KafkaExtensions
     public static IServiceCollection AddMassTransitWithKafka<TProgram>(
         this IServiceCollection services,
         IConfigurationRoot config,
-        Action<IRiderRegistrationContext, IKafkaFactoryConfigurator> configurer,
+        Action<IRiderRegistrationContext, IKafkaFactoryConfigurator>? configurer = null,
         Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
     {
         if (EnvironmentUtils.ShouldIgnoreKafka())
@@ -89,6 +89,12 @@ public static class KafkaExtensions
                     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
                 });
 
+                r.AddProducer<OrderCheckoutCompleted>(KafkaEventsTopics.OrderCheckoutCompleteted, (producerCtx, producerCfg) =>
+                {
+                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
+                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
+                });
+
                 r.AddProducer<SimpleTestEvent>(KafkaEventsTopics.TestTopic, (producerCtx, producerCfg) =>
                 {
                     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
@@ -100,7 +106,7 @@ public static class KafkaExtensions
                     logger.LogInformation("Kafka Bootstrap Servers: {BootstrapServers}", bootstrapServers);
                     cfg.Host(bootstrapServers);
 
-                    configurer(ctx, cfg);
+                    configurer?.Invoke(ctx, cfg);
                     cfg.Acks = Acks.All;
 
                     cfg.ClientId = "FoodDelivery";

@@ -29,8 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\contracts\Auth.Contracts\Auth.Contracts.csproj" />
-    <ProjectReference Include="..\..\contracts\Restaurants.Contracts\Restaurants.Contracts.csproj" />
+    <ProjectReference Include="..\..\contracts\*.Contracts\*.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

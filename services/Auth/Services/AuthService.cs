@@ -8,8 +8,6 @@ using Shared.Exceptions;
 using Auth.Data;
 using Auth.Data.Seed;
 using Restaurants.Contracts.Clients;
-using Shared.Contracts.Interfaces;
-using Shared.Tenant;
 
 namespace Auth.Services;
 
@@ -24,7 +22,7 @@ public class AuthService(
     IRestaurantServiceClient restaurantServiceClient,
     IDatabaseSeeder databaseSeeder) : IAuthService
 {
-    private const string restaurantResourceName = "restaurant";
+    public const string resourceName = "restaurant";
     public async Task<(User, TokensResponse)> Login(LoginDto dto)
     {
 
@@ -118,7 +116,7 @@ public class AuthService(
     public async Task<(User, TokensResponse)> RegisterRestaurant(RegisterDto dto, Guid restaurantId)
     {
         var rest = await restaurantServiceClient.GetRestaurantByIdAsync(restaurantId);
-        ResourceNotFoundException.ThrowIfNull(rest, restaurantResourceName, restaurantId);
+        ResourceNotFoundException.ThrowIfNull(rest, resourceName, restaurantId);
 
         var userExists = await usersService.ExistsByEmailAsync(dto.Email);
         if (userExists)
@@ -161,7 +159,7 @@ public class AuthService(
     public async Task ChangePassword(Guid userId, ResetPasswordDto dto)
     {
         var user = await usersService.FindByIdAsync(userId);
-        ResourceNotFoundException.ThrowIfNull(user, "user");
+        ResourceNotFoundException.ThrowIfNull(user, UsersService.resourceName);
 
         var result = bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword);
         if (result == PasswordVerificationResult.Failed)

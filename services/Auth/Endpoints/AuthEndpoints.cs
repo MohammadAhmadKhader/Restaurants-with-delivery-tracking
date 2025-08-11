@@ -87,6 +87,13 @@ public static class AuthEndpoints
             return Results.Ok(userInfo);
         }).RequireAuthorization();
 
+        appGroup.MapGet("/user-details", async (ClaimsPrincipal principal, ITokenService tokenService) =>
+        {
+            var userDetails = await tokenService.GetUserDetailsAsync(principal);
+
+            return Results.Ok(userDetails);
+        }).RequireAuthorization();
+
         var restaurantGroup = app.MapGroup("/api/auth/restaurants");
         restaurantGroup.MapPost("/login", async (LoginDto dto, IAuthService authService, ITenantProvider tenantProvider) =>
         {

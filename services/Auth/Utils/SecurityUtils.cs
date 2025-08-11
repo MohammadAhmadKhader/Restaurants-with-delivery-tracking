@@ -65,4 +65,12 @@ static class SecurityUtils
             !permission.IsDefaultAdmin &&
         permission.IsDefaultOwner;
     }
+
+    public static bool IsSuperAdminRole(Role role) => role.NormalizedName == RolePolicies.SuperAdmin;
+    public static bool IsAdminRole(Role role) => role.NormalizedName == RolePolicies.Admin;
+    public static bool IsUserRole(Role role) => role.NormalizedName == RolePolicies.User;
+
+    public static bool IsRestOwnerRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantOwner;
+    public static bool IsRestCustomerRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantAdmin;
+    public static bool IsRestAdminRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantCustomer;
 }

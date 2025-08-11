@@ -71,7 +71,7 @@ public class RestaurantRolesService(
         var role = await rolesRepository.FindByIdAsync(id);
         ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
-        if (role.NormalizedName == RolePolicies.RestaurantOwner)
+        if (SecurityUtils.IsRestOwnerRole(role))
         {
             throw new InvalidOperationException("this role can not be modified");
         }
@@ -88,7 +88,7 @@ public class RestaurantRolesService(
         var role = await rolesRepository.FindByIdAsync(id);
         ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
-        if (role.NormalizedName == RolePolicies.RestaurantOwner)
+        if (SecurityUtils.IsRestOwnerRole(role))
         {
             throw new InvalidOperationException("this role can not be deleted");
         }
@@ -140,7 +140,7 @@ public class RestaurantRolesService(
         var role = await rolesRepository.FindByIdWithPermissionsAsync(roleId);
         ResourceNotFoundException.ThrowIfNull(role, roleResourceName);
 
-        if (role.NormalizedName == RolePolicies.RestaurantOwner)
+        if (SecurityUtils.IsRestOwnerRole(role))
         {
             throw new InvalidOperationException("this role can not be modified");
         }

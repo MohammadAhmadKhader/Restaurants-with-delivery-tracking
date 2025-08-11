@@ -113,19 +113,19 @@ public class RestaurantPermissionsSynchronizer(
         // re-adding roles
         foreach (var dbRole in dbRoles)
         {
-            if (dbRole.NormalizedName == RolePolicies.RestaurantCustomer)
+            if (SecurityUtils.IsRestCustomerRole(dbRole))
             {
                 var rolePermissions = dbPermissions.Where(x => x.IsDefaultUser).ToList();
                 dbRole.Permissions.AddRange(rolePermissions);
             }
 
-            if (dbRole.NormalizedName == RolePolicies.RestaurantAdmin)
+            if (SecurityUtils.IsRestAdminRole(dbRole))
             {
                 var rolePermissions = dbPermissions.Where(x => x.IsDefaultAdmin).ToList();
                 dbRole.Permissions.AddRange(rolePermissions);
             }
 
-            if (dbRole.NormalizedName == RolePolicies.RestaurantOwner)
+            if (SecurityUtils.IsRestOwnerRole(dbRole))
             {
                 var rolePermissions = dbPermissions.Where(x => x.IsDefaultOwner).ToList();
                 dbRole.Permissions.AddRange(rolePermissions);

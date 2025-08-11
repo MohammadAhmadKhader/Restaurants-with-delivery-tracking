@@ -20,7 +20,8 @@ public class RolesService(
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IRolesRepository _rolesRepository = rolesRepository;
     private readonly IPermissionsRepository _permissionsRepository = permissionsRepository;
-    private const string resourceName = "role";
+    public const string resourceName = "role";
+    public const string permissionResourceName = "permission";
     public async Task<Role?> FindByIdAsync(Guid id)
     {
         return await _rolesRepository.FindByIdAsync(id);
@@ -76,7 +77,7 @@ public class RolesService(
         var role = await roleManager.FindByIdAsync(id.ToString());
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
-        if (role.NormalizedName == RolePolicies.SuperAdmin)
+        if (SecurityUtils.IsSuperAdminRole(role))
         {
             throw new InvalidOperationException("this role can not be deleted");
         }
@@ -93,7 +94,7 @@ public class RolesService(
         var role = await roleManager.FindByIdAsync(id.ToString());
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
 
-        if (role.NormalizedName == RolePolicies.SuperAdmin)
+        if (SecurityUtils.IsSuperAdminRole(role))
         {
             throw new InvalidOperationException("this role can not be modified");
         }
@@ -110,7 +111,7 @@ public class RolesService(
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         ResourceNotFoundException.ThrowIfNull(role, resourceName);
         
-        if (role.NormalizedName == RolePolicies.SuperAdmin)
+        if (SecurityUtils.IsSuperAdminRole(role))
         {
             throw new InvalidOperationException("this role can not be modified");
         }
@@ -121,14 +122,14 @@ public class RolesService(
         {
             var notFoundId = permissionsIds.First(id => !fetchedIds.Contains(id));
 
-            throw new ResourceNotFoundException("permission", notFoundId);
+            throw new ResourceNotFoundException(permissionResourceName, notFoundId);
         }
 
         foreach (var permission in role.Permissions)
         {
             if (fetchedIds.Contains(permission.Id))
             {
-                throw new ConflictException("permission", permission.Name, ConflictType.AlreadyAssigned);
+                throw new ConflictException(permissionResourceName, permission.Name, ConflictType.AlreadyAssigned);
             }
         }
 
@@ -152,17 +153,17 @@ public class RolesService(
         var role = await _rolesRepository.FindByIdWithPermissionsAsync(roleId);
         ResourceNotFoundException.ThrowIfNull(role, resourceName, roleId.ToString());
 
-        if (role.NormalizedName == RolePolicies.SuperAdmin)
+        if (SecurityUtils.IsSuperAdminRole(role))
         {
             throw new InvalidOperationException("this role can not be modified");
         }
 
         var permission = await _permissionsRepository.FindByIdAsync(permissionId);
-        ResourceNotFoundException.ThrowIfNull(permission, "permission", permissionId);
+        ResourceNotFoundException.ThrowIfNull(permission, permissionResourceName, permissionId);
 
         if (!role.Permissions.Contains(permission))
         {
-            throw new ConflictException("permission", permission.Name, ConflictType.NotAssigned);
+            throw new ConflictException(permissionResourceName, permission.Name, ConflictType.NotAssigned);
         }
 
         role.Permissions.Remove(permission);

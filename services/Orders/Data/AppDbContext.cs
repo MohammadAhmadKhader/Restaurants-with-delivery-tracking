@@ -7,7 +7,7 @@ namespace Orders.Data;
 
 public class AppDbContext : DbContext
 {
-    public readonly ITenantProvider _tenantProvider;
+    private readonly ITenantProvider _tenantProvider;
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider) : base(options)

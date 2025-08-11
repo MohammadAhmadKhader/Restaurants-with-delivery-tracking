@@ -1,7 +1,6 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Shared.Auth;
 using Shared.Extensions;
 using Shared.Tenant;
 

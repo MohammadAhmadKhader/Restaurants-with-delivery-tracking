@@ -5,11 +5,11 @@ using Orders.Mappers;
 using Orders.Models;
 using Orders.Repositories.IRepositories;
 using Orders.Services.IServices;
-using Restaurants.Contracts.Clients;
+using Restaurants.Contracts.Dtos.MenuItems;
+using Shared.Common;
 using Shared.Contracts.Interfaces;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
-using Shared.Utils;
 
 namespace Orders.Services;
 
@@ -17,13 +17,13 @@ public class OrdersService(
     IOrdersRepository ordersRepository,
     IUnitOfWork<AppDbContext> unitOfWork,
     IAuthProvider authProvider,
-    IMenusServiceClient menusServiceClient
+    IResourceBatchRetriever<int, MenuItemViewDto> resourceBatchRetriever
     ) : IOrdersService
 {
     private readonly IOrdersRepository _ordersRepository = ordersRepository;
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private readonly IAuthProvider _authProvider = authProvider;
-    private readonly IMenusServiceClient _menusServiceClient = menusServiceClient;
+    private readonly IResourceBatchRetriever<int, MenuItemViewDto> _resourceBatchRetriever = resourceBatchRetriever;
     private const string _resourceName = "order";
     public async Task<(List<Order>, int)> FindAllForCustomerWithItemsAsync(int page, int size)
         => await _ordersRepository.FindAllForCustomerWithItemsAsync(page, size, _authProvider.UserInfo.UserId);
@@ -35,21 +35,9 @@ public class OrdersService(
 
     public async Task<Order> PlaceOrderAsync(OrderPlaceDto dto)
     {
-        if (dto.Items.Count == 0)
-        {
-            throw new InvalidOperationException("At least one item is required.");
-        }
-
-        var requestedIds = dto.Items.Select(i => i.ItemId).ToList();
-        var result = await _menusServiceClient.GetMenuItemsByIdAsync(requestedIds);
-
-        var menuItemsById = result.Items.ToDictionary(m => m.Id);
-        if (result.Items.Count != dto.Items.Count)
-        {
-            var missingId = requestedIds.First(id => !menuItemsById.ContainsKey(id));
-
-            throw new ResourceNotFoundException("menu-item", missingId);
-        }
+        var menuItemsById = await _resourceBatchRetriever.ValidateAndRetrieveAsDictAsync(
+            dto.Items.Select( x=> x.ItemId),
+            "item");
 
         decimal totalAmount = dto.Items
             .Sum(i => menuItemsById[i.ItemId].Price * i.Quantity);
@@ -82,7 +70,7 @@ public class OrdersService(
         ResourceNotFoundException.ThrowIfNull(order, _resourceName);
         ThrowIfNotOwenr(order, _authProvider.UserInfo.UserId);
 
-        if (order.Status == OrderStatus.Deliverted)
+        if (order.Status == OrderStatus.Delivered)
         {
             throw new InvalidOperationException("Can not cancel of a delivered order.");
         }
@@ -111,17 +99,29 @@ public class OrdersService(
             throw new InvalidOperationException("Can not re-set order to the same status.");
         }
 
-        if (order.Status == OrderStatus.Deliverted)
+        if (order.Status == OrderStatus.Delivered)
         {
             throw new InvalidOperationException("Can not change status of a delivered order.");
         }
 
         order.Status = newStatus;
-        if (newStatus == OrderStatus.Deliverted)
+        if (newStatus == OrderStatus.Delivered)
         {
             order.DeliveredAt = DateTime.UtcNow;
         }
 
+        await _unitOfWork.SaveChangesAsync();
+
+        return order;
+    }
+
+
+    public async Task<Order> MarkAsPayedAsync(Guid id)
+    {
+        var order = await _ordersRepository.FindByIdAsync(id);
+        ResourceNotFoundException.ThrowIfNull(order, _resourceName);
+
+        order.Status = OrderStatus.Payed;
         await _unitOfWork.SaveChangesAsync();
 
         return order;

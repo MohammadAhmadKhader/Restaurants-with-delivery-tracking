@@ -12,5 +12,6 @@ public interface IOrdersService
     Task<Order?> FindByIdForCustomerWithItemsAsync(Guid id);
     Task<Order> PlaceOrderAsync(OrderPlaceDto dto);
     Task<Order> MarkAsCancelledAsync(Guid id);
+    Task<Order> MarkAsPayedAsync(Guid id);
     Task<Order> UpdateStatusAsync(Guid id, OrderStatus newStatus);
 }

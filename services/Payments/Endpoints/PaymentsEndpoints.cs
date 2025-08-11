@@ -1,3 +1,7 @@
+using Payments.Contracts.Dtos;
+using Payments.Services.IServices;
+using Shared.Auth;
+
 namespace Payments.Endpoints;
 public static class PaymentsEndpoints
 {
@@ -5,14 +9,11 @@ public static class PaymentsEndpoints
     {
         var group = app.MapGroup("/api/payments");
 
-        group.MapGet("/{id}", async (int id) =>
+        group.MapPost("/checkout-session", async (CreateCheckoutSessionDto dto, IPaymentsService paymentsService) =>
         {
-
-        });
-
-        group.MapPost("/", async (Object dto) =>
-        {
-
-        });
+            var sessionUrl = await paymentsService.CreateCheckoutSessionAsync(dto);
+            
+            return Results.Ok(new { sessionUrl });
+        }).RequireAuthenticatedUser();
     }
 }

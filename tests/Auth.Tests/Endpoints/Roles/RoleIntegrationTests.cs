@@ -308,7 +308,7 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
                 break;
 
             case "BadRequest":
-                var superAdmin = _fixture.Loader.Roles.First(r => r.NormalizedName == RolePolicies.SuperAdmin);
+                var superAdmin = _fixture.Loader.Roles.First(r => SecurityUtils.IsSuperAdminRole(r));
                 roleId = superAdmin.Id;
                 expectedStatus = HttpStatusCode.BadRequest;
                 break;

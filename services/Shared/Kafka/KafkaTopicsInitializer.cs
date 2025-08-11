@@ -29,6 +29,7 @@ public class KafkaTopicsInitializer : IHostedService
                 KafkaEventsTopics.RestaurantCreatingFailed,
                 KafkaEventsTopics.RestaurantOwnerCreated,
                 KafkaEventsTopics.RestaurantOwnerCreatingFailed,
+                KafkaEventsTopics.OrderCheckoutCompleteted,
                 KafkaEventsTopics.TestTopic,
             };
 

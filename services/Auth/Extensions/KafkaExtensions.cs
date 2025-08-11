@@ -3,13 +3,14 @@ using Auth.Sagas;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Shared.Kafka;
+using Shared.Utils;
 
 namespace Auth.Extensions;
 public static class KafkaExtensions
 {
     public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
     {
-        var serviceName = "auth-service";
+        var serviceName = GeneralUtils.GetServiceName();
         services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             k.TopicEndpoint<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, serviceName, cfg =>

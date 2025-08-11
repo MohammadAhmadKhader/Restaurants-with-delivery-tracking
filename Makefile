@@ -233,3 +233,7 @@ $(foreach S,$(SERVICES),$(eval $(call DB_COMMANDS,$(S))))
 POD=? ""
 k-env:
 	@kubectl exec -n $(NAMESPACE) $(POD) -- env
+
+# * ———————————————————————————— Stripe Commands ————————————————————————————
+init-stripe:
+	stripe listen --forward-to http://localhost:5113/payments/webhook

@@ -1,2 +1,10 @@
 namespace Orders.Contracts.Enums;
-public enum OrderStatus { Placed, Accepted, Deliverted, Cancelled }
+public enum OrderStatus
+{
+    Unknown,
+    Placed,
+    Accepted,
+    Delivered,
+    Cancelled,
+    Payed
+}

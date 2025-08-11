@@ -8,6 +8,8 @@ using Refit;
 using Shared.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Payments.Contracts.Clients;
+using Orders.Contracts.Clients;
 
 namespace Shared.Extensions;
 
@@ -96,12 +98,42 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddHttpClientsDependenciesWithClientsServices(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddPaymentsClients(this IServiceCollection services, IConfigurationRoot config)
+    {
+        var urls = MicroservicesUrlsProvider.GetUrls(config);
+
+        services.AddRefitClient<IPaymentsServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.PaymentsService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddOrdersClients(this IServiceCollection services, IConfigurationRoot config)
+    {
+        var urls = MicroservicesUrlsProvider.GetUrls(config);
+
+        services.AddRefitClient<IOrdersServiceClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri(urls.OrdersService);
+            })
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddServicesClientsWithDependencies(this IServiceCollection services, IConfigurationRoot config)
     {
         services.AddHttpClientsDependencies();
 
         services.AddAuthClients(config);
         services.AddRestaurantsClients(config);
+        services.AddPaymentsClients(config);
+        services.AddOrdersClients(config);
 
         return services;
     }

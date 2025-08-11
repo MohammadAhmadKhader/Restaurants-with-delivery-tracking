@@ -23,7 +23,7 @@ builder.Services.AddNpgsqlDatabase<AppDbContext>(config, "DefaultConnection");
 builder.Services.AddServiceLogging(host, config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services.AddAppProblemDetails();
-builder.Services.AddHttpClientsDependenciesWithClientsServices(config);
+builder.Services.AddServicesClientsWithDependencies(config);
 builder.Services.AddKafkaHandlers(config);
 builder.Host.ValidateScopes();
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);

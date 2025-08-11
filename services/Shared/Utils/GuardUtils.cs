@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Shared.Utils;
+
 public static class GuardUtils
 {
     public static void ThrowIfNull<T>([NotNull] T arg, [CallerArgumentExpression(nameof(arg))] string? paramName = null)
@@ -16,16 +17,16 @@ public static class GuardUtils
         if (guid == null)
         {
             throw new ArgumentNullException(paramName, "The GUID can't be null.");
-        }   
+        }
     }
 
     public static void ThrowIfEmpty(Guid guid, [CallerArgumentExpression(nameof(guid))] string? paramName = null)
     {
         if (guid == Guid.Empty)
         {
-            throw new ArgumentException("The GUID can't be empty.", paramName);  
+            throw new ArgumentException("The GUID can't be empty.", paramName);
         }
-            
+
     }
 
     public static void ThrowIfNullOrEmpty([NotNull] Guid? guid, [CallerArgumentExpression(nameof(guid))] string? paramName = null)
@@ -37,6 +38,14 @@ public static class GuardUtils
         else if (guid == Guid.Empty)
         {
             throw new ArgumentException("The GUID can't be empty.", paramName);
+        }
+    }
+    
+    public static void ThrowIfNullOrEmpty([NotNull] string? str, [CallerArgumentExpression(nameof(str))] string? paramName = null)
+    {
+        if (string.IsNullOrEmpty(str))
+        {
+            throw new ArgumentNullException(paramName, "This string can not be empty or null.");
         }
     }
 }

@@ -3,6 +3,7 @@ using MassTransit;
 using Restaurants.Sagas;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using Shared.Utils;
 
 namespace Restaurants.Extensions;
 
@@ -10,10 +11,9 @@ public static class KafkaExtensions
 {
     public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
     {
+        var serviceName = GeneralUtils.GetServiceName();
         services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
-            var serviceName = "restaurant-service";
-
             k.TopicEndpoint<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, serviceName, cfg =>
             {
                 cfg.ConfigureConsumer<RestaurantEventsConsumer>(ctx, c =>

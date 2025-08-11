@@ -237,6 +237,26 @@ public class TokenService : ITokenService
         };
     }
 
+    public async Task<UserDetails> GetUserDetailsAsync(ClaimsPrincipal principal)
+    {
+        var hasParsed = Guid.TryParse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var parsedUserId);
+        if (!hasParsed)
+        {
+            throw new InternalServerException($"Failed to parse {nameof(ClaimTypes.NameIdentifier)}");
+        }
+
+        var user = await _usersService.FindByIdAsync(parsedUserId);
+        ResourceNotFoundException.ThrowIfNull(user, UsersService.resourceName);
+
+        return new UserDetails
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            FirstName = user.FirstName!,
+            LastName = user.LastName!,
+        };
+    }
+
     private async Task<User?> GetUserAsync(string? restaurantId, Guid userId)
     {
         if (restaurantId == null)

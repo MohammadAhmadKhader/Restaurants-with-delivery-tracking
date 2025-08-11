@@ -9,4 +9,5 @@ public interface ITokenService
     Task<TokensResponse> RefreshTokenAsync(string refreshToken);
     UserClaims GetUserClaims(ClaimsPrincipal principal);
     Task<UserInfo> GetUserInfoAsync(ClaimsPrincipal principal);
+    Task<UserDetails> GetUserDetailsAsync(ClaimsPrincipal principal);
 }

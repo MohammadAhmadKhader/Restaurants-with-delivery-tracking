@@ -20,6 +20,9 @@ public interface IAuthServiceClient
     [Get("/api/auth/user-info")]
     Task<UserInfo> GetUserInfoAsync();
 
+    [Get("/api/auth/user-details")]
+    Task<UserDetails> GetUserDetailsAsync();
+
     [Post("/api/auth/test")]
     Task<object> TestAsync([Body] object data);
 }
