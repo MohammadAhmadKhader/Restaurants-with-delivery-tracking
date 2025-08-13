@@ -8,9 +8,19 @@ using Shared.Utils;
 namespace Orders.Extensions;
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfiguration config)
     {
         var serviceName = GeneralUtils.GetServiceName();
+        if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
+        {
+            services.AddMassTransitWithKafkaInMemory<Program>((ctx, cfg) =>
+            {   
+                cfg.ReceiveEndpoint(nameof(OrderCheckoutCompleted), e =>  e.ConfigureConsumer<OrderEventsConsumer>(ctx));
+            });
+
+            return services;
+        }
+
         services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             k.TopicEndpoint<OrderCheckoutCompleted>(KafkaEventsTopics.OrderCheckoutCompleteted, serviceName, cfg =>

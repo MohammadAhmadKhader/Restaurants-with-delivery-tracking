@@ -6,3 +6,5 @@ public record OwnerCreatedEvent(Guid InvitationId, Guid OwnerId, Guid Restaurant
 public record OwnerCreatingFailedEvent(Guid InvitationId, Guid RestaurantId);
 public record SimpleTestEvent(string Value);
 public record OrderCheckoutCompleted(Guid OrderId, Guid RestaurantId, Guid UserId);
+
+public record RestaurantInvitationCreatedEvent(Guid InvitationId, string Email);

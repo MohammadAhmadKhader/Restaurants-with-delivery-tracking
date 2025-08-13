@@ -5,6 +5,7 @@ using Restaurants.Mappers;
 using Restaurants.Services.IServices;
 using Shared.Auth;
 using Shared.Constants;
+using Shared.Filters;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;
@@ -30,7 +31,8 @@ public static class RestaurantsEndpoints
             var invitation = await restaurantsService.UpdateAsync(dto);
 
             return Results.NoContent();
-        }).RequirePermission(RestaurantPermissions.RESTAURANT_UPDATE);
+        }).AddEndpointFilter<ValidationFilter<RestaurantUpdateDto>>()
+        .RequirePermission(RestaurantPermissions.RESTAURANT_UPDATE);
 
         group.MapPost("/invitations/send", async (
             RestaurantInvitationCreateDto dto,
@@ -38,7 +40,7 @@ public static class RestaurantsEndpoints
             IAuthServiceClient authServiceClient) =>
         {
             var userInfo = await authServiceClient.GetUserInfoAsync();
-            var invitation = await restaurantInvitationsService.CreateAsync(dto.Email, userInfo.UserId);
+            var invitation = await restaurantInvitationsService.SendAsync(dto.Email, userInfo.UserId);
 
             return Results.Ok(new { invitation = invitation.ToViewDto() });
         });
@@ -70,7 +72,7 @@ public static class RestaurantsEndpoints
             logger.LogInformation("Restaurant created successfully");
 
             return Results.Ok(new { restaurant = restaurant.ToViewDto() });
-        });
+        }).AddEndpointFilter<ValidationFilter<RestaurantInvitationAcceptDto>>();
 
         group.MapGet("/test", () =>
         {

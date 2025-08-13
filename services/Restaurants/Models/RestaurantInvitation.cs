@@ -6,6 +6,8 @@ public class RestaurantInvitation
 {
     [Key]
     public Guid Id { get; set; }
+
+    [EmailAddress]
     public string InvitedEmail { get; set; } = default!;
     public Guid InvitedById { get; set; }
     public DateTime ExpiresAt { get; set; }

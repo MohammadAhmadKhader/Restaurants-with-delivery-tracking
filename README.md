@@ -8,16 +8,18 @@ SaaS application designed to help restaurants manage customers orders and monito
 - Orders: manages the customers food orders.
 - Payments: manages the customers payments.
 - Restaurants: manages the restaurants, menu's and menu items.
-- Reviews: manages the restaurants reviews and menu items reviews.
+- Notifications: mailing service.
 - Shared: this is a ClassLibrary meant to have shared logic across multiple microservices.
 
 ## Folder Structure
+**baseline/template:**
 ```
 Service/
 ├── Config/ # Any configs, usually they are taken from appsettings.json
 ├── Data/ # EF Core DbContext, migrations, seed data
 ├── Dtos/
 ├── Endpoints/ # Minimal API endpoints
+├── Enums/ # Enums
 ├── Extensions/ # Service Extensions
 ├── Infra/ # yml files for kubernetes and docker files
 ├── Mappers/ # Manual Mappers using extensions
@@ -31,7 +33,8 @@ Service/
 ├── Services/
     └── IServices/ # Interfaces
 ├── Specifications/ # Service specifications
-└── Utils/ # in case its needed we can have utilities here
+├── Utils/ # in case its needed we can have utilities here
+└── Validation/
 ```
 
 ## Make Commands

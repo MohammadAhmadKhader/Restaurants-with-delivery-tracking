@@ -7,6 +7,7 @@ namespace Auth.Repositories.IRepositories;
 public interface IUsersRepository : IGenericRepository<User, Guid>
 {
     Task<bool> ExistsByEmailAsync(string email);
+    Task<User?> FindByEmailAsync(string email);
     Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email);
     Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync(string email);
     Task<User?> FindByIdWithRolesAsync(Guid id);

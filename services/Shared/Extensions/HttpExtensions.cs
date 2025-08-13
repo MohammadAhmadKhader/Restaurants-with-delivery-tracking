@@ -10,11 +10,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Payments.Contracts.Clients;
 using Orders.Contracts.Clients;
+using Notifications.Contracts.Clients;
 
 namespace Shared.Extensions;
 
 public static class HttpExtensions
 {
+    private static Action<HttpClient> GetDefaultRefitOptions(string url)
+    {
+        return client =>
+        {
+            client.BaseAddress = new Uri(url);
+        };
+    }
+
     public static IServiceCollection AddAppProblemDetails(this IServiceCollection services)
     {
         services.AddProblemDetails(options =>
@@ -41,35 +50,23 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddAuthClients(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddAuthClients(this IServiceCollection services, IConfiguration config)
     {
         var urls = MicroservicesUrlsProvider.GetUrls(config);
         services.AddRefitClient<IAuthServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.AuthService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.AuthService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         services.AddRefitClient<IUsersServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.AuthService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.AuthService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         services.AddRefitClient<IRolesServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.AuthService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.AuthService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         services.AddRefitClient<IAddressesServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.AuthService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.AuthService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         services.AddAuthProvider();
@@ -77,56 +74,55 @@ public static class HttpExtensions
         return services;
     }
 
-    public static IServiceCollection AddRestaurantsClients(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddRestaurantsClients(this IServiceCollection services, IConfiguration config)
     {
         var urls = MicroservicesUrlsProvider.GetUrls(config);
 
         services.AddRefitClient<IRestaurantServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.RestaurantsService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.RestaurantsService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         services.AddRefitClient<IMenusServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.RestaurantsService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.RestaurantsService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         return services;
     }
 
-    public static IServiceCollection AddPaymentsClients(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddPaymentsClients(this IServiceCollection services, IConfiguration config)
     {
         var urls = MicroservicesUrlsProvider.GetUrls(config);
 
         services.AddRefitClient<IPaymentsServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.PaymentsService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.PaymentsService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         return services;
     }
 
-    public static IServiceCollection AddOrdersClients(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddOrdersClients(this IServiceCollection services, IConfiguration config)
     {
         var urls = MicroservicesUrlsProvider.GetUrls(config);
 
         services.AddRefitClient<IOrdersServiceClient>()
-            .ConfigureHttpClient(client =>
-            {
-                client.BaseAddress = new Uri(urls.OrdersService);
-            })
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.OrdersService))
             .AddHttpMessageHandler<AuthenticationClientHandler>();
 
         return services;
     }
 
-    public static IServiceCollection AddServicesClientsWithDependencies(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddNotificationsClients(this IServiceCollection services, IConfiguration config)
+    {
+        var urls = MicroservicesUrlsProvider.GetUrls(config);
+
+        services.AddRefitClient<INotificationsServiceClient>()
+            .ConfigureHttpClient(GetDefaultRefitOptions(urls.NotificationsService))
+            .AddHttpMessageHandler<AuthenticationClientHandler>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddServicesClientsWithDependencies(this IServiceCollection services, IConfiguration config)
     {
         services.AddHttpClientsDependencies();
 
@@ -134,6 +130,7 @@ public static class HttpExtensions
         services.AddRestaurantsClients(config);
         services.AddPaymentsClients(config);
         services.AddOrdersClients(config);
+        services.AddNotificationsClients(config);
 
         return services;
     }

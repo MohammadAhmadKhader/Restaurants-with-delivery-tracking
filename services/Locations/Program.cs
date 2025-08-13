@@ -3,20 +3,15 @@ using Locations.Data;
 using Locations.Endpoints;
 using Shared.Extensions;
 using Shared.Middlewares;
-using Shared.Observability;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
-builder.Services.AddControllers();
-builder.Services.AddNamingPolicy();
-builder.Services.AddAppProblemDetails();
-builder.Services.AddServiceLogging(host, config);
+builder.Services.AddAppServiceDefaults(config, host);
 builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
-builder.Host.ValidateScopes();
 
 var app = builder.Build();
 

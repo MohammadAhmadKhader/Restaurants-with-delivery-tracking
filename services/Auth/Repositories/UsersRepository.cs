@@ -85,4 +85,11 @@ public class UsersRepository(AppDbContext ctx) : GenericRepository<User, Guid, A
 
         return user;
     }
+
+    public async Task<User?> FindByEmailAsync(string email)
+    {
+        return await _dbSet
+        .Where(u => u.NormalizedEmail == email.ToUpper())
+        .FirstOrDefaultAsync();
+    }
 }

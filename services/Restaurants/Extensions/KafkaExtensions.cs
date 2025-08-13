@@ -9,9 +9,19 @@ namespace Restaurants.Extensions;
 
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfiguration config)
     {
         var serviceName = GeneralUtils.GetServiceName();
+        if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
+        {
+            services.AddMassTransitWithKafkaInMemory<Program>((ctx, cfg) =>
+            {   
+                cfg.ReceiveEndpoint(nameof(OwnerCreatingFailedEvent), e => e.ConfigureConsumer<RestaurantEventsConsumer>(ctx));
+            });
+
+            return services;
+        }
+
         services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             k.TopicEndpoint<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, serviceName, cfg =>

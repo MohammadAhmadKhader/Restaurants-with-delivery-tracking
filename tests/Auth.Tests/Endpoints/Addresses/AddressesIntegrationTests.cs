@@ -1,9 +1,9 @@
 using Auth.Contracts.Dtos.Address;
 using Auth.Contracts.Enums;
-using Auth.Extensions.FluentValidationValidators;
-using Auth.Models;
+using Auth.Validation;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Validation.FluentValidation;
 
 namespace Auth.Tests.Endpoints.Addresses;
 
@@ -144,7 +144,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(UpdateAddressInvalidInputs))]
     public async Task UpdateAddress_InvalidInputs_ReturnsValidationError(Dictionary<string, object> payloadDict, string field, string expectedMessage)
     {
-        TestUtils.LogPayload(_out, [ new { payloadDict, field, expectedMessage }]);
+        TestUtils.LogPayload(_out, [new { payloadDict, field, expectedMessage }]);
         var addressId = Guid.NewGuid();
         var jsonPayload = JsonContent.Create(payloadDict);
 
@@ -259,7 +259,7 @@ public class AddressesIntegrationTests(IntegrationTestsFixture fixture, ITestOut
     [MemberData(nameof(AuthUseCases))]
     public async Task AuthTests(DefaultUserRoles role, HttpMethod method, string endpoint, HttpStatusCode expectedStatusCode)
     {
-        TestUtils.LogPayload(_out, [ new { role = role.ToString(), method, endpoint, expectedStatusCode }]);
+        TestUtils.LogPayload(_out, [new { role = role.ToString(), method, endpoint, expectedStatusCode }]);
         var user = role switch
         {
             DefaultUserRoles.User => _fixture.GetUser(),

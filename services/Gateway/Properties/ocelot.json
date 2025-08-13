@@ -60,8 +60,8 @@
                 }
             ],
             "UpstreamHttpMethod": ["POST", "GET", "DELETE", "PATCH", "PUT"],
-            "UpstreamPathTemplate": "/api/reviews/{everything}",
-            "DownstreamPathTemplate": "/api/reviews/{everything}",
+            "UpstreamPathTemplate": "/api/notifications/{everything}",
+            "DownstreamPathTemplate": "/api/notifications/{everything}",
             "DownstreamScheme": "http"
         },
         {

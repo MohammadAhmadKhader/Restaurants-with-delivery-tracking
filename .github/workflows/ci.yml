@@ -51,8 +51,8 @@ jobs:
             #   key_prefix: Payments
             # - name: Restaurants.Tests
             #   key_prefix: Restaurants
-            # - name: Reviews.Tests
-            #   key_prefix: Reviews
+            # - name: Notifications.Tests
+            #   key_prefix: Notifications
 
     defaults:
       run:

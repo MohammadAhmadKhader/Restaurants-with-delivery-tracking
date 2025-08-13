@@ -1,4 +1,7 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Shared.Utils;
@@ -73,7 +76,7 @@ public static class GeneralUtils
 
         return serviceName;
     }
-    
+
     public static async Task ActionOnThrowAsync(Func<Task> func, Action actionOnThrow, bool shouldLog = true)
     {
         try
@@ -89,5 +92,17 @@ public static class GeneralUtils
 
             actionOnThrow();
         }
+    }
+
+    public static Microsoft.Extensions.Logging.ILogger GetLogger(
+        IServiceCollection services,
+        // this is ignored in logs anyway
+        [CallerMemberName] string callerName = ""
+    )
+    {
+        var serviceProvider = services.BuildServiceProvider();
+        var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(callerName);
+
+        return logger;
     }
 }

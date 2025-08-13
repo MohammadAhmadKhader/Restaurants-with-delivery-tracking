@@ -4,6 +4,7 @@ using Restaurants.Services.IServices;
 using Shared.Auth;
 using Shared.Constants;
 using Shared.Contracts.Dtos;
+using Shared.Filters;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;
@@ -40,14 +41,17 @@ public static class MenusEndpoints
             var menu = await menusService.CreateAsync(dto);
 
             return Results.Ok(new { menu = menu.ToViewDto() });
-        }).RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_CREATE);
+        })
+        .AddEndpointFilter<ValidationFilter<MenuCreateDto>>()
+        .RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_CREATE);
 
         group.MapPost("/{id}/items", async (int id, MenuAddItemsDto dto, IMenusService menusService) =>
         {
             var menu = await menusService.AddItemsToMenuAsync(id, dto);
 
             return Results.NoContent();
-        }).RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_ADD_ITEM);
+        }).AddEndpointFilter<ValidationFilter<MenuAddItemsDto>>()
+        .RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_ADD_ITEM);
 
         group.MapDelete("/{id}/items/{itemId}", async (int id, int itemId, IMenusService menusService) =>
         {
@@ -61,7 +65,8 @@ public static class MenusEndpoints
             var menu = await menusService.UpdateAsync(id, dto);
 
             return Results.NoContent();
-        }).RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_UPDATE);
+        }).AddEndpointFilter<ValidationFilter<MenuUpdateDto>>()
+        .RequirePermission(RestaurantPermissions.RESTAURANT_MENUS_UPDATE);
         
         group.MapDelete("/{id}", async (int id, IMenusService menusService) =>
         {

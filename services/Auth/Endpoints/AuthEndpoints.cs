@@ -6,6 +6,9 @@ using Auth.Utils;
 using Shared.Utils;
 using Auth.Contracts.Dtos.Auth;
 using Shared.Tenant;
+using Notifications.Contracts.Clients;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Auth.Endpoints;
 
 public static class AuthEndpoints
@@ -93,6 +96,50 @@ public static class AuthEndpoints
 
             return Results.Ok(userDetails);
         }).RequireAuthorization();
+
+        appGroup.MapPost("/forgot-password/send", async (
+            ForgotPasswordDto dto,
+            IUsersService authService,
+            IPasswordResetTokensService passwordResetTokensService,
+            INotificationsServiceClient notificationsServiceClient) =>
+        {
+            const string responseMessage = "If email exists, reset instructions have been sent.";
+            var user = await authService.FindByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                return Results.Ok(new { message = responseMessage });
+            }
+
+            var newToken = await passwordResetTokensService.CreateAsync(user.Id);
+            await notificationsServiceClient.SendForgotPasswordEmail(new(user.Email!, newToken.Token));
+
+            return Results.Ok(new { message = responseMessage });
+        });
+        
+        appGroup.MapPost("/forgot-password/reset", async (
+            ResetPasswordDto dto,
+            [FromQuery] string? token,
+            IAuthService authService,
+            IPasswordResetTokensService passwordResetTokensService) =>
+        {
+            if (token == null)
+            {
+                return ResponseUtils.BadRequest("Invalid token.");
+            }
+
+            var foundToken = await passwordResetTokensService.FindByTokenAsync(token);
+            if (foundToken == null)
+            {
+                
+                return ResponseUtils.BadRequest("Invalid token.");
+            }
+
+            await authService.ChangePassword(foundToken.UserId, dto);
+            await passwordResetTokensService.MarkAsUsedAsync(foundToken);
+
+            return Results.NoContent();
+        })
+        .AddEndpointFilter<ValidationFilter<ResetPasswordDto>>();
 
         var restaurantGroup = app.MapGroup("/api/auth/restaurants");
         restaurantGroup.MapPost("/login", async (LoginDto dto, IAuthService authService, ITenantProvider tenantProvider) =>

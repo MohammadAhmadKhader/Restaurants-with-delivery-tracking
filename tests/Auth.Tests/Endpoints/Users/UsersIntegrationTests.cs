@@ -4,6 +4,7 @@ using Auth.Contracts.Enums;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Validation.FluentValidation;
 
 namespace Auth.Tests.Endpoints.Users;
 

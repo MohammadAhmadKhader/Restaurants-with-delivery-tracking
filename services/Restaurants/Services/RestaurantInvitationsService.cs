@@ -1,20 +1,24 @@
+using MassTransit;
 using Restaurants.Data;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;
 using Restaurants.Services.IServices;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
+using Shared.Kafka;
 
 namespace Restaurants.Services;
 
 public class RestaurantInvitationsService(
     IUnitOfWork<AppDbContext> unitOfWork,
-    IRestaurantInvitationsRepository restaurantInvitationsRepository) : IRestaurantInvitationsService
+    IRestaurantInvitationsRepository restaurantInvitationsRepository,
+    ITopicProducer<RestaurantInvitationCreatedEvent> restInvCreatedProducer) : IRestaurantInvitationsService
 {
     public const int InvitiationLifetimeInDays = 3;
     private readonly IUnitOfWork<AppDbContext> _unitOfWork = unitOfWork;
     private const string _resourceName = "restaurant-invitation";
     private readonly IRestaurantInvitationsRepository _restaurantInvitationsRepository = restaurantInvitationsRepository;
+    private readonly ITopicProducer<RestaurantInvitationCreatedEvent> _restInvCreatedProducer = restInvCreatedProducer;
 
     public async Task<RestaurantInvitation?> FindByIdAsync(Guid id)
     {
@@ -43,7 +47,7 @@ public class RestaurantInvitationsService(
         return invitiation;
     }
 
-    public async Task<RestaurantInvitation> CreateAsync(string email, Guid senderId)
+    public async Task<RestaurantInvitation> SendAsync(string email, Guid senderId)
     {
         var invitiation = new RestaurantInvitation
         {
@@ -54,6 +58,12 @@ public class RestaurantInvitationsService(
 
         var createdInvitation = await _restaurantInvitationsRepository.CreateAsync(invitiation);
         await _unitOfWork.SaveChangesAsync();
+
+        await _restInvCreatedProducer.Produce(new RestaurantInvitationCreatedEvent(
+            createdInvitation.Id,
+            email
+        ));
+
         return createdInvitation;
     }
 

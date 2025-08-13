@@ -4,6 +4,7 @@ using Auth.Contracts.Dtos.User;
 using Auth.Models;
 using Auth.Tests.Collections;
 using Auth.Utils;
+using Shared.Validation.FluentValidation;
 
 namespace Auth.Tests.Endpoints.Auth;
 

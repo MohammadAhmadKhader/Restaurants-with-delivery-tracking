@@ -31,7 +31,7 @@ public class TestBody
 
 public class RestaurantResponseWrappaer
 {
-    public RestaurantViewDto Restaurant { get; set; } = default!;
+    public RestaurantViewDto? Restaurant { get; set; } = default!;
 }
 
 public class RestaurantInvitationResponseWrappaer

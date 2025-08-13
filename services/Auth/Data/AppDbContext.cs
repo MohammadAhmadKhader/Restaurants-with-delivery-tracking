@@ -14,6 +14,7 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<Address> Addresses { get; set; }
     public DbSet<RestaurantRole> RestaurantRoles { get; set; }
     public DbSet<RestaurantPermission> RestaurantPermissions { get; set; }
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider) : base(options)
     {
         _tenantProvider = tenantProvider;
@@ -157,6 +158,8 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
         modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
+
+        modelBuilder.Entity<PasswordResetToken>().HasIndex(p => p.Token);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

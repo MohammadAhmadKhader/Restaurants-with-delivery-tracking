@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Auth.Config;
 using Auth.Models;
@@ -73,4 +74,11 @@ static class SecurityUtils
     public static bool IsRestOwnerRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantOwner;
     public static bool IsRestCustomerRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantAdmin;
     public static bool IsRestAdminRole(RestaurantRole role) => role.NormalizedName == RolePolicies.RestaurantCustomer;
+
+    public static string GenerateSecureToken(int length = 32)
+    {
+        var bytes = new byte[length];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
+    }
 }

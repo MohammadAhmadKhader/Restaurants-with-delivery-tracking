@@ -8,9 +8,20 @@ using Shared.Utils;
 namespace Auth.Extensions;
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfigurationRoot config)
+    public static IServiceCollection AddKafkaHandlers(this IServiceCollection services, IConfiguration config)
     {
         var serviceName = GeneralUtils.GetServiceName();
+        if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
+        {
+            services.AddMassTransitWithKafkaInMemory<Program>((ctx, cfg) =>
+            {   
+                cfg.ReceiveEndpoint(nameof(RestaurantCreatedEvent), e =>  e.ConfigureConsumer<AuthEventsConsumer>(ctx));
+                cfg.ReceiveEndpoint(nameof(SimpleTestEvent), e => e.ConfigureConsumer<AuthEventsConsumer>(ctx));
+            });
+
+            return services;
+        }
+
         services.AddMassTransitWithKafka<Program>(config, (ctx, k) =>
         {
             k.TopicEndpoint<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, serviceName, cfg =>

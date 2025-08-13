@@ -14,17 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
-builder.Configuration.AddGlobalConfig();
-builder.Services.AddControllers();
-builder.Services.AddNamingPolicy();
-builder.Services.AddAppProblemDetails();
-builder.Services.AddServiceLogging(host, config);
+builder.Services.AddAppServiceDefaults(config, host);
 builder.Services.AddNpgsqlDatabase<AppDbContext>(config, ctxOptionsBuilder: 
 o => o.MapEnum<OrderStatus>(typeof(OrderStatus).Name.ToLower()));
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
 builder.Services.AddTenantProvider();
 builder.Services.AddServicesClientsWithDependencies(config);
-builder.Host.ValidateScopes();
 builder.Services.AddResourcesBatchRetrievers();
 builder.Services.AddKafkaHandlers(config);
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Kafka]);

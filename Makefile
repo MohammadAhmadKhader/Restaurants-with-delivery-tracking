@@ -1,8 +1,8 @@
-SERVICES := Auth Reviews Orders Restaurants Payments Locations
+SERVICES := Auth Notifications Orders Restaurants Payments Locations
 GATEWAY := Gateway
 
 Auth_SHORT_KEY := au
-Reviews_SHORT_KEY := rev
+Notifications_SHORT_KEY := not
 Orders_SHORT_KEY := ord
 Restaurants_SHORT_KEY := rest
 Payments_SHORT_KEY := pay
@@ -91,6 +91,9 @@ test-ci:
 #  make running testing per service
 define TEST_SERVICE
 test-$(1):
+	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS) --environment "ASPNETCORE_ENVIRONMENT=Testing"
+
+t-$($(1)_SHORT_KEY):
 	dotnet test tests/$(1).Tests/$(1).Tests.csproj $(ARGS) --environment "ASPNETCORE_ENVIRONMENT=Testing"
 endef
 $(foreach S,$(SERVICES),$(eval $(call TEST_SERVICE,$(S))))

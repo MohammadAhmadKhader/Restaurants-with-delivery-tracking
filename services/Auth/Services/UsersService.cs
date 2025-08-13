@@ -137,4 +137,9 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
     {
         return await _usersRepository.FindByEmailWithRestaurantRolesAndPermissionsAsync(email);
     }
+
+    public async Task<User?> FindByEmailAsync(string email)
+    {
+        return await _usersRepository.FindByEmailAsync(email);
+    }
 }

@@ -1,11 +1,14 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using Shared.Data.Patterns.GenericRepository;
 using Shared.Data.Patterns.UnitOfWork;
+using Shared.Observability;
 using Shared.Utils;
+using Shared.Validation.FluentValidation;
 
 namespace Shared.Extensions;
 
@@ -22,8 +25,8 @@ public static class GeneralExtensions
         {
             services.Scan(scan => scan
                 .FromAssemblyOf<TProgram>()
-                .AddClasses(classes => classes.Where(type => 
-                    type.IsGenericTypeDefinition && 
+                .AddClasses(classes => classes.Where(type =>
+                    type.IsGenericTypeDefinition &&
                     type.Name == typeof(GenericRepository<,,>).Name))
                 .As(typeof(IGenericRepository<,>))
                 .WithScopedLifetime());
@@ -84,37 +87,47 @@ public static class GeneralExtensions
         return cfg;
     }
 
-    /// <summary>
-    /// Custom AddRange
-    /// </summary>
-    public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> items)
+    public static IServiceCollection AddAppServiceDefaults(
+        this IServiceCollection services,
+        ConfigurationManager configManager,
+        ConfigureHostBuilder host,
+        bool addGlobalConfig = true,
+        bool addControllers = true,
+        bool addNamingPolicy = true,
+        bool addProblemDetails = true,
+        bool addLogging = true,
+        bool validateScopes = true)
     {
-        foreach (var item in items)
+        if (addGlobalConfig)
         {
-            target.Add(item);
+            configManager.AddGlobalConfig();
         }
-    }
 
-    public static void AddRangeIf<T>(this ICollection<T> target, IEnumerable<T> items, Func<T, bool> conditionFunc)
-    {
-
-        foreach (var item in items)
+        if (addControllers)
         {
-            if (conditionFunc(item))
-            {
-                target.Add(item);
-            }
+            services.AddControllers();
         }
-    }
 
-    /// <summary>
-    /// Custom AddRange
-    /// </summary>
-    public static void AddRange<T>(this List<T> target, IEnumerable<T> items)
-    {
-        foreach (var item in items)
+        if (addNamingPolicy)
         {
-            target.Add(item);
+            services.AddNamingPolicy();
         }
+
+        if (addProblemDetails)
+        {
+            services.AddAppProblemDetails();
+        }
+
+        if (addLogging)
+        {
+            services.AddServiceLogging(host, configManager);
+        }
+
+        if (validateScopes)
+        {
+            host.ValidateScopes();
+        }
+
+        return services;
     }
 }

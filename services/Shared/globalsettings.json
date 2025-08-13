@@ -5,7 +5,7 @@
       "PaymentsService": "http://localhost:5206",
       "LocationsService": "http://localhost:5115",
       "RestaurantsService": "http://localhost:5029",
-      "ReviewsService": "http://localhost:5090"
+      "NotificationsService": "http://localhost:5090"
     },
     "Kafka":{
         "BootstrapServers":"127.0.0.1:9095",

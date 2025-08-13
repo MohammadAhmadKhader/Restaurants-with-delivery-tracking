@@ -5,7 +5,7 @@
       "PaymentsService": "http://payments:8080",
       "LocationsService": "http://locations:8080",
       "RestaurantsService": "http://restaurants:8080",
-      "ReviewsService": "http://reviews:8080"
+      "NotificationsService": "http://notifications:8080"
     },
     "Seq":"http://seq-service:5341",
     "Serilog": {

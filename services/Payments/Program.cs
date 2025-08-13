@@ -13,16 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
-builder.Services.AddControllers();
-builder.Configuration.AddGlobalConfig();
-builder.Services.AddNamingPolicy();
-builder.Services.AddAppProblemDetails();
-builder.Services.AddServiceLogging(host, config);
+builder.Services.AddAppServiceDefaults(config, host);
 builder.Services.AddServicesClientsWithDependencies(config);
 builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
 builder.Services.AddTenantProvider();
 builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
-builder.Host.ValidateScopes();
 builder.Services.AddResourcesBatchRetrievers();
 builder.Services.AddStripeConfig(config);
 builder.Services.AddKafka(config);

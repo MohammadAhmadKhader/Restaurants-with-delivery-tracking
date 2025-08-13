@@ -4,6 +4,7 @@ using Restaurants.Mappers;
 using Restaurants.Services.IServices;
 using Shared.Auth;
 using Shared.Constants;
+using Shared.Filters;
 using Shared.Utils;
 
 namespace Restaurants.Endpoints;
@@ -38,6 +39,7 @@ public static class MenuItemsEndpoints
 
             return Results.Ok(new { item = newItem.ToViewDto() });
         })
+        .AddEndpointFilter<ValidationFilter<MenuItemCreateDto>>()
         .DisableAntiforgery()
         .RequirePermission(RestaurantPermissions.RESTAURANT_MENU_ITEMS_CREATE);
 
@@ -47,6 +49,7 @@ public static class MenuItemsEndpoints
 
             return Results.NoContent();
         })
+        .AddEndpointFilter<ValidationFilter<MenuItemUpdateDto>>()
         .DisableAntiforgery()
         .RequirePermission(RestaurantPermissions.RESTAURANT_MENU_ITEMS_CREATE);
 

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "services\Gateway
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restaurants", "services\Restaurants\Restaurants.csproj", "{5E3A51A1-C78E-465D-9352-562FA1D5FFC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reviews", "services\Reviews\Reviews.csproj", "{083554E7-B00B-4A29-BC54-1782D072EDE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications", "services\Notifications\Notifications.csproj", "{083554E7-B00B-4A29-BC54-1782D072EDE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders", "services\Orders\Orders.csproj", "{C2B19169-3657-48E0-B30E-489DF8C4A99B}"
 EndProject
@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Contracts", "contrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restaurants.Contracts", "contracts\Restaurants.Contracts\Restaurants.Contracts.csproj", "{24993707-7876-4CF6-9521-12AA8D2640C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reviews.Contracts", "contracts\Reviews.Contracts\Reviews.Contracts.csproj", "{B05F79A1-AE64-4740-B4C9-AF0234C79586}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications.Contracts", "contracts\Notifications.Contracts\Notifications.Contracts.csproj", "{B05F79A1-AE64-4740-B4C9-AF0234C79586}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Contracts", "contracts\Payments.Contracts\Payments.Contracts.csproj", "{5191DBE1-9FBC-4C55-BF90-83B29AAE60CC}"
 EndProject

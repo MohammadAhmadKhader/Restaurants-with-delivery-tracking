@@ -9,9 +9,20 @@ namespace Shared.Kafka;
 
 public static class KafkaExtensions
 {
+    public static Action<IRiderRegistrationContext, IKafkaProducerConfigurator<Null, TMessage>>
+        GetDefaultProducerConfig<TMessage>(ProducerConfig producerConfig)
+    where TMessage : class
+    {
+        return (producerCtx, producerCfg) =>
+        {
+            producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
+            producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
+        };
+    }
+
     public static IServiceCollection AddMassTransitWithKafka<TProgram>(
         this IServiceCollection services,
-        IConfigurationRoot config,
+        IConfiguration config,
         Action<IRiderRegistrationContext, IKafkaFactoryConfigurator>? configurer = null,
         Action<IRiderRegistrationConfigurator>? riderConfigurer = null)
     {
@@ -20,19 +31,13 @@ public static class KafkaExtensions
             return services;
         }
 
-        if (EnvironmentUtils.IsOnlyKafkaRunInMemory() && EnvironmentUtils.IsProduction())
-        {
-            throw new InvalidOperationException("In memory must not be used in Production.");
-        }
-
-        var logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger("KafkaConfig");
+        var logger = GeneralUtils.GetLogger(services);
 
         var kafkaSection = config.GetRequiredSection("Kafka");
         var producerConfig = kafkaSection.Get<ProducerConfig>();
         GuardUtils.ThrowIfNull(producerConfig);
 
         var bootstrapServers = producerConfig.BootstrapServers;
-
         var adminConfig = new AdminClientConfig
         {
             BootstrapServers = bootstrapServers,
@@ -44,62 +49,24 @@ public static class KafkaExtensions
         // this is for the use inside the application
         services.Configure<KafkaSettings>(kafkaSection);
 
-        if (!EnvironmentUtils.IsOnlyKafkaRunInMemory())
-        {
-            // AdminClientConfig is required for KafkaTopicsInitializer
-            services.AddSingleton(adminConfig);
-            services.AddHostedService<KafkaTopicsInitializer>();
-        }
+        // AdminClientConfig is required for KafkaTopicsInitializer
+        services.AddSingleton(adminConfig);
+        services.AddHostedService<KafkaTopicsInitializer>();
 
         services.AddMassTransit(busConfigurer =>
         {
             busConfigurer.UsingInMemory();
-
-            if (EnvironmentUtils.IsOnlyKafkaRunInMemory())
-            {
-                services.AddSingleton(typeof(ITopicProducer<>), typeof(MockTopicProducer<>));
-                logger.LogWarning("Kafka Running in memory mode");
-                return;
-            }
-
             busConfigurer.AddRider((r) =>
             {
                 r.AddConsumers(typeof(TProgram).Assembly);
                 riderConfigurer?.Invoke(r);
 
-                r.AddProducer<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
-                });
-                r.AddProducer<OwnerCreatedEvent>(KafkaEventsTopics.RestaurantOwnerCreated, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
-                });
-                // r.AddProducer<RestaurantCreatedEvent>(KafkaEventsTopics.RestaurantCreated, (producerCtx, producerCfg) =>
-                // {
-                //     producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(kafkaConfig.RequestTimeoutMs ?? 5000);
-                //     producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(kafkaConfig.MessageTimeoutMs ?? 5000);
-                // });
-
-                r.AddProducer<OwnerCreatingFailedEvent>(KafkaEventsTopics.RestaurantOwnerCreatingFailed, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
-                });
-
-                r.AddProducer<OrderCheckoutCompleted>(KafkaEventsTopics.OrderCheckoutCompleteted, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
-                });
-
-                r.AddProducer<SimpleTestEvent>(KafkaEventsTopics.TestTopic, (producerCtx, producerCfg) =>
-                {
-                    producerCfg.RequestTimeout = TimeSpan.FromMilliseconds(producerConfig.RequestTimeoutMs ?? 5000);
-                    producerCfg.MessageTimeout = TimeSpan.FromMilliseconds(producerConfig.MessageTimeoutMs ?? 5000);
-                });
+                r.AddProducer(KafkaEventsTopics.RestaurantCreated, GetDefaultProducerConfig<RestaurantCreatedEvent>(producerConfig));
+                r.AddProducer(KafkaEventsTopics.RestaurantInvitationCreated, GetDefaultProducerConfig<RestaurantInvitationCreatedEvent>(producerConfig));
+                r.AddProducer(KafkaEventsTopics.RestaurantOwnerCreated, GetDefaultProducerConfig<OwnerCreatedEvent>(producerConfig));
+                r.AddProducer(KafkaEventsTopics.RestaurantOwnerCreatingFailed, GetDefaultProducerConfig<OwnerCreatingFailedEvent>(producerConfig));
+                r.AddProducer(KafkaEventsTopics.OrderCheckoutCompleteted, GetDefaultProducerConfig<OrderCheckoutCompleted>(producerConfig));
+                r.AddProducer(KafkaEventsTopics.TestTopic, GetDefaultProducerConfig<SimpleTestEvent>(producerConfig));
 
                 r.UsingKafka((ctx, cfg) =>
                 {
@@ -111,6 +78,29 @@ public static class KafkaExtensions
 
                     cfg.ClientId = "FoodDelivery";
                 });
+            });
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddMassTransitWithKafkaInMemory<TProgram>(
+        this IServiceCollection services,
+        Action<IBusRegistrationContext, IInMemoryBusFactoryConfigurator>? inMemoryConfigurator = null
+    )
+    {
+        var logger = GeneralUtils.GetLogger(services);
+        logger.LogWarning("Kafka running in memory mode.");
+
+        services.AddMassTransit(busConfigurer =>
+        {
+            busConfigurer.AddConsumers(typeof(TProgram).Assembly);
+            services.AddScoped(typeof(ITopicProducer<>), typeof(TopicProducerInMemoryOverride<>));
+
+            busConfigurer.UsingInMemory((ctx, cfg) =>
+            {
+                cfg.ConfigureEndpoints(ctx);
+                inMemoryConfigurator?.Invoke(ctx, cfg);
             });
         });
 

@@ -16,7 +16,7 @@ public static class LoggingExtensions
     public static IServiceCollection AddServiceLogging(
         this IServiceCollection services,
         ConfigureHostBuilder host,
-        IConfigurationRoot config)
+        IConfiguration config)
     {
         var serviceName = GeneralUtils.GetServiceName();
 

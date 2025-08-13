@@ -1,12 +1,13 @@
 using Auth.Contracts.Enums;
 using Auth.Data;
-using Auth.Extensions.FluentValidationValidators;
+using Auth.Validation;
 using Auth.Models;
 using Auth.Repositories.IRepositories;
 using Auth.Tests.Collections;
 using Auth.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Data.Patterns.UnitOfWork;
+using Shared.Validation.FluentValidation;
 
 namespace Auth.Tests.Endpoints.Roles;
 
@@ -532,10 +533,11 @@ public class RoleIntegrationTests(IntegrationTestsFixture fixture, ITestOutputHe
 
     #endregion
 
-    
+
     #region Invalid Route Params
 
-    public static IEnumerable<object[]> InvalidRouteParams() {
+    public static IEnumerable<object[]> InvalidRouteParams()
+    {
         var invalidId = "invalid-id";
         var roleEndPointWithInvalidGuid = _mainEndpoint + "/" + invalidId;
         var removePermFromRoleWithInvalidPermId = _mainEndpoint + "/" + Guid.NewGuid().ToString() + "/permissions/" + invalidId;

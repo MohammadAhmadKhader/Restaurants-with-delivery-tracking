@@ -60,5 +60,6 @@
         <PackageVersion Include="CloudinaryDotNet" Version="1.27.6" />
         <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
         <PackageVersion Include="Stripe.net" Version="48.4.0" />
+        <PackageVersion Include="MailKit" Version="4.13.0" />
     </ItemGroup>
 </Project>

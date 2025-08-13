@@ -112,15 +112,15 @@ make db-seed-<short>                      # Run seed job (K8s job)
 - `<ServiceName>` is case-sensitive and must match the actual directory name.
 - `<short>` is the defined short name for each service:
 
-| Service     | Short Key |
-|-------------|-----------|
-| Auth        | au        |
-| Reviews     | rev       |
-| Orders      | ord       |
-| Restaurants | rest      |
-| Payments    | pay       |
-| Locations   | loc       |
-| Gateway     | gat       |
+| Service            | Short Key |
+|--------------------|-----------|
+| Auth               | au        |
+| notifications      | not       |
+| Orders             | ord       |
+| Restaurants        | rest      |
+| Payments           | pay       |
+| Locations          | loc       |
+| Gateway            | gat       |
 
 ## 9. Kubernetes Helper Commands
 

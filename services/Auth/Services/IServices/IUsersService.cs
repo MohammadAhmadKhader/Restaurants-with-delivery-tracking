@@ -7,6 +7,7 @@ public interface IUsersService
 {
     Task<bool> ExistsByEmailAsync(string email);
     Task<User?> FindByIdAsync(Guid id);
+    Task<User?> FindByEmailAsync(string email);
     Task<User?> FindByIdWithRolesAsync(Guid id);
     Task<User?> FindByIdWithRestaurantRolesAsync(Guid id);
     Task<User?> FindByIdWithRolesAndPermissionsAsync(Guid id);

@@ -5,7 +5,7 @@ namespace Shared.Config;
 
 public static class MicroservicesUrlsProvider
 {
-    public static MicroservicesUrlsOptions GetUrls(IConfigurationRoot config)
+    public static MicroservicesUrlsOptions GetUrls(IConfiguration config)
     {
         var microservicesUrls = config.GetSection("MicroservicesUrls").Get<MicroservicesUrlsOptions>();
         if (microservicesUrls == null)
@@ -24,5 +24,5 @@ public class MicroservicesUrlsOptions
     public string PaymentsService { get; set; } = default!;
     public string LocationsService { get; set; } = default!;
     public string RestaurantsService { get; set; } = default!;
-    public string ReviewsService { get; set; } = default!;
+    public string NotificationsService { get; set; } = default!;
 }
