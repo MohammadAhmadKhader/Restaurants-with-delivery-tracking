@@ -56,6 +56,82 @@ profiles:
         - ./services/Restaurants/Infra/backend-secrets.yml
         - ./services/Restaurants/Infra/backend.yml
 
+  # Orders
+  - name: ord
+    build:
+      artifacts:
+        - image: fooddelivery-orders-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Orders/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Orders/Infra/backend-secrets.yml
+        - ./services/Orders/Infra/backend.yml
+
+  # Payments
+  - name: pay
+    build:
+      artifacts:
+        - image: fooddelivery-payments-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Payments/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Payments/Infra/backend-secrets.yml
+        - ./services/Payments/Infra/backend.yml
+
+  # Notifications
+  - name: not
+    build:
+      artifacts:
+        - image: fooddelivery-notifications-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Notifications/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Notifications/Infra/backend-secrets.yml
+        - ./services/Notifications/Infra/backend.yml
+
+  # Locations
+  - name: loc
+    build:
+      artifacts:
+        - image: fooddelivery-locations-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Locations/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    manifests:
+      rawYaml:
+        - ./services/Locations/Infra/backend-secrets.yml
+        - ./services/Locations/Infra/backend.yml
+
   # all
   - name: all
     build:
@@ -70,6 +146,7 @@ profiles:
               - "services/**/*.cs"
               - "**/*.json"
               - "**/*.yml"
+    
         - image: fooddelivery-restaurants-service
           context: ./
           docker:
@@ -80,9 +157,67 @@ profiles:
               - "services/**/*.cs"
               - "**/*.json"
               - "**/*.yml"
+
+        - image: fooddelivery-orders-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Orders/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+    
+        - image: fooddelivery-payments-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Payments/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+
+        - image: fooddelivery-notifications-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Notifications/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+
+        - image: fooddelivery-locations-service
+          context: ./
+          docker:
+            noCache: false
+            dockerfile: ./services/Locations/Infra/Dockerfile.dev
+          sync:
+            infer:
+              - "services/**/*.cs"
+              - "**/*.json"
+              - "**/*.yml"
+
     manifests:
       rawYaml:
         - ./services/Auth/Infra/backend-secrets.yml
         - ./services/Auth/Infra/backend.yml
+
         - ./services/Restaurants/Infra/backend-secrets.yml
         - ./services/Restaurants/Infra/backend.yml
+
+        - ./services/Orders/Infra/backend-secrets.yml
+        - ./services/Orders/Infra/backend.yml
+
+        - ./services/Payments/Infra/backend-secrets.yml
+        - ./services/Payments/Infra/backend.yml
+
+        - ./services/Notifications/Infra/backend-secrets.yml
+        - ./services/Notifications/Infra/backend.yml
+
+        - ./services/Locations/Infra/backend-secrets.yml
+        - ./services/Locations/Infra/backend.yml

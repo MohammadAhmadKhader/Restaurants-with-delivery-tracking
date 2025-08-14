@@ -17,6 +17,7 @@ spec:
             name: restaurants-service
             port:
               number: 8080
+
       - path: "/api/auth"
         pathType: Prefix
         backend:
@@ -30,5 +31,59 @@ spec:
         backend:
           service:
             name: auth-service
+            port:
+              number: 8080
+
+      - path: "/api/payments"
+        pathType: Prefix
+        backend:
+          service:
+            name: payments-service
+            port:
+              number: 8080
+
+      - path: "/api/orders"
+        pathType: Prefix
+        backend:
+          service:
+            name: orders-service
+            port:
+              number: 8080
+
+      - path: "/api/notifications"
+        pathType: Prefix
+        backend:
+          service:
+            name: notifications-service
+            port:
+              number: 8080
+
+      - path: "/api/locations"
+        pathType: Prefix
+        backend:
+          service:
+            name: locations-service
+            port:
+              number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: payments-webhook-rewrite
+  namespace: kafka
+  labels:
+    name: payments-webhook-rewrite
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /webhook
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: "/payments/webhook"
+        pathType: Exact
+        backend:
+          service:
+            name: payments-service
             port:
               number: 8080

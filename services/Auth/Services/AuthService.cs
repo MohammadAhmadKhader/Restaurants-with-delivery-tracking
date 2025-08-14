@@ -8,6 +8,7 @@ using Shared.Exceptions;
 using Auth.Data;
 using Auth.Data.Seed;
 using Restaurants.Contracts.Clients;
+using Shared.Observability.Telemetry;
 
 namespace Auth.Services;
 
@@ -25,14 +26,17 @@ public class AuthService(
     public const string resourceName = "restaurant";
     public async Task<(User, TokensResponse)> Login(LoginDto dto)
     {
-
         var user = await usersService.FindByEmailWithRolesAndPermissionsAsync(dto.Email);
         if (user == null)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+        var signInResult = await ActivityUtils.WithEventAsync(
+                "Starting CheckPasswordSignInAsync",
+                "End CheckPasswordSignInAsync",
+                () => signInManager.CheckPasswordSignInAsync(user, dto.Password, false));
+    
         if (!signInResult.Succeeded)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
@@ -55,7 +59,11 @@ public class AuthService(
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var signInResult = await signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+        var signInResult = await ActivityUtils.WithEventAsync(
+                "Starting SignInManager.CheckPasswordSignInAsync",
+                "End SignInManager.CheckPasswordSignInAsync",
+                () => signInManager.CheckPasswordSignInAsync(user, dto.Password, false));
+
         if (!signInResult.Succeeded)
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
@@ -89,7 +97,10 @@ public class AuthService(
         };
 
         await using var tx = await unitOfWork.BeginTransactionAsync();
-        var userResult = await userManager.CreateAsync(user, dto.Password);
+        var userResult = await ActivityUtils.WithEventAsync(
+                "Starting UserManager.CreateAsync",
+                "End UserManager.CreateAsync",
+                () => userManager.CreateAsync(user, dto.Password));
         if (!userResult.Succeeded)
         {
             await unitOfWork.RollBackAsync(tx);
@@ -98,7 +109,10 @@ public class AuthService(
         }
 
         const string defaultRoleName = "USER";
-        var roleResult = await userManager.AddToRoleAsync(user, defaultRoleName);
+        var roleResult = await ActivityUtils.WithEventAsync(
+                "Starting UserManager.AddToRoleAsync",
+                "End UserManager.AddToRoleAsync",
+                () => userManager.AddToRoleAsync(user, defaultRoleName));
         if (!roleResult.Succeeded)
         {
             await unitOfWork.RollBackAsync(tx);
@@ -135,7 +149,11 @@ public class AuthService(
         };
 
         await using var tx = await unitOfWork.BeginTransactionAsync();
-        var userResult = await userManager.CreateAsync(user, dto.Password);
+        
+       var userResult = await ActivityUtils.WithEventAsync(
+                "Starting UserManager.CreateAsync",
+                "End UserManager.CreateAsync",
+                () => userManager.CreateAsync(user, dto.Password));
         if (!userResult.Succeeded)
         {
             await unitOfWork.RollBackAsync(tx);
@@ -161,13 +179,21 @@ public class AuthService(
         var user = await usersService.FindByIdAsync(userId);
         ResourceNotFoundException.ThrowIfNull(user, UsersService.resourceName);
 
-        var result = bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword);
+        var result = ActivityUtils.WithEvent(
+            "Starting IPasswordHasher.VerifyHashedPassword",
+            "End IPasswordHasher.VerifyHashedPassword",
+            () => bcrypt.VerifyHashedPassword(user, user.PasswordHash!, dto.OldPassword));
+            
         if (result == PasswordVerificationResult.Failed)
         {
             throw new AppValidationException("oldPassword", "Old password is incorrect");
         }
 
-        user.PasswordHash = bcrypt.HashPassword(user, dto.NewPassword);
+        user.PasswordHash = ActivityUtils.WithEvent(
+            "Starting IPasswordHasher.VerifyHashedPassword",
+            "End IPasswordHasher.VerifyHashedPassword",
+            () => bcrypt.HashPassword(user, dto.NewPassword));
+
         await unitOfWork.SaveChangesAsync();
     }
     private static string FormatIdentityErrors(IEnumerable<IdentityError> errors)
@@ -192,7 +218,11 @@ public class AuthService(
         // * SaveChangesAsync is called intenrally after this action is called
         Func<(RestaurantRole, RestaurantRole, RestaurantRole), Task> actionBeforeCommit = async (roles) =>
         {
-            var userResult = await userManager.CreateAsync(user, dto.Password);
+            var userResult = await ActivityUtils.WithEventAsync(
+                    "Starting UserManager.CreateAsync",
+                    "End UserManager.CreateAsync",
+                    () => userManager.CreateAsync(user, dto.Password));
+
             if (!userResult.Succeeded)
             {
                 var errors = FormatIdentityErrors(userResult.Errors);

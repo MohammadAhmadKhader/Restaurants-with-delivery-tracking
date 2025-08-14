@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-controller
+  namespace: kafka
+data:
+  enable-opentelemetry: "true"
+  # service name for tracing
+  opentelemetry-operation-name: "Ingress-Gateway"
+  opentelemetry-sampler: "AlwaysOn"
+  otlp-collector-host: "localhost" # not defined yet
+  otlp-collector-port: "4317"
+  otel-sampler: "AlwaysOn"
+  otel-sampler-ratio: "1.0"
+  server-snippet: |
+    opentelemetry_attribute "tenant.id" $http_x_restaurant_id;
+    opentelemetry_attribute "service.name" "api-gateway";
+    opentelemetry_attribute "environment" "$ENVIRONMENT";

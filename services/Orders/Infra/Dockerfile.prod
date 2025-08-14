@@ -1,0 +1,37 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS publish
+
+WORKDIR /src
+
+COPY Directory.Packages.props ./
+COPY Directory.Build.props ./
+COPY contracts/Shared.Contracts/Shared.Contracts.csproj ./contracts/Shared.Contracts/
+COPY contracts/Auth.Contracts/Auth.Contracts.csproj ./contracts/Auth.Contracts/
+COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
+COPY contracts/Locations.Contracts/Locations.Contracts.csproj ./contracts/Locations.Contracts/
+COPY contracts/Orders.Contracts/Orders.Contracts.csproj ./contracts/Orders.Contracts/
+COPY contracts/Payments.Contracts/Payments.Contracts.csproj ./contracts/Payments.Contracts/
+COPY contracts/Notifications.Contracts/Notifications.Contracts.csproj ./contracts/Notifications.Contracts/
+
+COPY services/Shared/Shared.csproj ./services/Shared/
+COPY services/Orders/Orders.csproj ./services/Orders/
+
+RUN dotnet restore ./services/Orders/Orders.csproj
+
+COPY . .
+
+RUN dotnet publish ./services/Orders/Orders.csproj \
+    -c Release \
+    -r linux-musl-x64 \
+    --self-contained true \
+    -o /app/publish
+
+FROM alpine:latest
+
+RUN apk add --no-cache icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV ASPNETCORE_URLS=http://+:8080
+
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["./Orders"]

@@ -8,21 +8,23 @@ using Shared.Redis;
 using Shared.Health;
 using Shared.Observability;
 using Shared.Tenant;
+using Shared.Observability.Telemetry;
 
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
-builder.Services.AddAppServiceDefaults(config, host);
+builder.Services.AddAppServiceDefaults<Program>(config, host);
 builder.Services.AddAppAuthentication(config);
 builder.Services.AddRedis(config);
-builder.Services.AddNpgsqlDatabase<AppDbContext>(config, "DefaultConnection");
-builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
+builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
+builder.Services.AddConventionalAppServices<Program, AppDbContext>();
 builder.Services.AddServicesClientsWithDependencies(config);
 builder.Services.AddKafkaHandlers(config);
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Redis, HealthChecksEnum.Kafka]);
 builder.Services.AddTenantProvider();
+builder.Services.AddServicesWithTelemetry();
 
 // runs on certain flag
 await builder.Services.UseRestaurantPermissionsSynchronizer();

@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications-service
+  namespace: kafka
+spec:
+  selector:
+    app: notifications-depl
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-depl
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      app: notifications-depl
+  template:
+    metadata:
+      labels:
+        app: notifications-depl
+    spec:
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox:latest
+          command: ['sh', '-c', 'until nc -z my-cluster-kafka-bootstrap 9092; do echo "waiting for kafka..."; sleep 2; done;']
+      containers:
+      - name: notifications-depl
+        image: fooddelivery-notifications-service:latest
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 35
+        readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 35
+        
+        env:
+          - name: Kafka__BootstrapServers
+            value: "my-cluster-kafka-bootstrap:9092"
+          - name: Seq
+            value: "http://seq-service:5341"
+          - name: "ASPNETCORE_ENVIRONMENT"
+            value: "Development"
+
+          - name: "ASPNETCORE_URLS"
+            value: "http://+:8080"
+          - name: "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"
+            value: "false"
+
+          - name: "EmailSettings__Port"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__Port
+
+          - name: "EmailSettings__FromEmail"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__FromEmail
+
+          - name: "EmailSettings__Password"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__Password
+
+          - name: "EmailSettings__UserName"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__UserName
+
+          - name: "EmailSettings__SmtpServer"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__SmtpServer
+
+          - name: "EmailSettings__UseSSL"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__UseSSL
+
+          - name: "EmailSettings__UseAuth"
+            valueFrom:
+              secretKeyRef:
+                name: backend-notifications-secret
+                key: EmailSettings__UseAuth
+
+        ports:
+        - containerPort: 8080

@@ -18,8 +18,8 @@ public class RestaurantRolesService(
     IRestaurantPermissionsRepository permissionsRepository,
     ITenantProvider tenantProvider) : IRestaurantRolesService
 {
-    private const string roleResourceName = "role";
-    private const string permissionResourceName = "permission";
+    public const string roleResourceName = "role";
+    public const string permissionResourceName = "permission";
     public async Task<RestaurantRole?> FindByIdAsync(Guid id)
     {
         return await rolesRepository.FindByIdAsync(id);

@@ -3,6 +3,7 @@ using Shared.Utils;
 using MassTransit;
 using Notifications.Enums;
 using Notifications.Messages;
+using Shared.Contracts.Attributes;
 
 namespace Notifications.Services;
 
@@ -16,7 +17,7 @@ public class EmailService(
     private readonly ITopicProducer<RestaurantInvitationMessage> _restaurantInvitationProducer = restaurantInvitationProducer;
     private readonly ITopicProducer<ForgotPasswordMessage> _forgotPasswordProducer = forgotPasswordProducer;
 
-    public async Task SendRestaurantInvitation(Guid invitationId, string toEmail)
+    public async Task SendRestaurantInvitation(Guid invitationId, [Masked] string toEmail)
     {
         var ownerName = GeneralUtils.CamelToPascal(toEmail.Split("@")[0]);
         var template = _templatesService.GetRestaurantInvitationTemplate(invitationId, ownerName);
@@ -31,7 +32,7 @@ public class EmailService(
         });
     }
 
-    public async Task SendForgotPassword(string toEmail, string token)
+    public async Task SendForgotPassword([Masked] string toEmail, string token)
     {
         var userName = GeneralUtils.CamelToPascal(toEmail.Split("@")[0]);
         var template = _templatesService.GetForgotPasswordTemplate(userName, token);

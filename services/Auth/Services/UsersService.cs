@@ -7,6 +7,7 @@ using Shared.Exceptions;
 using Auth.Contracts.Dtos.User;
 using Shared.Data.Patterns.UnitOfWork;
 using Auth.Data;
+using Shared.Contracts.Attributes;
 
 namespace Auth.Services;
 
@@ -17,7 +18,7 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
     private readonly ILogger<UsersService> _logger = logger;
     public const string resourceName = "user";
 
-    public async Task<bool> ExistsByEmailAsync(string email)
+    public async Task<bool> ExistsByEmailAsync([Masked] string email)
     {
         var exists = await _usersRepository.ExistsByEmailAsync(email);
         if (exists)
@@ -33,7 +34,7 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
         return await _usersRepository.FilterUsersAsync(filterParams);
     }
 
-    public async Task<User?> FindByEmailWithRolesAndPermissionsAsync(string email)
+    public async Task<User?> FindByEmailWithRolesAndPermissionsAsync([Masked] string email)
     {
         return await _usersRepository.FindByEmailWithRolesAndPermissionsAsync(email);;
     }
@@ -133,12 +134,12 @@ public class UsersService(IUnitOfWork<AppDbContext> unitOfWork, IUsersRepository
         return await _usersRepository.FindByIdWithRestaurantRolesAndPermissionsAsync(id);
     }
 
-    public async Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync(string email)
+    public async Task<User?> FindByEmailWithRestaurantRolesAndPermissionsAsync([Masked] string email)
     {
         return await _usersRepository.FindByEmailWithRestaurantRolesAndPermissionsAsync(email);
     }
 
-    public async Task<User?> FindByEmailAsync(string email)
+    public async Task<User?> FindByEmailAsync([Masked] string email)
     {
         return await _usersRepository.FindByEmailAsync(email);
     }

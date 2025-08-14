@@ -13,15 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var host = builder.Host;
 
-builder.Services.AddAppServiceDefaults(config, host);
+builder.Services.AddAppServiceDefaults<Program>(config, host);
 builder.Services.AddServicesClientsWithDependencies(config);
 builder.Services.AddNpgsqlDatabase<AppDbContext>(config);
 builder.Services.AddTenantProvider();
-builder.Services.AddConventionalApplicationServices<Program, AppDbContext>();
+builder.Services.AddConventionalAppServices<Program, AppDbContext>();
 builder.Services.AddResourcesBatchRetrievers();
 builder.Services.AddStripeConfig(config);
 builder.Services.AddKafka(config);
 builder.Services.AddAppHealthChecks(config, [HealthChecksEnum.Postgres, HealthChecksEnum.Kafka]);
+builder.Services.AddServicesWithTelemetry();
 
 var app = builder.Build();
 

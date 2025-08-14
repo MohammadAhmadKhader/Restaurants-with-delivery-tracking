@@ -185,7 +185,7 @@ DEFAULT_PG_PASSWORD=123456
 
 define K8S_SECRETS
 s-gen-$($(1)_SHORT_KEY):
-	@kubectl create secret generic 'backend-$(shell echo $(1) | tr A-Z a-z)-secret' --from-env-file=./services/$(1)/.k8s.env \
+	@kubectl create secret generic 'backend-$(shell echo $(1) | tr A-Z a-z)-secret' --from-env-file=./services/$(1)/.env.k8s \
 	 --namespace=$(SECRETS_NAMESPACE) --dry-run=client \
 	 -o yaml | sed '/creationTimestamp/d' > ./services/$(1)/Infra/backend-secrets.yml
 

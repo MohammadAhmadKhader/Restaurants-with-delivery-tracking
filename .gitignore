@@ -489,6 +489,7 @@ $RECYCLE.BIN/
 **/bin
 /.vscode
 **/*.env
+**/*.env.k8s
 /.env.act
 **/*stashed
 **/*secrets.yml

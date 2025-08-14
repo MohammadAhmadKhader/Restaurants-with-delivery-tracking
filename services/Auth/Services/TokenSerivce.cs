@@ -10,6 +10,7 @@ using Auth.Repositories.IRepositories;
 using Auth.Services.IServices;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Contracts.Attributes;
 using Shared.Exceptions;
 using Shared.Tenant;
 
@@ -48,7 +49,7 @@ public class TokenService : ITokenService
         _tenantProvider = tenantProvider;
     }
 
-    public async Task<TokensResponse> GenerateTokensAsync(Guid userId, string email, IEnumerable<string> roles)
+    public async Task<TokensResponse> GenerateTokensAsync(Guid userId, [Masked] string email, IEnumerable<string> roles)
     {
         try
         {

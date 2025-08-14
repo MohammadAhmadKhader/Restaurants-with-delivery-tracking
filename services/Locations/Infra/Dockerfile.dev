@@ -1,0 +1,34 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine
+
+WORKDIR /app
+
+COPY Directory.Packages.props ./
+COPY Directory.Build.props ./
+COPY contracts/Shared.Contracts/Shared.Contracts.csproj ./contracts/Shared.Contracts/
+COPY contracts/Auth.Contracts/Auth.Contracts.csproj ./contracts/Auth.Contracts/
+COPY contracts/Restaurants.Contracts/Restaurants.Contracts.csproj ./contracts/Restaurants.Contracts/
+COPY contracts/Locations.Contracts/Locations.Contracts.csproj ./contracts/Locations.Contracts/
+COPY contracts/Orders.Contracts/Orders.Contracts.csproj ./contracts/Orders.Contracts/
+COPY contracts/Payments.Contracts/Payments.Contracts.csproj ./contracts/Payments.Contracts/
+COPY contracts/Notifications.Contracts/Notifications.Contracts.csproj ./contracts/Notifications.Contracts/
+
+COPY services/Shared/Shared.csproj ./services/Shared/
+COPY services/Locations/Locations.csproj ./services/Locations/
+
+RUN apk add --no-cache icu-libs
+RUN dotnet restore services/Locations/Locations.csproj
+
+COPY contracts/Shared.Contracts/ ./contracts/Shared.Contracts/
+COPY contracts/Auth.Contracts/ ./contracts/Auth.Contracts/
+COPY contracts/Restaurants.Contracts/ ./contracts/Restaurants.Contracts/
+COPY contracts/Locations.Contracts/ ./contracts/Locations.Contracts/
+COPY contracts/Orders.Contracts/ ./contracts/Orders.Contracts/
+COPY contracts/Payments.Contracts/ ./contracts/Payments.Contracts/
+COPY contracts/Notifications.Contracts/ ./contracts/Notifications.Contracts/
+
+COPY services/Shared/ ./services/Shared/
+COPY services/Locations/ ./services/Locations/
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "watch", "run", "--no-launch-profile", "--no-hot-reload", "--project", "services/Locations/Locations.csproj"]

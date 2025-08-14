@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: locations-db
+  namespace: kafka
+spec:
+  instances: 2
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: pg-locations-credentials
+  bootstrap:
+    initdb:
+      database: foodDelivery_locations
+      owner: postgres
+      secret:
+        name: pg-locations-credentials
+  imageName: ghcr.io/cloudnative-pg/postgresql:14.9
+  storage:
+    size: 1Gi
+    storageClass: standard

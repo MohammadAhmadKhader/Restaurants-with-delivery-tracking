@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: orders-db
+  namespace: kafka
+spec:
+  instances: 2
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: pg-orders-credentials
+  bootstrap:
+    initdb:
+      database: foodDelivery_orders
+      owner: postgres
+      secret:
+        name: pg-orders-credentials
+  imageName: ghcr.io/cloudnative-pg/postgresql:14.9
+  storage:
+    size: 1Gi
+    storageClass: standard

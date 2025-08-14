@@ -1,3 +1,5 @@
+using Shared.Contracts.Attributes;
+
 namespace Notifications.Contracts.Dtos;
 
-public record SendForgotPasswordEmailDto(string Email, string Token);
+public record SendForgotPasswordEmailDto([Masked] string Email, string Token);

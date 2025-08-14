@@ -7,6 +7,7 @@ using Scrutor;
 using Shared.Data.Patterns.GenericRepository;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Observability;
+using Shared.Observability.Telemetry;
 using Shared.Utils;
 using Shared.Validation.FluentValidation;
 
@@ -14,7 +15,7 @@ namespace Shared.Extensions;
 
 public static class GeneralExtensions
 {
-    public static IServiceCollection AddConventionalApplicationServices<TProgram, TDbContext>(
+    public static IServiceCollection AddConventionalAppServices<TProgram, TDbContext>(
         this IServiceCollection services,
         bool applyDefaultValidatorOptions = true,
         bool addGenericRepository = true)
@@ -66,6 +67,32 @@ public static class GeneralExtensions
         return services;
     }
 
+    public static IServiceCollection AddConventionalAppServicesWithNoDatabase<TProgram>(
+        this IServiceCollection services,
+        bool applyDefaultValidatorOptions = true)
+        where TProgram : class
+    {
+        services.Scan(scan => scan
+            .FromAssemblyOf<TProgram>()
+            .AddClasses(classes => classes.Where(t =>
+                t.Name.EndsWith("Service") ||
+                t.Name.EndsWith("Provider") ||
+                t.Name.EndsWith("ServiceClient") || // for Refit clients
+                t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>))
+            ), false)
+            .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
+        );
+
+        if (applyDefaultValidatorOptions)
+        {
+            ValidatorOptions.Global.ApplyDefaultConfigurations();
+        }
+
+        return services;
+    }
+
     public static IConfigurationBuilder AddGlobalConfig(
         this IConfigurationBuilder cfg,
         bool optional = true,
@@ -87,7 +114,7 @@ public static class GeneralExtensions
         return cfg;
     }
 
-    public static IServiceCollection AddAppServiceDefaults(
+    public static IServiceCollection AddAppServiceDefaults<TProgram>(
         this IServiceCollection services,
         ConfigurationManager configManager,
         ConfigureHostBuilder host,
@@ -96,7 +123,9 @@ public static class GeneralExtensions
         bool addNamingPolicy = true,
         bool addProblemDetails = true,
         bool addLogging = true,
+        bool addTelemetry = true,
         bool validateScopes = true)
+        where TProgram: class
     {
         if (addGlobalConfig)
         {
@@ -121,6 +150,11 @@ public static class GeneralExtensions
         if (addLogging)
         {
             services.AddServiceLogging(host, configManager);
+        }
+
+        if (addTelemetry)
+        {
+            services.AddServiceTelemetry<TProgram>(configManager);
         }
 
         if (validateScopes)

@@ -2,6 +2,7 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Shared.Extensions;
 using Shared.Observability;
+using Shared.Observability.Telemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 var host = builder.Host;
@@ -15,6 +16,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddServiceLogging(host, config);
 builder.Host.ValidateScopes();
 builder.Services.AddCors();
+builder.Services.AddServiceTelemetry<Program>(config);
 
 var app = builder.Build();
 app.UseSerilogRequestLoggingWithTraceId();
@@ -27,7 +29,5 @@ app.UseCors(options =>
 });
 
 await app.UseOcelot();
-
-// app.UseHttpsRedirection();
 
 app.Run();

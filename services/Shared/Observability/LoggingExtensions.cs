@@ -1,11 +1,9 @@
 using System.Diagnostics;
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Filters;
-using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.SystemConsole.Themes;
 using Shared.Utils;
 
@@ -50,22 +48,11 @@ public static class LoggingExtensions
                 cfg.WriteTo.Seq(seqUrl);
                 cfg.Enrich.With(new ActivityEnricher())
                   .Enrich.WithProperty("ServiceName", serviceName);
-
-                // TODO: should be moved to a dedicated exporter
-                cfg.WriteTo.OpenTelemetry(x =>
-                {
-                    x.Endpoint = seqUrl + "/ingest/otlp/v1/logs";
-                    x.Protocol = OtlpProtocol.HttpProtobuf;
-                    x.ResourceAttributes = new Dictionary<string, object>()
-                    {
-                        ["service.name"] = serviceName
-                    };
-                });
             }
 
             cfg.Filter.ByExcluding(Matching.WithProperty<string>("RequestPath", p => p.StartsWith("/health")));
         });
-                
+
         return services;
     }
 

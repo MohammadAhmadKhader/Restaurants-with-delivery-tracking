@@ -23,10 +23,38 @@ profiles:
         - ./services/Auth/Infra/pg-secrets.yml
         - ./services/Auth/Infra/pg.yml
 
+  - name: pay
+    manifests:
+      rawYaml:
+        - ./services/Payments/Infra/pg-secrets.yml
+        - ./services/Payments/Infra/pg.yml
+
+  - name: ord
+    manifests:
+      rawYaml:
+        - ./services/Orders/Infra/pg-secrets.yml
+        - ./services/Orders/Infra/pg.yml
+
+  - name: loc
+    manifests:
+      rawYaml:
+        - ./services/Locations/Infra/pg-secrets.yml
+        - ./services/Locations/Infra/pg.yml
+
   - name: all
     manifests:
       rawYaml:
         - ./services/Restaurants/Infra/pg-secrets.yml
         - ./services/Restaurants/Infra/pg.yml
+
         - ./services/Auth/Infra/pg-secrets.yml
         - ./services/Auth/Infra/pg.yml
+
+        - ./services/Payments/Infra/pg-secrets.yml
+        - ./services/Payments/Infra/pg.yml
+
+        - ./services/Orders/Infra/pg-secrets.yml
+        - ./services/Orders/Infra/pg.yml
+        
+        - ./services/Locations/Infra/pg-secrets.yml
+        - ./services/Locations/Infra/pg.yml

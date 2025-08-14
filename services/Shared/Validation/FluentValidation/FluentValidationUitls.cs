@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using FluentValidation;
@@ -9,6 +10,7 @@ namespace Shared.Validation.FluentValidation;
 
 public static class FluentValidationUtils
 {
+    public static Dictionary<string, Dictionary<string, string>> FieldTranslations { get; } = [];
     public static List<(string field, string message)> HandleValidationErrors(ValidationResult result)
     {
         return result.Errors
@@ -20,7 +22,16 @@ public static class FluentValidationUtils
     {
         if (memberInfo != null)
         {
-            return memberInfo.Name;
+            var originalName = memberInfo.Name;
+            var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+            if (FieldTranslations.TryGetValue(culture, out var translations) &&
+                   translations.TryGetValue(originalName, out var translated))
+            {
+                return translated;
+            }
+
+            return originalName;
         }
 
         return ValidatorOptions.Global.DisplayNameResolver(type, memberInfo, expression);

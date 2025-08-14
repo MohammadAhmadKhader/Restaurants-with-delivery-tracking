@@ -3,6 +3,7 @@ using Restaurants.Data;
 using Restaurants.Models;
 using Restaurants.Repositories.IRepositories;
 using Restaurants.Services.IServices;
+using Shared.Contracts.Attributes;
 using Shared.Data.Patterns.UnitOfWork;
 using Shared.Exceptions;
 using Shared.Kafka;
@@ -47,7 +48,7 @@ public class RestaurantInvitationsService(
         return invitiation;
     }
 
-    public async Task<RestaurantInvitation> SendAsync(string email, Guid senderId)
+    public async Task<RestaurantInvitation> SendAsync([Masked] string email, Guid senderId)
     {
         var invitiation = new RestaurantInvitation
         {

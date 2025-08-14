@@ -16,5 +16,23 @@
     "Seq":"http://localhost:5341",
     "Serilog": {
         "OutputTemplate":"[{Timestamp:HH:mm:ss} {Level:u3}] ({ServiceName}) {Message:lj}{NewLine}{Exception}"
+    },
+    "Telemetry": {
+        "Tracing": {
+            "Sampler": {
+              "Type": "AlwaysOn",
+              "Ratio": 1.0
+            },
+            "OtlpExporter": {
+              "Endpoint": "http://127.0.0.1:4317",
+              "Protocol": "Grpc",
+              "TimeoutMs": 30000
+            },
+            "Instrumentation": {
+              "EnableAspNetCore": true,
+              "EnableHttpClient": true,
+              "EnableMassTransit": true
+            }
+        }
     }
 }

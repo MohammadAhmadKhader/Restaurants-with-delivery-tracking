@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+using Shared.Observability.Telemetry;
 using Shared.Utils;
 
 namespace Shared.Extensions;
@@ -12,7 +13,9 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddNpgsqlDatabase<TContext>(
         this IServiceCollection services, IConfiguration config,
         string connectionString = "DefaultConnection",
-        Action<NpgsqlDbContextOptionsBuilder>? ctxOptionsBuilder = null)
+        Action<DbContextOptionsBuilder>? optionsAction = null,
+        Action<NpgsqlDbContextOptionsBuilder>? ctxOptionsBuilder = null,
+        bool addTelemetryInterceptor = true)
         where TContext : DbContext
     {
         var connStr = config.GetConnectionString(connectionString);
@@ -24,6 +27,12 @@ public static class InfrastructureExtensions
         services.AddDbContext<TContext>(options =>
         {
             options.UseNpgsql(connStr, ctxOptionsBuilder);
+            optionsAction?.Invoke(options);
+
+            if (addTelemetryInterceptor)
+            {
+                options.AddInterceptors(new TelemetryDbInterceptor());
+            }
         });
 
         return services;

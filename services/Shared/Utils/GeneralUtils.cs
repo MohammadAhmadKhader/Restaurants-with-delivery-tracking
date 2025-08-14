@@ -66,6 +66,7 @@ public static class GeneralUtils
     {
         var assemblyName = Assembly.GetEntryAssembly()?.GetName();
         GuardUtils.ThrowIfNull(assemblyName);
+        
         var serviceName = assemblyName?.Name;
         GuardUtils.ThrowIfNull(serviceName);
 
@@ -75,6 +76,15 @@ public static class GeneralUtils
         }
 
         return serviceName;
+    }
+
+    public static string? GetServiceVersion<TProgram>()
+        where TProgram: class
+    {
+        var assembly = typeof(TProgram).Assembly;
+        var version = assembly.GetName().Version;
+        
+        return version?.ToString();
     }
 
     public static async Task ActionOnThrowAsync(Func<Task> func, Action actionOnThrow, bool shouldLog = true)

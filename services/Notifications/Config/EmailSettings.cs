@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Shared.Contracts.Attributes;
 
 namespace Notifications.Config;
 
@@ -12,6 +13,7 @@ public class EmailSettings
     public int Port { get; set; }
 
     [Required(ErrorMessage = "Password is required.")]
+    [Masked]
     public string Password { get; set; } = null!;
 
     [Required(ErrorMessage = "FromEmail is required.")]
@@ -19,6 +21,7 @@ public class EmailSettings
     public string FromEmail { get; set; } = null!;
 
     [Required(ErrorMessage = "UserName is required.")]
+    [Masked]
     public string UserName { get; set; } = null!;
 
     [Required(ErrorMessage = "SmtpServer is required.")]
